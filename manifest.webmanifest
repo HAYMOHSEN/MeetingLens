@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "MeetingLens — Camera Preview Studio",
+  "short_name": "MeetingLens",
+  "description": "A local camera-preview studio for natural lighting, color, and composition adjustments before a meeting.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "orientation": "any",
+  "categories": ["productivity", "photo", "utilities"],
+  "icons": [
+    { "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/icons/meetinglens-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/icons/meetinglens-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Start Camera", "short_name": "Camera", "description": "Open the camera preview", "url": "./?action=camera", "icons": [{ "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192" }] },
+    { "name": "Background Tools", "short_name": "Background", "description": "Open preview scenes", "url": "./?screen=background", "icons": [{ "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192" }] },
+    { "name": "Privacy Shield", "short_name": "Privacy", "description": "Open privacy controls", "url": "./?screen=privacy", "icons": [{ "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192" }] }
+  ],
+  "screenshots": [
+    { "src": "./assets/store-assets/screenshots/01-studio-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "MeetingLens Studio" },
+    { "src": "./assets/store-assets/screenshots/02-looks-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Natural enhancement controls" },
+    { "src": "./assets/store-assets/screenshots/03-background-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Background preview tools" },
+    { "src": "./assets/store-assets/screenshots/04-privacy-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Privacy Shield" }
+  ]
+}
