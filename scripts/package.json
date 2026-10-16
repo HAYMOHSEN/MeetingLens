@@ -1,24 +1,24 @@
 {
-  "name": "meetinglens-pwa",
+  "name": "rasmora-studio",
+  "version": "5.0.3-rc.1",
   "private": true,
-  "version": "3.0.1",
-  "description": "Local camera effects, photo editing, whiteboard capture and session tools for MeetingLens.",
+  "description": "Offline-capable painting, illustration, animation and 3D PWA with optional AI and private Team services",
   "scripts": {
-    "capture:store-assets": "node scripts/capture-store-assets.mjs",
-    "generate:store-art": "node scripts/generate-store-art.cjs",
-    "test": "node scripts/verify-studio.cjs && node scripts/verify-offline.cjs",
-    "test:offline": "node scripts/verify-offline.cjs",
-    "test:backgrounds": "node scripts/verify-backgrounds.cjs",
-    "test:advanced": "node scripts/verify-advanced.cjs",
-    "test:session": "node scripts/verify-session.cjs",
-    "test:photo": "node scripts/verify-photo-workbench.cjs",
-    "test:native-report": "node scripts/verify-native-report.cjs",
-    "test:offline-tools": "node scripts/verify-offline-tools.cjs",
-    "test:release": "node scripts/verify-release.cjs",
-    "test:vision": "node assets/vendor/vision/verify-vision.cjs"
+    "start": "node ai-bridge.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "build": "node build-3d.cjs",
+    "team": "node team-server.cjs"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "devDependencies": {
-    "@napi-rs/canvas": "^0.1.80",
-    "playwright": "^1.54.0"
+    "@napi-rs/canvas": "0.1.100",
+    "linkedom": "0.18.13",
+    "three": "0.186.1",
+    "three-gpu-pathtracer": "0.0.27",
+    "three-mesh-bvh": "0.9.15",
+    "xatlas-web": "0.1.0",
+    "esbuild": "0.28.2"
   }
 }

@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-16T19:14:11.771Z",
+  "findings": [
+    {
+      "id": "TEAM-01",
+      "detail": "Edits made while publishing are missing from the shared project while the client says up to date."
+    },
+    {
+      "id": "3D-01",
+      "detail": "A failed texture decode replaces the current scene before validation finishes, losing existing meshes."
+    },
+    {
+      "id": "3D-02",
+      "detail": "Duplicate bypasses the 200,000-triangle limit; the saved scene can exceed its reopen limit (234496 triangles)."
+    },
+    {
+      "id": "browser-errors",
+      "detail": []
+    }
+  ],
+  "errors": []
+}

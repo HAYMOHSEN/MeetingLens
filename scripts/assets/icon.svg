@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Rasmora Studio">
+  <defs><linearGradient id="r" x1=".08" y1=".04" x2=".95" y2="1"><stop stop-color="#a18aff"/><stop offset=".5" stop-color="#65d7d1"/><stop offset="1" stop-color="#f2bb78"/></linearGradient></defs>
+  <rect width="256" height="256" rx="58" fill="#17191f"/>
+  <path d="M69 194V62h65c35 0 55 18 55 46 0 21-12 37-32 43l39 43h-42l-34-39h-18v39H69Zm33-102v35h29c16 0 25-6 25-18s-9-17-25-17h-29Z" fill="url(#r)"/>
+  <path d="m169 170 27 24-33-5 6-19Z" fill="#f5e6d2"/>
+</svg>

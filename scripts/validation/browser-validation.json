@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-16T19:34:48.739Z",
+  "browser": "153.0.8010.0",
+  "platform": "Linux headless Chromium; Windows hardware and Store installer not tested",
+  "checks": [
+    "1366\u00d7768 layout: New, drawing, undo and redo work",
+    "Editable project download and reopen preserve painted pixels",
+    "Real browser downloads the corrected PDF",
+    "Invalid image import shows an error and preserves artwork",
+    "A delayed image import cannot contaminate a newly created document",
+    "A real malformed PNG in a later frame rolls back the complete project",
+    "Animation WebM, frame sequence and speedpaint WebM produce real downloads",
+    "AI server failure preserves artwork; saved projects exclude credentials; launcher serves privacy page",
+    "Edits during upload remain dirty and automatically publish in the next revision",
+    "Two-client incoming sync includes title-only edits",
+    "Feedback, resolution and disconnect controls work",
+    "3D sculpting, undo and redo restore exact vertices",
+    "Failed 3D imports preserve the original scene and permit retry",
+    "Duplicate enforces the advertised scene triangle limit",
+    "Oversized 3D scenes are blocked before creating an unreadable save",
+    "UV unwrap and duplicated editable texture layers remain independent",
+    "GLB keeps rig animation even when another mesh is selected",
+    "GitHub-style subfolder deployment works offline for 2D, 3D and bilingual privacy",
+    "Raster viewport PNG exports and decodes before path tracing"
+  ],
+  "errors": [],
+  "httpErrors": [
+    {
+      "url": "http://127.0.0.1:8797/api/image-edit",
+      "status": 503
+    }
+  ],
+  "notes": [
+    "Nineteen workflow checks passed across two browser sessions. Viewport PNG export after path tracing timed out in both the combined run and a fresh session on software graphics. Raster export before tracing passed. The post-tracing path remains unverified and blocks release acceptance."
+  ],
+  "completed": false,
+  "remaining_check_error": "locator.click: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#s3PNG')\u001b[22m\n\u001b[2m    - locator resolved to <button id=\"s3PNG\" class=\"button\">Export viewport PNG</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n",
+  "audit_completed": true,
+  "all_workflows_passed": false
+}

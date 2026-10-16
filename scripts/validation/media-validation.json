@@ -1,0 +1,55 @@
+[
+  {
+    "file": "animation.webm",
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "vp9",
+        "width": 1200,
+        "height": 900,
+        "nb_read_frames": "20"
+      }
+    ],
+    "format": {
+      "size": "35677"
+    }
+  },
+  {
+    "file": "speedpaint.webm",
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "vp9",
+        "width": 1200,
+        "height": 900,
+        "nb_read_frames": "7"
+      }
+    ],
+    "format": {
+      "size": "16166"
+    }
+  },
+  {
+    "file": "frames.zip",
+    "frames": 10,
+    "crc_check": "passed",
+    "timing_metadata": true
+  },
+  {
+    "file": "render.png",
+    "format": "PNG",
+    "size": [
+      712,
+      600
+    ],
+    "non_uniform_pixels": true
+  },
+  {
+    "file": "browser-proof.pdf",
+    "strict_pdf_parse": "passed",
+    "rendered_dimensions": [
+      288,
+      216
+    ]
+  }
+]

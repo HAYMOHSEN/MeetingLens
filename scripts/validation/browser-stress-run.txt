@@ -1,0 +1,70 @@
+PASS 1366×768 layout: New, drawing, undo and redo work
+CHECK download saveProjectBtn
+PASS Editable project download and reopen preserve painted pixels
+CHECK download exportBtn
+PASS Real browser downloads the corrected PDF
+PASS Invalid image import shows an error and preserves artwork
+PASS A delayed image import cannot contaminate a newly created document
+PASS A real malformed PNG in a later frame rolls back the complete project
+CHECK Orbital opened
+CHECK download exportAnimation
+CHECK download exportFrames
+CHECK download exportTimelapse
+PASS Animation WebM, frame sequence and speedpaint WebM produce real downloads
+AI expected failure: Set OPENAI_API_KEY in the bridge server environment first
+PASS AI server failure preserves artwork; saved projects exclude credentials; launcher serves privacy page
+PASS Edits during upload remain dirty and automatically publish in the next revision
+PASS Two-client incoming sync includes title-only edits
+PASS Feedback, resolution and disconnect controls work
+PASS 3D sculpting, undo and redo restore exact vertices
+CHECK download s3Save
+PASS Failed 3D imports preserve the original scene and permit retry
+PASS Duplicate enforces the advertised scene triangle limit
+PASS Oversized 3D scenes are blocked before creating an unreadable save
+CHECK download s3Save
+CHECK download s3Save
+PASS UV unwrap and duplicated editable texture layers remain independent
+CHECK download s3GLB
+PASS GLB keeps rig animation even when another mesh is selected
+CHECK download s3PNG
+FAILED: locator.click: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('#s3PNG')[22m
+[2m    - locator resolved to <button id="s3PNG" class="button">Export viewport PNG</button>[22m
+[2m  - attempting click action[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - performing click action[22m
+
+    at click (/workspace/scratch/39b4e0802e68/shipping-browser-audit.cjs:6:91)
+    at download (/workspace/scratch/39b4e0802e68/shipping-browser-audit.cjs:8:128)
+    at run (/workspace/scratch/39b4e0802e68/shipping-browser-audit.cjs:35:175) {
+  log: [
+    "  - waiting for locator('#s3PNG')",
+    '    - locator resolved to <button id="s3PNG" class="button">Export viewport PNG</button>',
+    '  - attempting click action',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - performing click action'
+  ],
+  name: 'TimeoutError'
+}
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForEvent: Timeout 30000ms exceeded while waiting for event "download"
+=========================== logs ===========================
+waiting for event "download"
+============================================================
+    at download (/workspace/scratch/39b4e0802e68/shipping-browser-audit.cjs:8:81)
+    at run (/workspace/scratch/39b4e0802e68/shipping-browser-audit.cjs:35:175) {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

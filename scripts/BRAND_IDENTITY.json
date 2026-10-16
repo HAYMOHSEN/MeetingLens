@@ -1,0 +1,20 @@
+{
+  "product_name": "Rasmora Studio",
+  "short_name": "Rasmora",
+  "arabic_brand": "رسمورا ستوديو",
+  "tagline_en": "Draw. Paint. Create in 3D.",
+  "tagline_ar": "ارسم. لوّن. أبدع بثلاثة أبعاد.",
+  "release": "5.0.3-rc.1",
+  "reserved_name_status": "Confirmed by publisher on 2026-10-16",
+  "palette": {
+    "ink": "#17191f",
+    "violet": "#a18aff",
+    "teal": "#65d7d1",
+    "warm": "#f2bb78"
+  },
+  "project_extensions": [
+    ".rasmora.json",
+    ".rasmora3d.json",
+    ".rasmora-brushpack.json"
+  ]
+}

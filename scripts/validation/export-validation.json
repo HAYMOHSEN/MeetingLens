@@ -1,0 +1,60 @@
+[
+  {
+    "file": "proof.pdf",
+    "pages": 1,
+    "rendered": true,
+    "size_pts": [
+      288.0,
+      216.0
+    ]
+  },
+  {
+    "file": "white.pdf",
+    "pages": 1,
+    "rendered": true,
+    "size_pts": [
+      288.0,
+      216.0
+    ]
+  },
+  {
+    "file": "white.jpg",
+    "format": "JPEG",
+    "mode": "RGB",
+    "size": [
+      1200,
+      900
+    ],
+    "pixels_checked": true
+  },
+  {
+    "file": "white.tiff",
+    "format": "TIFF",
+    "mode": "RGB",
+    "size": [
+      1200,
+      900
+    ],
+    "pixels_checked": true
+  },
+  {
+    "file": "white.psd",
+    "format": "PSD",
+    "mode": "RGB",
+    "size": [
+      1200,
+      900
+    ],
+    "pixels_checked": true
+  },
+  {
+    "file": "alpha.png",
+    "format": "PNG",
+    "mode": "RGBA",
+    "size": [
+      1200,
+      900
+    ],
+    "pixels_checked": true
+  }
+]

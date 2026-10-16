@@ -1,0 +1,54 @@
+RASMORA STUDIO 5.0.1 — BRANDING UPDATE
+Reserved product name: Rasmora Studio
+Arabic brand rendering: رسمورا ستوديو
+
+Updated application name, installed-app metadata, app icon, wordmarks, export
+names, launchers, optional server labels, offline cache and Store materials.
+New saves use .rasmora.json, .rasmora3d.json and Rasmora brush-pack names.
+Existing ArtProof 2D/3D projects and brush packs still open. Legacy service
+environment variables remain accepted; the documented RASMORA_ names take
+precedence. File-format schema versions remain unchanged for compatibility.
+
+The product name has been reported as reserved by the publisher. No Store
+submission, public deployment or Windows package signing is performed here.
+
+DESKTOP WORKSPACE FEATURES
+
+ADDED
+• Free 2D canvas-view rotation, fit-to-view and Ctrl+wheel zoom. Rotation affects the view, not exported artwork.
+• A WebGL 2 3D Studio: clay/carve, smooth and flatten brushes, mirrored sculpting, surface-following 3D sketch strokes, primitive meshes and object transforms.
+• Layered texture painting on the model and UV canvas, imported PNG brush alphas, base-colour/roughness/metallic/normal maps, and 2D-artwork-to-texture transfer.
+• xatlas UV island generation and packing for meshes up to 20,000 vertices.
+• Studio lighting, environment lighting, progressive GPU path tracing, PNG renders and a manual render handoff.
+• A simple automatically weighted four-bone rig, pose keys and GLB animation export.
+• Embedded GLB, OBJ and FBX import; GLB export; OBJ export with preserved quad faces for generated vase and torus meshes.
+• Separate editable .rasmora3d.json scene files, including texture layers. 2D .rasmora.json projects remain supported.
+• An optional private Team server with durable revision storage, comments, resolution of feedback, outbound auto-save every five seconds and optional incoming sync checks every two seconds. Revision conflicts block overwriting other changes.
+
+FIXED
+• Studio tabs now remain visible in a grid.
+• Long vector lists scroll within their panel.
+• Reopened reference-guide controls match the saved document.
+• Downloads generated during animation/time-lapse export remain clickable while canvas editing is temporarily locked.
+
+ALREADY INCLUDED
+Custom brush dynamics/flow/opacity; Rasmora JSON brush packs; pressure/tilt/rotation when exposed by the pen and browser; masks, clipping masks, alpha lock and blend modes; non-destructive adjustments; editable Bézier paths; Arabic–English text; selections, transforms, painting, guides, symmetry, frame animation and speedpaint capture.
+
+SCOPE AND LIMITS
+This remains an installable PWA, not a signed Windows installer. Windows packaging, actual pen/tablet tests and Store certification are separate steps.
+
+3D scenes are limited to 200,000 triangles; imports to 30 MB; textures to 12 editable paint layers per mesh. Performance depends on hardware. No promise of million-polygon, lag-free sculpting is made. Generated quad faces are preserved for certain primitives; automatic production retopology is not included. Imported advanced materials, animations and external texture references are not guaranteed to round-trip. Use embedded GLB and validate exports in your destination app.
+
+The included rig is a simple vertical four-bone setup, not AI character autorigging. 3D sketching records strokes on mesh surfaces. It is not Blender Grease Pencil or a complete 3D animation suite. The path tracer is local; a cloud render farm is not connected. The render handoff is an exported GLB plus settings, not a submitted render job.
+
+Team sync shares complete 2D project revisions, not simultaneous brush-stroke merges or 3D scenes. Incoming auto-sync begins only after opening or publishing a shared revision and stops when local edits exist. Shared projects are limited to 30 MB. Local 2D projects retain the 100 MB limit. Hosting, TLS, durable storage, user management and backups are the operator's responsibility; no cloud subscription is included. The shared token is for a small trusted team, not public multi-tenant hosting.
+
+AI image edits remain optional and require the included bridge, a server-side API key, compatible model access and provider charges. AI-generated texture imagery can be applied from the 2D workspace; AI rigging and semantic 3D retopology are not implemented.
+
+Monitor gamut/calibration, tablet pressure resolution, GPU/RAM capacity, drawing gloves, stands and shortcut remotes are hardware properties. The app exposes supported input and shortcuts; it cannot add or certify these hardware capabilities.
+
+EXPORT NOTES
+The raster document is 1200 × 900; larger raster exports resample that document. PSD is flattened RGB. The CMYK PDF is a Device-CMYK proof, not ICC-managed PDF/X. SVG retains supported vector paths and text; embedded painting stays raster. The interface is English; document text supports Arabic and English using installed fonts.
+
+VALIDATION
+See the Store kit's validation folder for the actual automated test output, browser workflow checks and capture log. These records describe the tested environment and do not claim Windows certification or live paid AI validation.

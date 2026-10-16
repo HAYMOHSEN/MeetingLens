@@ -1,0 +1,53 @@
+RASMORA STUDIO — RELEASE CANDIDATE 5.0.3-rc.1
+Pre-release audit: 16 October 2026
+
+STATUS
+Ten issue groups were addressed and verified locally. Viewport PNG export
+after path tracing still timed out in two software-rendered browser runs.
+That workflow remains an open release acceptance blocker. They have not been published
+by this audit. Do not submit the current live build as the corrected release.
+Read release-audit.html for findings, evidence and remaining Windows tests.
+
+APPLY TO GITHUB PAGES
+1. Save any open 2D project and 3D scene. Download a backup of the repository.
+2. Extract this ZIP and compare changes with your current repository.
+   Base: adb4af2ca04404c75212d6a205246f69f24b70cb (main, 16 October 2026).
+3. Upload the package contents to the root of:
+   https://github.com/HAYMOHSEN/Rasmora-Studio
+   Keep the assets/, licenses/, tests/ and validation/ folder paths intact.
+   Replace existing files; do not delete your saved artwork or server data.
+4. Commit the changes and wait for GitHub Pages to complete deployment.
+5. Save your artwork, then close all Rasmora tabs and installed app windows.
+   Reopen the app online. After the offline update finishes, close and reopen
+   it once more if needed. The new offline cache is rasmora-studio-v12.
+6. On the deployed site, verify New is white, draw/undo/redo, save/reopen a
+   project, open an exported PDF, export a short speedpaint, and load 3D.
+   Check Privacy, then disconnect the network and reopen the installed app.
+
+FILES THAT CHANGE RUNTIME BEHAVIOUR
+index.html, creative-studio.js, creative-studio.css, extended-studio.js,
+studio3d.src.js, studio3d.bundle.js, ai-bridge.cjs and sw.js.
+The source and compiled 3D bundle must be kept together for future rebuilds.
+The complete ZIP also contains the existing runtime assets and notices.
+
+WINDOWS RELEASE GATES
+Test the installed PWA/package on the Windows versions and GPUs you support.
+Test Surface/Wacom pen pressure, tilt, palm rejection, touch, keyboard input,
+display scaling, a long editing session, and save/reopen with realistic work.
+Validate the actual Store package installation, upgrade and uninstall flow.
+This package contains a PWA and optional Node services, not a signed MSIX/EXE.
+For AI or hosted Team claims, configure and test the production services.
+No paid AI call or production service deployment was performed in this audit.
+Keep product claims aligned with the documented limits in README.md.
+
+DEVELOPER CHECKS
+npm install
+npm test
+npm run build
+The included regression suite passed 67 tests in Node 24.19.0. Real browser
+workflows ran in Chromium 153 on Linux. This does not certify Windows drivers.
+
+DEPLOYMENT ACCESS
+The connected GitHub integration previously refused writes with HTTP 403
+(Resource not accessible by integration). No remote changes were made here.
+Use the prepared package to update the repository through your normal account.

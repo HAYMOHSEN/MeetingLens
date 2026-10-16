@@ -1,0 +1,112 @@
+{
+  "candidate_version": "5.0.3-rc.1",
+  "date_utc": "2026-10-16T19:42:37.284548+00:00",
+  "baseline_commit": "adb4af2ca04404c75212d6a205246f69f24b70cb",
+  "deployment": "Local candidate only; not published by this audit",
+  "decision": "Hold release; ten issue groups addressed, post-tracing viewport export remains an open acceptance blocker",
+  "automated_tests": {
+    "passed": 67,
+    "failed": 0,
+    "new_regression_tests": 7
+  },
+  "browser_workflow_checks": 19,
+  "remaining_observation": "Viewport PNG export after path tracing timed out in both combined and fresh browser sessions on software graphics. Raster export before tracing passed. Post-tracing export remains unverified and requires investigation on supported Windows hardware.",
+  "environment": {
+    "node": "24.19.0",
+    "chromium": "153.0.8010.0",
+    "os": "Linux headless",
+    "web_security": "enabled"
+  },
+  "issues": [
+    {
+      "id": "PDF-01",
+      "severity": "High",
+      "issue": "PDF downloads could not be opened",
+      "cause": "The PDF writer emitted literal backslash-n characters instead of PDF line breaks.",
+      "fix": "Fixed PDF syntax and cross-reference offsets. Strict parsing and independent rendering pass.",
+      "evidence": "Automated regression; real browser download; pypdf and MuPDF."
+    },
+    {
+      "id": "SYNC-01",
+      "severity": "High",
+      "issue": "Edits made during Team publishing could be missed",
+      "cause": "The client marked the current state as saved after an older snapshot finished uploading; title-only edits were not tracked.",
+      "fix": "Track the submitted revision separately, keep later edits pending, include title changes, and pin/abort connections when disconnecting.",
+      "evidence": "Two browser clients; delayed upload; automatic next revision; title-only receiving; feedback."
+    },
+    {
+      "id": "3D-01",
+      "severity": "High",
+      "issue": "A failed 3D import could replace existing work",
+      "cause": "The current scene was cleared before saved texture images finished decoding.",
+      "fix": "Validate and decode the replacement first. A failed import preserves the scene and clears the file input for retry.",
+      "evidence": "Reproduced on the baseline; malformed texture import preserves both existing meshes in the candidate."
+    },
+    {
+      "id": "SAVE-01",
+      "severity": "High",
+      "issue": "The app could create files outside its own reopen limits",
+      "cause": "3D duplication bypassed the 200,000-triangle limit; scene saves lacked the 30 MB limit; brush totals could exceed the project validator’s 100-brush limit.",
+      "fix": "Enforce duplicate and scene-save limits, cap custom brushes across imports, and validate 2D frames before saving.",
+      "evidence": "Baseline reached 234,496 triangles; candidate boundary browser checks and brush/save regressions pass."
+    },
+    {
+      "id": "3D-02",
+      "severity": "Medium",
+      "issue": "Duplicated texture paint lost editable layer state",
+      "cause": "Mesh duplication copied the material but did not clone its paint-layer canvases.",
+      "fix": "Clone the layer stack and canvases independently. Initialize the base-colour export canvas.",
+      "evidence": "UV unwrap; save original and copy; compare layer data; repaint copy without changing original."
+    },
+    {
+      "id": "3D-03",
+      "severity": "Medium",
+      "issue": "GLB export could omit an existing rig animation",
+      "cause": "Animation export depended on the currently selected mesh being the rig.",
+      "fix": "Track the rig target separately and export its pose keys even when another mesh is selected.",
+      "evidence": "Exported GLB contains skins and animation with an unrigged cube selected."
+    },
+    {
+      "id": "VIDEO-01",
+      "severity": "Medium",
+      "issue": "Very short speedpaints could export an empty video",
+      "cause": "The browser encoder could finish before producing a frame for a very short clip.",
+      "fix": "Hold the final frame until at least 500 ms for short exports.",
+      "evidence": "Empty-video error reproduced; corrected one-stage WebM independently decoded with ffprobe."
+    },
+    {
+      "id": "EXPORT-01",
+      "severity": "Medium",
+      "issue": "Several export options were ignored or produced wrong backgrounds",
+      "cause": "Guides were missing at master size or misplaced in resized output; SVG ignored transparency; opaque formats did not consistently flatten empty pixels to white.",
+      "fix": "Draw guides before resizing, pass transparency through SVG, and composite white for JPG/TIFF/PSD/PDF.",
+      "evidence": "Pixel regressions, SVG embedded-image check, and independently opened PNG/JPG/TIFF/PSD/PDF files."
+    },
+    {
+      "id": "IMPORT-01",
+      "severity": "Medium",
+      "issue": "Image and project imports had incomplete failure handling",
+      "cause": "A delayed image could land after a new document was created; invalid images lacked a useful error; later-frame failure could retain the rejected title/onion state.",
+      "fix": "Bind image decoding to its starting document, show decode errors, release temporary URLs, and restore project metadata on failure.",
+      "evidence": "Real malformed PNG, delayed decode after New, artwork comparisons and rollback regression."
+    },
+    {
+      "id": "PRIVACY-01",
+      "severity": "Medium",
+      "issue": "Privacy information was hard to reach from the app",
+      "cause": "The local launcher did not serve privacy.html and the page was not part of the offline cache.",
+      "fix": "Add app, AI and Team privacy links; serve and precache the existing bilingual page; advance the cache to v12.",
+      "evidence": "Local launcher response, new-tab privacy opening, RTL content and offline subfolder navigation."
+    }
+  ],
+  "not_verified": [
+    "Windows installation/upgrade/uninstall",
+    "Surface/Wacom pen and palm rejection",
+    "Windows GPUs and display scaling",
+    "Sustained large-project performance",
+    "Screen-reader/manual accessibility",
+    "Paid AI output",
+    "Hosted Team/TLS/backup operations",
+    "Store certification"
+  ]
+}

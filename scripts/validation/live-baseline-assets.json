@@ -1,0 +1,65 @@
+[
+  {
+    "path": "index.html",
+    "status": 200,
+    "bytes": 164155,
+    "mime": "text/html; charset=utf-8",
+    "matches_repo": true
+  },
+  {
+    "path": "sw.js",
+    "status": 200,
+    "bytes": 1400,
+    "mime": "application/javascript; charset=utf-8",
+    "matches_repo": true
+  },
+  {
+    "path": "manifest.webmanifest",
+    "status": 200,
+    "bytes": 808,
+    "mime": "application/manifest+json; charset=utf-8",
+    "matches_repo": true
+  },
+  {
+    "path": "privacy.html",
+    "status": 200,
+    "bytes": 29653,
+    "mime": "text/html; charset=utf-8",
+    "matches_repo": true
+  },
+  {
+    "path": "creative-studio.js",
+    "status": 200,
+    "bytes": 91601,
+    "mime": "application/javascript; charset=utf-8",
+    "matches_repo": true
+  },
+  {
+    "path": "studio3d.bundle.js",
+    "status": 200,
+    "bytes": 1135908,
+    "mime": "application/javascript; charset=utf-8",
+    "matches_repo": true
+  },
+  {
+    "path": "assets/xatlas-web.wasm",
+    "status": 200,
+    "bytes": 113352,
+    "mime": "application/wasm",
+    "matches_repo": true
+  },
+  {
+    "path": "assets/icon-192.png",
+    "status": 200,
+    "bytes": 7299,
+    "mime": "image/png",
+    "matches_repo": true
+  },
+  {
+    "path": "assets/icon-512.png",
+    "status": 200,
+    "bytes": 24366,
+    "mime": "image/png",
+    "matches_repo": true
+  }
+]

@@ -1,0 +1,29 @@
+RASMORA TEAM — OPTIONAL PRIVATE SYNC AND FEEDBACK
+
+Local test
+1. Start the app with Start_Rasmora.cmd (or node ai-bridge.cjs).
+2. In a second terminal, run node team-server.cjs, or Start_Team_Server.cmd.
+3. Open Team in the app. Keep the server URL http://127.0.0.1:8790 and paste the team token printed by that server. This is a team token, not your AI provider key.
+4. Choose a room ID and Connect. Publish this revision to upload your entire 2D project.
+5. Another browser using the same server, token and room can open the shared revision and post feedback. Test locally in two windows before enabling automatic sync.
+
+Automatic sync
+The publish checkbox sends committed changes about every five seconds. Incoming updates are checked about every two seconds. Enable the incoming checkbox after opening or publishing a shared revision to receive revisions automatically while you have no local edits. Conflicting saves are rejected. Save a local backup before replacing your work with a shared revision.
+
+This is revision-based sharing. It does not merge simultaneous drawing strokes, provide cursors/presence, or sync 3D files. Comments refer to a shared revision and can be resolved. The room retains its latest project and comments; it is not a historical version archive. Keep independent backups.
+
+Hosting
+The service uses Node.js 22+ and built-in modules. It listens on localhost by default. For a private hosted installation, configure these variables in the server environment:
+
+RASMORA_TEAM_TOKEN — a stable, separate random secret, 24–256 characters. All trusted team members using that installation share this access token. There are no individual accounts or per-room roles.
+RASMORA_ALLOWED_ORIGIN — the exact HTTPS origin of your hosted app, without a trailing slash.
+RASMORA_TEAM_HOST — the listening interface, such as 0.0.0.0 behind your HTTPS reverse proxy.
+RASMORA_TEAM_PORT — service port (default 8790).
+RASMORA_TEAM_DATA_DIR — an absolute path on durable server storage. Back up this directory. Do not serve it as public web content.
+
+Serve the app on HTTPS and terminate TLS in your hosting platform or reverse proxy. The client rejects unencrypted remote endpoints. Configure access controls and rate limits at your private deployment boundary before sharing it. No hosting has been deployed by this delivery.
+
+Privacy and limits
+Publishing sends the complete 2D project, including embedded artwork, reference guides, frames and captured speedpaint stages. The service stores these files on its configured disk. AI credentials are not part of Rasmora projects. Comments and display names are also stored. There is no end-to-end encryption; HTTPS protects transport when configured. Shared projects have a 30 MB request limit and rooms a 500-comment limit. Use a new room or export locally when a limit is reached.
+
+For public or untrusted teams, add individual authentication, access roles, retention/deletion controls, storage quotas and operational monitoring before deployment.
