@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#191d2e">
+  <title>MeetingLens Privacy Policy</title>
+  <link rel="stylesheet" href="./assets/styles/app.css">
+</head>
+<body class="policy-page">
+  <main class="policy-card">
+    <a class="back-link" href="./">← Back to MeetingLens</a>
+    <p class="eyebrow">Privacy policy · Version 3.0.1 · 16 October 2026</p>
+    <h1>Your camera, photos, and audio stay on your device.</h1>
+    <p>MeetingLens is a local camera studio and photo editor. It has no user account, advertising service, built-in analytics, or cloud inference endpoint. The app does not upload camera frames, microphone audio, imported images, reference photos, or capability reports to its publisher.</p>
+
+    <h2>Camera and local vision</h2>
+    <p>Camera access is requested when you choose to start it. Frames are processed locally to display the preview, apply adjustments, detect face landmarks for framing and modest refinement, and segment the foreground for background blur. The bundled face and segmentation models run on the device through a browser worker and WebAssembly. These tools detect image regions; they do not identify who you are or create a face-recognition account.</p>
+    <p>You can stop capture using Stop or Privacy Shield. The default camera setting also stops capture when the app is hidden; you can change that camera preference. Camera restart requires your action. Your browser and Windows also provide camera-permission controls. Basic preview bypasses MeetingLens effects, but cannot promise removal of effects already applied by Windows or the camera driver.</p>
+
+    <h2>Optional microphone check and recording</h2>
+    <p>Microphone permission is separate from camera permission and is requested only when you start the microphone check. The browser can apply supported noise suppression, echo cancellation, and automatic gain control to a local level meter and test recording. No microphone audio is sent to a server or to another meeting app.</p>
+    <p>Recording begins only when you choose Record and is limited to 60 seconds. A temporary local audio clip can be played, downloaded, or discarded. Stopping the microphone releases its tracks and stops recording; a completed clip remains available until discarded or replaced. Hiding the app or using Privacy Shield releases capture tracks and clears the temporary test clip. Downloaded recordings remain under your control on your device.</p>
+
+    <h2>Imported photos and whiteboards</h2>
+    <p>Photos and color-reference images you choose are decoded and edited locally. Tone enhancement, color matching, brush inpainting, manual retouching, optional facial-landmark assistance, and whiteboard perspective correction use on-device processing. Up to eight photos are held in the current page, resized to a maximum 2048-pixel edge. Edits are not automatically saved as a cloud album. Exported JPEGs and ZIP sets are downloaded only when you choose to save them.</p>
+
+    <h2>Settings and presets</h2>
+    <p>Visual preferences and saved presets use browser-local storage. Preset files you import are validated and read locally; they are not synchronized to a cloud account. Delete saved presets in the app or clear the site's browser data to remove stored preferences. Clearing site data may also remove offline files and browser snapshot backups.</p>
+
+    <h2>Snapshots and optional backup</h2>
+    <p>Snapshots download as PNG or JPEG when you request capture, immediately or after your chosen countdown. Automatic backup is off until you opt in for the current session. You can select a writable local folder in a supported browser, or enable browser-local IndexedDB backups. Browser backups keep the latest 50 stills, with controls to download or delete them. Folder backups write to the location you explicitly permit and remain there until you remove them. Turning backup off does not delete previously saved images.</p>
+    <p>Browser storage can be cleared, evicted, or become unavailable; it is not guaranteed archival storage. Download files and important backups to a location you control. Deleting browser site data does not delete files from Downloads or a selected folder.</p>
+
+    <h2>QR content and clipboard</h2>
+    <p>QR decoding runs locally on the current preview using a browser detector or the bundled jsQR decoder. Decoded content is displayed for review. The app writes it to the system clipboard only when you choose Copy, or enable the option to copy newly decoded links automatically. The app does not open decoded links automatically. Clipboard access is subject to browser and operating-system permissions; clipboard contents may be available to other software under their own permissions.</p>
+
+    <h2>Windows settings and capability reports</h2>
+    <p>The Windows camera page opens camera or sound settings only when you click a settings link. A capability report you choose to import is validated and shown locally in that tab, without upload or persistent storage by the report viewer. The separate native companion's report contains device/capability information, a hashed device identifier, and available modes; it contains no captured video or audio. A report is a snapshot, not a live connection or automatic control of Windows.</p>
+
+    <h2>Sample imagery</h2>
+    <p>The labeled sample person is fictional and AI-generated. The six bundled interior photographs are demo assets. Using the sample does not activate the camera. Replacement scenes apply to the sample portrait; live-camera background blur uses local segmentation.</p>
+
+    <h2>Offline files and hosting</h2>
+    <p>The app caches its static interface, icons, sample imagery, vision models, and QR decoder after a successful first load. These cached files are app resources, not recordings of you. The website hosting provider receives ordinary page and static-file requests and may process normal request metadata under its own privacy policy. Local camera, photo, microphone, and report contents are not included in those requests by MeetingLens.</p>
+
+    <h2>Meeting-app scope</h2>
+    <p>The PWA processes its own preview and local test audio. It does not create a virtual camera or virtual microphone, and does not route enhanced video or audio into other meeting applications. Separate native source projects have their own hardware requirements and remain separate from the PWABuilder package.</p>
+
+    <h2>Contact</h2>
+    <p><strong>Required before publication:</strong> replace this paragraph with the real publisher name and a working support email or public support page.</p>
+    <p class="policy-note">Publisher contact is not yet supplied. Complete and review this policy against the shipped app before public release or Store submission.</p>
+  </main>
+</body>
+</html>

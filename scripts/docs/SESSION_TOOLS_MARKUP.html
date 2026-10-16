@@ -1,0 +1,34 @@
+<!-- Insert inside #session-panel; include session-tools.css and session-tools.js. -->
+<div id="sessionToolsPanel" class="session-tools">
+  <article class="session-tool-card">
+    <div class="session-tool-heading"><span class="session-tool-symbol" aria-hidden="true">◉</span><div><h3>Voice clarity</h3><p>A private microphone check</p></div><span class="session-tool-tag">LOCAL TEST</span></div>
+    <p class="session-tool-copy">Test your browser’s noise suppression, echo cancellation and automatic gain. Microphone access starts only when you choose Start mic.</p>
+    <div class="session-meter-row"><meter id="voiceMeter" min="0" max="1" value="0" aria-label="Microphone input level"></meter><span id="voiceLevelLabel">Mic off</span></div>
+    <div class="session-button-row"><button class="control-button" id="voiceStartButton" type="button">Start mic</button><button class="control-button" id="voiceMuteButton" type="button" disabled aria-pressed="false">Mute</button><button class="control-button" id="voiceStopButton" type="button" disabled>Stop mic</button></div>
+    <div class="session-button-row"><button class="control-button" id="voiceRecordButton" type="button" disabled>Record test</button><button class="control-button" id="voiceRecordStopButton" type="button" disabled>Finish recording</button><span class="session-duration" id="voiceDuration">Up to 60 seconds</span></div>
+    <p class="session-tool-status" id="voiceStatus" role="status" aria-live="polite">Microphone off. No audio is sent anywhere.</p>
+    <div id="voicePlaybackWrap" class="voice-playback" hidden><audio id="voicePlayback" controls preload="metadata" aria-label="Your microphone test recording"></audio><a class="session-text-link" id="voiceDownloadLink" download="meetinglens-voice-test.webm">Download test</a><button class="session-text-link" id="voiceDiscardButton" type="button">Discard test</button></div>
+    <p class="session-tool-note">Browser voice processing depends on your device. This is a local test and recording; it does not send processed audio to Teams or Zoom. AI Voice Focus requires a compatible native Windows companion.</p>
+  </article>
+
+  <article class="session-tool-card">
+    <div class="session-tool-heading"><span class="session-tool-symbol" aria-hidden="true">⌗</span><div><h3>QR clipboard</h3><p>Scan the current preview</p></div></div>
+    <p class="session-tool-copy">Point your camera at a QR code, then scan. Decoded content is shown here; links never open automatically.</p>
+    <div class="session-button-row"><button class="control-button" id="qrScanButton" type="button">Scan preview</button><button class="control-button" id="qrCopyButton" type="button" disabled>Copy result</button></div>
+    <label class="session-check"><input id="qrAutoCopySwitch" type="checkbox"><span>Auto copy newly scanned QR links</span></label>
+    <label class="session-field-label" for="qrValue">Decoded QR content</label><textarea id="qrValue" class="session-qr-value" rows="3" readonly placeholder="Your scanned content appears here."></textarea>
+    <p class="session-tool-status" id="qrStatus" role="status" aria-live="polite">Ready when you are. Scanning stays on this device.</p>
+  </article>
+
+  <article class="session-tool-card">
+    <div class="session-tool-heading"><span class="session-tool-symbol" aria-hidden="true">↧</span><div><h3>Snapshot backup</h3><p>An extra copy, on your terms</p></div><span class="session-tool-tag" id="backupModeTag">OFF</span></div>
+    <p class="session-tool-copy">Back up a copy whenever you take a snapshot. This never takes photos automatically.</p>
+    <div class="session-button-row"><button class="control-button" id="backupFolderButton" type="button">Choose backup folder</button><button class="control-button" id="backupOffButton" type="button" disabled>Turn off</button></div>
+    <label class="session-check"><input id="backupLocalSwitch" type="checkbox"><span>Keep snapshot backups in this browser instead</span></label>
+    <p class="session-tool-status" id="backupStatus" role="status" aria-live="polite">Backup off. Choose a folder or enable browser backups.</p>
+    <p class="session-tool-note">Folder access lasts for this session. Browser backups hold the latest 50 images and may be cleared by the browser. Download important images to a folder.</p>
+    <div class="session-backup-heading"><b>Saved browser backups</b><button class="session-text-link" id="backupRefreshButton" type="button">Refresh</button></div>
+    <ul class="session-backup-list" id="backupList" aria-label="Saved browser snapshot backups"><li class="session-backup-empty">Choose Refresh to view saved images.</li></ul>
+    <button class="session-text-link session-delete-all" id="backupClearButton" type="button">Delete all browser backups</button>
+  </article>
+</div>

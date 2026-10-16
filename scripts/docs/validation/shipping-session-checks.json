@@ -1,0 +1,71 @@
+{
+  "testedAt": "2026-10-16T19:24:53.082Z",
+  "environment": "Headless Chromium; deterministic deferred permissions, recorder callbacks and backup writes; real IndexedDB",
+  "checks": [
+    {
+      "name": "pending browser backup enable respects a later Off choice",
+      "pass": true
+    },
+    {
+      "name": "pending folder picker respects a later Off choice",
+      "pass": true
+    },
+    {
+      "name": "Off then On does not revive snapshots queued before Off",
+      "pass": true
+    },
+    {
+      "name": "delete all cancels queued browser writes before clearing storage",
+      "pass": true
+    },
+    {
+      "name": "old folder failure cannot disable a newly selected browser mode",
+      "pass": true
+    },
+    {
+      "name": "late errors from an older recording cannot discard the current test",
+      "pass": true
+    },
+    {
+      "name": "latest fifty retention follows save order when timestamps are identical",
+      "pass": true
+    },
+    {
+      "name": "a blocked database open closes any connection delivered after rejection",
+      "pass": true
+    },
+    {
+      "name": "database access can retry after a synchronous permissions failure",
+      "pass": true
+    },
+    {
+      "name": "storage quota failures disable automatic backup and report no saved copy",
+      "pass": true
+    },
+    {
+      "name": "failed folder writes abort without reporting a saved copy",
+      "pass": true
+    },
+    {
+      "name": "turning Off during a pending folder write aborts before commit",
+      "pass": true
+    },
+    {
+      "name": "privacy shield prevents pending QR decode and automatic clipboard writes",
+      "pass": true
+    },
+    {
+      "name": "unsupported QR schemes are copied as text without navigation or execution",
+      "pass": true
+    },
+    {
+      "name": "late microphone tracks are stopped after instance destruction",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser errors",
+      "pass": true,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "./",
+  "name": "MeetingLens — Camera Preview Studio",
+  "short_name": "MeetingLens",
+  "description": "Local camera effects, photo enhancement, whiteboard straightening and session tools for more polished meetings.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone"],
+  "background_color": "#f6f7fb",
+  "theme_color": "#171b2e",
+  "orientation": "any",
+  "categories": ["productivity", "photo", "utilities"],
+  "icons": [
+    { "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/icons/meetinglens-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/icons/meetinglens-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Start Camera", "short_name": "Camera", "description": "Open the camera preview", "url": "./?action=camera", "icons": [{ "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192" }] },
+    { "name": "Photo Lab", "short_name": "Photo Lab", "description": "Enhance photos and straighten whiteboards", "url": "./photo-workbench.html", "icons": [{ "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192" }] },
+    { "name": "Privacy Shield", "short_name": "Privacy", "description": "Open privacy controls", "url": "./?screen=privacy", "icons": [{ "src": "./assets/icons/meetinglens-192.png", "sizes": "192x192" }] }
+  ],
+  "screenshots": [
+    { "src": "./assets/store-assets/screenshots/01-studio-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "MeetingLens Studio" },
+    { "src": "./assets/store-assets/screenshots/02-looks-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Natural enhancement controls" },
+    { "src": "./assets/store-assets/screenshots/03-background-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Background preview tools" },
+    { "src": "./assets/store-assets/screenshots/04-privacy-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Privacy Shield" },
+    { "src": "./assets/store-assets/screenshots/05-camera-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Camera and snapshot settings" },
+    { "src": "./assets/store-assets/screenshots/06-presets-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Save and share local presets" },
+    { "src": "./assets/store-assets/screenshots/07-effects-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Local face framing, background blur and portrait light" },
+    { "src": "./assets/store-assets/screenshots/08-photo-lab-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Smart Enhance and Photo Lab" },
+    { "src": "./assets/store-assets/screenshots/09-whiteboard-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Whiteboard corner review and perspective correction" },
+    { "src": "./assets/store-assets/screenshots/10-session-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Microphone test, QR copying and optional backup" }
+  ]
+}

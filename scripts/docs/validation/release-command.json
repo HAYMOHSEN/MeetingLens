@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-10-16T19:26:03.058750+00:00",
+  "version": "3.0.1",
+  "command": "npm run test:release",
+  "exitCode": 0,
+  "browserScenarioSuites": 12,
+  "browserScenariosPassed": 116,
+  "suites": [
+    {
+      "record": "studio-verification.json",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "record": "background-verification.json",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "record": "advanced-verification.json",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "record": "photo-lab-verification.json",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "record": "session-checks.json",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "record": "native-report-verification.json",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "record": "offline-tools-verification.json",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "record": "shipping-camera-verification.json",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "record": "shipping-photo-verification.json",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "record": "shipping-session-checks.json",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "record": "shipping-shell-verification.json",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "record": "offline-verification.json",
+      "passed": 3,
+      "failed": 0
+    }
+  ],
+  "separateVisionModuleVerification": "passed",
+  "nativeManagedSourceCompilation": "passed against209 official metadata references",
+  "nativeProtocolChecksPassed": 12,
+  "physicalWindowsHardwareTested": false,
+  "fullWindowsPublishAndCppBuilds": "not-run",
+  "pwaMeetingAppRouting": "not-integrated"
+}

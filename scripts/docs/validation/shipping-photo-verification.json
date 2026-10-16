@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-16T19:24:50.586Z",
+  "checks": [
+    {
+      "name": "A rejected import retains the edited sample, original and Undo",
+      "passed": true
+    },
+    {
+      "name": "A rejected import preserves active selection, painted mask and edit history",
+      "passed": true
+    },
+    {
+      "name": "Extreme portrait import produces a bounded decodable thumbnail",
+      "passed": true
+    },
+    {
+      "name": "Imports count enlarged whiteboard outputs toward the working set limit",
+      "passed": true
+    },
+    {
+      "name": "Transparent PNG imports flatten onto white and preserve the imported original",
+      "passed": true
+    },
+    {
+      "name": "JPEG EXIF orientation is applied before editing and JPEG export",
+      "passed": true
+    },
+    {
+      "name": "No unhandled browser errors",
+      "passed": true
+    }
+  ]
+}

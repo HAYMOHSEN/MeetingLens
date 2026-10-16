@@ -1,0 +1,194 @@
+{
+  "checkedAt": "2026-10-16T19:24:29.912Z",
+  "environment": "Headless Chromium/Linux, SwiftShader WebGL2",
+  "offlineAfterSuccessfulFirstInstall": true,
+  "physicalWindowsHardwareTested": false,
+  "reports": [
+    {
+      "name": "Real service worker installs every v3 tool and all eight local AI runtime files",
+      "passed": true,
+      "ms": 322
+    },
+    {
+      "name": "Offline Photo Lab loads its real whiteboard sample and suggests physical board corners",
+      "passed": true,
+      "ms": 2913
+    },
+    {
+      "name": "Offline Windows capability viewer imports a local report without probing hardware",
+      "passed": true,
+      "ms": 567
+    },
+    {
+      "name": "Cached jsQR decoder loads offline and decodes a real QR fixture",
+      "passed": true,
+      "ms": 1024
+    },
+    {
+      "name": "Offline studio initializes actual cached AI models and detects face and person matte",
+      "passed": true,
+      "ms": 2483
+    }
+  ],
+  "evidence": {
+    "cached": [
+      {
+        "file": "photo-workbench.html",
+        "cached": true,
+        "bytes": 10981
+      },
+      {
+        "file": "native-capabilities.html",
+        "cached": true,
+        "bytes": 9250
+      },
+      {
+        "file": "assets/js/photo-workbench.js",
+        "cached": true,
+        "bytes": 44370
+      },
+      {
+        "file": "assets/js/native-capabilities.js",
+        "cached": true,
+        "bytes": 9315
+      },
+      {
+        "file": "assets/js/session-tools.js",
+        "cached": true,
+        "bytes": 32233
+      },
+      {
+        "file": "assets/js/vision-effects.js",
+        "cached": true,
+        "bytes": 16530
+      },
+      {
+        "file": "assets/vendor/jsqr/jsQR.js",
+        "cached": true,
+        "bytes": 256885
+      },
+      {
+        "file": "assets/demo/whiteboard-meeting.webp",
+        "cached": true,
+        "bytes": 52894
+      },
+      {
+        "file": "assets/vendor/vision/meetinglens-worker.js",
+        "cached": true,
+        "bytes": 4691
+      },
+      {
+        "file": "assets/vendor/vision/vision_bundle.js",
+        "cached": true,
+        "bytes": 137890
+      },
+      {
+        "file": "assets/vendor/vision/wasm/vision_wasm_internal.js",
+        "cached": true,
+        "bytes": 204284
+      },
+      {
+        "file": "assets/vendor/vision/wasm/vision_wasm_internal.wasm",
+        "cached": true,
+        "bytes": 9574032
+      },
+      {
+        "file": "assets/vendor/vision/wasm/vision_wasm_nosimd_internal.js",
+        "cached": true,
+        "bytes": 204137
+      },
+      {
+        "file": "assets/vendor/vision/wasm/vision_wasm_nosimd_internal.wasm",
+        "cached": true,
+        "bytes": 9448638
+      },
+      {
+        "file": "assets/models/face_landmarker.task",
+        "cached": true,
+        "bytes": 3758596
+      },
+      {
+        "file": "assets/models/selfie_segmenter.tflite",
+        "cached": true,
+        "bytes": 249537
+      }
+    ],
+    "modelBytes": 23581805,
+    "serverRequestsBeforeOffline": 53,
+    "httpServerClosed": true,
+    "board": {
+      "photos": 2,
+      "active": 1,
+      "tool": "board",
+      "busy": false,
+      "corners": [
+        {
+          "x": 243.20000000000002,
+          "y": 45.6
+        },
+        {
+          "x": 1375.6000000000001,
+          "y": 174.8
+        },
+        {
+          "x": 1375.6000000000001,
+          "y": 706.8000000000001
+        },
+        {
+          "x": 235.60000000000002,
+          "y": 790.4000000000001
+        }
+      ],
+      "width": 1672,
+      "height": 941,
+      "jpegBytes": 91461
+    },
+    "nativeViewer": {
+      "reportImportedOffline": true,
+      "physicalHardwareProbed": false
+    },
+    "qr": {
+      "decoded": "https://meetinglens.example/qr-test",
+      "width": 296,
+      "height": 296
+    },
+    "vision": {
+      "capabilities": {
+        "face": true,
+        "segmentation": true,
+        "backend": "CPU/WASM worker",
+        "eyeContact": false,
+        "errors": {}
+      },
+      "face": {
+        "x": 0.4237682819366455,
+        "y": 0.2026555836200714,
+        "width": 0.143194317817688,
+        "height": 0.3039833605289459,
+        "eyes": [
+          {
+            "x": 0.46319325268268585,
+            "y": 0.30564944446086884
+          },
+          {
+            "x": 0.5233293175697327,
+            "y": 0.2960955947637558
+          }
+        ],
+        "mouth": {
+          "x": 0.49905069172382355,
+          "y": 0.41505882143974304
+        }
+      },
+      "landmarks": 478,
+      "mask": {
+        "width": 640,
+        "height": 360,
+        "foreground": 65270,
+        "background": 163138
+      },
+      "inferenceMs": 178.69999999552965
+    }
+  },
+  "errors": []
+}

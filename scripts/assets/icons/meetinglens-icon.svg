@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">MeetingLens app icon</title>
+  <desc id="desc">A camera lens with a violet and periwinkle glow.</desc>
+  <defs>
+    <linearGradient id="bg" x1="70" y1="40" x2="450" y2="480" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A8AEFF"/>
+      <stop offset=".49" stop-color="#6962E8"/>
+      <stop offset="1" stop-color="#37306F"/>
+    </linearGradient>
+    <linearGradient id="lens" x1="180" y1="150" x2="350" y2="365" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10263C"/>
+      <stop offset="1" stop-color="#09121F"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="13"/></filter>
+  </defs>
+  <rect width="512" height="512" rx="136" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="154" fill="#CAF9F4" opacity=".28" filter="url(#glow)"/>
+  <circle cx="256" cy="256" r="146" fill="rgba(255,255,255,.17)"/>
+  <circle cx="256" cy="256" r="123" fill="url(#lens)" stroke="#DCFDFC" stroke-opacity=".82" stroke-width="13"/>
+  <circle cx="256" cy="256" r="81" fill="#1B4C75"/>
+  <path d="M203 206c33-34 89-37 127-4-31-10-70 3-91 30-16 20-20 43-16 65-37-27-49-64-20-91Z" fill="#B6FBF1" opacity=".48"/>
+  <circle cx="291" cy="225" r="24" fill="#E9FFFF" opacity=".75"/>
+  <path d="M141 172h44l20-31h102l20 31h44c18 0 33 15 33 33v97c0 18-15 33-33 33h-14a158 158 0 0 0 0-158h14c18 0 33 15 33 33v97c0 18-15 33-33 33h-44l-20 31H205l-20-31h-44c-18 0-33-15-33-33v-97c0-18 15-33 33-33Z" fill="none" stroke="#F1FFFF" stroke-opacity=".58" stroke-width="12"/>
+</svg>

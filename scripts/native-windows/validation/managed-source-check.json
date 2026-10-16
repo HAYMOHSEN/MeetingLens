@@ -1,0 +1,28 @@
+{
+  "managedSourceCompilation": "passed",
+  "warningsAsErrors": true,
+  "officialMetadataReferenceCount": 209,
+  "sdk": "8.0.426",
+  "protocolTests": {
+    "passed": true,
+    "checks": 12,
+    "results": [
+      "KSPROPERTY GUID layout",
+      "Background property id",
+      "GET property flag",
+      "Extended payload filter scope",
+      "Extended header parse",
+      "Unsupported mode excluded",
+      "Combined flags supported",
+      "Truncated response rejected",
+      "Oversized response rejected",
+      "Driver failure rejected",
+      "64-bit report flags retain exact decimal values",
+      "Unavailable report flags remain null"
+    ]
+  },
+  "windowsPackagingBuild": "not-run",
+  "directShowNativeBuild": "not-run",
+  "virtualCameraNativeBuild": "not-run",
+  "webcamAndNpuHardwareValidation": "not-run"
+}

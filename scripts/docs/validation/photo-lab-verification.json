@@ -1,0 +1,82 @@
+{
+  "checkedAt": "2026-10-16T19:24:18.327Z",
+  "checks": [
+    {
+      "name": "Professional sample is rendered and the page fits desktop",
+      "passed": true
+    },
+    {
+      "name": "Optional face assistance performs real local landmark inference and scoped refinement",
+      "passed": true
+    },
+    {
+      "name": "Auto enhancement lifts underexposed midtones without mutating the source",
+      "passed": true
+    },
+    {
+      "name": "Lab color matching moves a warm set toward the cool reference",
+      "passed": true
+    },
+    {
+      "name": "Local inpainting removes a marked object and preserves every unmasked pixel",
+      "passed": true
+    },
+    {
+      "name": "Manual teeth whitening only touches the selected region",
+      "passed": true
+    },
+    {
+      "name": "Perspective warp maps each trapezoid corner to the correct output corner",
+      "passed": true
+    },
+    {
+      "name": "Crossed whiteboard corner order is rejected",
+      "passed": true
+    },
+    {
+      "name": "Bright-board suggestion finds the photographed quadrilateral",
+      "passed": true
+    },
+    {
+      "name": "Whiteboard handles support pointer drag and precise keyboard movement",
+      "passed": true
+    },
+    {
+      "name": "Multi-photo import, batch enhancement and reset retain the original",
+      "passed": true
+    },
+    {
+      "name": "Malformed photo import is handled without losing the current set",
+      "passed": true
+    },
+    {
+      "name": "Batch export ZIP contains valid individually named JPEGs",
+      "passed": true
+    },
+    {
+      "name": "Included whiteboard sample loads locally without replacing the working photo set or applying a warp",
+      "passed": true
+    },
+    {
+      "name": "Actual sample corner suggestion follows the physical board edges",
+      "passed": true
+    },
+    {
+      "name": "Missing included sample leaves all existing photos and edits intact",
+      "passed": true
+    },
+    {
+      "name": "Photo Lab fits mobile and all five tools remain reachable",
+      "passed": true
+    },
+    {
+      "name": "No unhandled browser exceptions",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Chromium only; Windows physical device and packaged Store app not tested.",
+    "Local inpainting is designed for small selections on simple textures.",
+    "Optional landmark inference is tested separately in vision-effects verification."
+  ]
+}
