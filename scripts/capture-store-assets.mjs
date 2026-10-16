@@ -3,31 +3,64 @@
   Run after `npm install` and `npx playwright install chromium`:
   node scripts/capture-store-assets.mjs
 */
-import { chromium } from "playwright";
+import { createRequire } from "node:module";
+const { chromium } = createRequire(import.meta.url)("playwright");
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const server = spawn("python3", ["-m", "http.server", "4173", "--directory", root], { stdio: "ignore" });
-const url = "http://127.0.0.1:4173";
+const port = process.env.PORT || "4175";
+const server = spawn("python3", ["-m", "http.server", port, "--bind", "127.0.0.1", "--directory", root], { stdio: "ignore" });
+const url = `http://127.0.0.1:${port}`;
 const captures = [
   ["studio", "01-studio-1920x1080.png"],
   ["looks", "02-looks-1920x1080.png"],
   ["background", "03-background-1920x1080.png"],
-  ["privacy", "04-privacy-1920x1080.png"]
+  ["privacy", "04-privacy-1920x1080.png"],
+  ["device", "05-camera-1920x1080.png"],
+  ["presets", "06-presets-1920x1080.png"]
 ];
 
 try {
-  await new Promise(resolveReady => setTimeout(resolveReady, 600));
-  const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  for (let attempt = 0; attempt < 40; attempt++) {
+    try { if ((await fetch(url)).ok) break; } catch { /* Server is starting. */ }
+    if (attempt === 39) throw new Error("Screenshot server did not become ready.");
+    await new Promise(done => setTimeout(done, 100));
+  }
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_PATH || undefined, args: ["--disable-dev-shm-usage", "--disable-gpu"] });
+  const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, serviceWorkers: "block" });
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
   for (const [screen, filename] of captures) {
     await page.goto(`${url}/?screen=${screen}`, { waitUntil: "networkidle" });
-    await page.waitForTimeout(500);
+    await page.locator("#resetButton").click();
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForFunction(() => {
+      const image = [...document.images].find(img => img.src.includes("professional-portrait"));
+      return !image || image.complete;
+    });
+    if (screen === "privacy") await page.locator("#privacyButton").click();
+    if (screen === "looks") {
+      await page.locator('.look-button[data-look="warm"]').click();
+      await page.locator('.nav-button[data-panel="studio"]').click();
+      await page.locator("#splitSwitch").click();
+      await page.locator('.nav-button[data-panel="looks"]').click();
+    }
+    if (screen === "background") await page.locator('.scene-button[data-scene="studio"]').first().click();
+    if (screen === "presets") {
+      await page.locator("#presetName").fill("Morning meetings");
+      await page.locator("#savePresetButton").click();
+      await page.locator("#presetName").fill("Teaching session");
+      await page.locator("#savePresetButton").click();
+    }
+    await page.waitForTimeout(3000); // Allow transient toasts to leave the capture.
+    await page.waitForTimeout(700);
     await page.screenshot({ path: resolve(root, "assets/store-assets/screenshots", filename) });
   }
   await browser.close();
+  if (errors.length) throw new Error(errors.join("\n"));
+  console.log("Captured six 1920 x 1080 screenshots from the running MeetingLens app.");
 } finally {
   server.kill("SIGTERM");
 }

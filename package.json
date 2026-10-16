@@ -1,11 +1,13 @@
 {
   "name": "meetinglens-pwa",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Development helper for MeetingLens PWA Store screenshots.",
   "scripts": {
     "capture:store-assets": "node scripts/capture-store-assets.mjs",
-    "generate:store-art": "node scripts/generate-store-art.cjs"
+    "generate:store-art": "node scripts/generate-store-art.cjs",
+    "test": "node scripts/verify-studio.cjs && node scripts/verify-offline.cjs",
+    "test:offline": "node scripts/verify-offline.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.80",

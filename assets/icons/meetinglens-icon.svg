@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
   <title id="title">MeetingLens app icon</title>
-  <desc id="desc">A camera lens with a soft cyan and blue glow.</desc>
+  <desc id="desc">A camera lens with a violet and periwinkle glow.</desc>
   <defs>
     <linearGradient id="bg" x1="70" y1="40" x2="450" y2="480" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#82EDE1"/>
-      <stop offset=".49" stop-color="#4D8CFF"/>
-      <stop offset="1" stop-color="#8B6BFF"/>
+      <stop stop-color="#A8AEFF"/>
+      <stop offset=".49" stop-color="#6962E8"/>
+      <stop offset="1" stop-color="#37306F"/>
     </linearGradient>
     <linearGradient id="lens" x1="180" y1="150" x2="350" y2="365" gradientUnits="userSpaceOnUse">
       <stop stop-color="#10263C"/>

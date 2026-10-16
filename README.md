@@ -1,95 +1,97 @@
 # MeetingLens — Camera Preview Studio
 
-MeetingLens is an installable Windows-friendly PWA that helps users prepare their webcam before a meeting, class, or presentation. It provides a local camera preview, natural color and lighting controls, framing guidance, privacy controls, and snapshot capture.
+Version **2.0.0**. MeetingLens is an installable Windows-friendly PWA for preparing a webcam before a meeting, class, or presentation. Its redesigned studio pairs a light workspace with a navy navigation rail, violet controls, and a clearly labeled professional AI demo portrait.
 
-## Important product boundary
+## What the app does
 
-This PWA processes the camera **inside MeetingLens only**. It does **not** create a system-wide virtual camera for Teams, Zoom, Google Meet, or Webex. A future native Windows companion is required for that capability. See [NATIVE_COMPANION_ROADMAP.md](./NATIVE_COMPANION_ROADMAP.md).
+- Displays a live local webcam preview after the user grants permission.
+- Adjusts brightness, contrast, saturation, color temperature, vignette, and visual looks.
+- Compares the original and adjusted image with original-view and split-view controls.
+- Offers camera selection and 720p, 1080p, or efficient quality preferences; the camera and browser determine the actual resolution.
+- Provides zoom, mirror, framing guides, a composition grid, and an eye-line guide. These are manual guides, not face detection or a measured readiness score.
+- Previews six backgrounds with the **AI demo portrait only**. Background selection does not remove or replace a live camera background.
+- Downloads PNG or JPEG snapshots locally, immediately or with a timer.
+- Saves, loads, deletes, imports, and exports local presets, with validation of imported files.
+- Stops camera tracks with Privacy Shield and, by default, when the app is hidden. Restarting requires a user action.
+- Provides a cached app shell for offline use after a successful first load and an explicit update action when a new version is ready.
 
-## What works in this release
+## Meeting-app compatibility
 
-- Live camera permission and local browser preview
-- Brightness, contrast, saturation, color-look, crop, and light smoothing controls
-- Before/after “Hold original” comparison
-- Meeting-ready profiles for natural, low-light, teaching, and presentation preparation
-- Local-only settings storage and manual PNG snapshot download
-- Privacy Shield that stops the camera preview immediately
-- Offline app shell and installability through a web manifest and service worker
+The adjustments apply **inside MeetingLens**. This PWA does not create a system-wide virtual camera or send enhanced video into Teams, Zoom, Google Meet, Webex, or other apps. A separate native Windows companion is needed for that capability. See [NATIVE_COMPANION_ROADMAP.md](./NATIVE_COMPANION_ROADMAP.md).
+
+The sample person is fictional and AI-generated. Keep the visible demo label in screenshots and marketing showing the sample. See [IMAGE_ASSET_NOTES.md](./IMAGE_ASSET_NOTES.md).
 
 ## Run locally
 
-Camera permission requires `https://` or `http://localhost`.
+Camera access requires HTTPS or localhost. The app is static and needs no build step or account.
 
-```bash
+~~~bash
 cd meetinglens-pwa
 python3 -m http.server 8080
-```
+~~~
 
-Open `http://localhost:8080` in Microsoft Edge or Chrome. Select **Start camera preview** and approve the camera permission prompt.
+Open `http://localhost:8080` in Microsoft Edge or Chrome. Start the camera and approve the browser permission prompt. The demo works without camera permission.
+
+## Development checks
+
+~~~bash
+npm install
+npx playwright install chromium
+npm test
+~~~
+
+If using an existing Chromium installation, set `CHROMIUM_PATH` to its executable before running the test command. The test command runs the studio and offline browser checks. They exercise the implemented browser flows, including service-worker offline behavior and controlled updates; they do not replace physical Windows hardware and packaged-app validation.
+
+Complete [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), including permission denial, camera switching and disconnection, sleep/resume, and installation of the actual PWABuilder package. Automated checks do not establish Store certification or zero defects.
 
 ## Publish with GitHub Pages
 
-1. Create a new GitHub repository named `meetinglens-pwa`.
-2. Upload every file in this folder, including `.github/workflows/deploy-pages.yml`.
-3. In GitHub, open **Settings → Pages** and set **Source** to **GitHub Actions**.
-4. Push to the `main` branch. The included workflow publishes the app automatically.
-5. Confirm the deployed URL works over HTTPS:
+1. Create a GitHub repository, for example `meetinglens-pwa`.
+2. Upload **the contents of this folder to the repository root**, including `.github/workflows/deploy-pages.yml`. Do not upload only the ZIP or nest the app in another folder.
+3. Open **Settings → Pages** and set **Source** to **GitHub Actions**.
+4. Push to `main` and wait for the deployment workflow to complete.
+5. Open the public HTTPS URL: `https://YOUR-GITHUB-USERNAME.github.io/meetinglens-pwa/`.
+6. Complete the release checklist against that deployed URL before packaging.
 
-   `https://YOUR-GITHUB-USERNAME.github.io/meetinglens-pwa/`
+Use the repository name you actually chose in the URL. Relative asset paths support serving the app from a GitHub Pages repository path.
 
-6. Open the site in Edge, test camera permission, installability, and offline behavior before packaging.
-
-## PWABuilder → Microsoft Store
+## PWABuilder and Microsoft Store
 
 1. Reserve the final app name in Microsoft Partner Center.
-2. Copy the **Package ID**, **Publisher ID**, and **Publisher display name** from Product identity.
-3. Submit the deployed HTTPS URL to [PWABuilder](https://www.pwabuilder.com/).
-4. Resolve every PWABuilder report-card warning.
-5. Choose **Package for Stores → Windows**, enter your Partner Center identity values, and download the generated package.
-6. Install-test the package on a Windows PC before Store submission.
-7. Use the prepared assets and copy in [`STORE_LISTING.md`](./STORE_LISTING.md).
+2. Replace the required contact placeholders in `privacy.html` and `terms.html`, publish the changes, and confirm both policy URLs are publicly accessible.
+3. Copy the **Package ID**, **Publisher ID**, and **Publisher display name** from your Partner Center product identity.
+4. Submit the deployed HTTPS app URL to [PWABuilder](https://www.pwabuilder.com/) and review its report.
+5. Choose the Windows package option and enter the exact Partner Center identity values.
+6. Download and install-test the generated package on a Windows PC. The source ZIP is not a signed Store package.
+7. Add the copy and assets from [STORE_LISTING.md](./STORE_LISTING.md), complete the Partner Center declarations, and submit after the required checks are complete.
 
-PWABuilder packaging does not eliminate Store certification requirements. All Store text and screenshots must describe what this PWA actually does.
+PWABuilder packaging does not guarantee Microsoft Store certification. Keep the listing, screenshots, declared languages, policy pages, and submitted app consistent.
 
-## Store materials already included
+## Included Store materials
 
-`assets/store-assets/` will contain:
+- Six 1920×1080 PNG screenshots captured from the redesigned app: studio, looks, sample backgrounds, privacy, camera options, and presets.
+- A 300×300 Store logo and 192px/512px PWA icons.
+- Optional 1440×2160 poster and 3840×2160 hero artwork.
+- English and Arabic listing copy, screenshot captions, and an upload guide.
 
-- Four real 1920×1080 screenshots captured from the finished app
-- One 300×300 Store icon
-- One optional 1440×2160 poster asset
-- One optional 3840×2160 super-hero asset
+Demo screenshots show the labeled fictional AI subject, not a live camera session. Arabic listing copy does not imply that the app interface is translated into Arabic. Declare only interface languages actually implemented and verified.
 
-See [`STORE_LISTING.md`](./STORE_LISTING.md) for exact names, captions, English/Arabic metadata, and the submission checklist.
+## Privacy and local files
 
-## Before publishing
+Camera frames and adjustments stay on the device. The app does not upload camera video, automatically record it, or request microphone access. Settings and presets use browser-local storage. Imported preset files are read locally; exports and snapshots download at the user's request. Hosting providers may handle ordinary page-request information under their own policies. Complete and review [privacy.html](./privacy.html) before publication.
 
-- Replace the placeholder support contact in `privacy.html`.
-- Add the final public Privacy Policy URL in Partner Center.
-- Reserve the final Store name before using it in marketing.
-- Verify that all claims match the PWA-only capability scope.
-- Set the GitHub Pages site to public or deploy the same static files to another HTTPS host you own.
+## Project files
 
-## Project structure
-
-```text
-meetinglens-pwa/
-├── .github/workflows/deploy-pages.yml
-├── assets/
-│   ├── icons/
-│   └── store-assets/
-│       ├── hero/
-│       ├── posters/
-│       └── screenshots/
-├── index.html
-├── offline.html
-├── privacy.html
-├── manifest.webmanifest
-├── service-worker.js
-├── STORE_LISTING.md
-├── NATIVE_COMPANION_ROADMAP.md
-└── README.md
-```
+| Path | Purpose |
+|---|---|
+| `index.html`, `assets/styles/app.css`, `assets/js/app.js` | Studio interface and local camera processing |
+| `assets/demo/` | Fictional AI-generated sample portrait |
+| `assets/icons/` | App and manifest icons |
+| `assets/store-assets/` | Screenshots, logo, and optional marketing art |
+| `manifest.webmanifest`, `service-worker.js`, `offline.html` | Installation, controlled updates, and offline shell |
+| `privacy.html`, `terms.html` | Policy templates requiring a real support contact |
+| `.github/workflows/deploy-pages.yml` | GitHub Pages deployment |
+| `STORE_LISTING.md`, `CHANGELOG.md`, `RELEASE_CHECKLIST.md` | Store copy, changes, and release checks |
 
 ## References
 

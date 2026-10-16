@@ -3,222 +3,171 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b1220">
-  <meta name="description" content="MeetingLens is a local camera-preview studio for natural lighting, color, and composition adjustments before a meeting.">
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#191d2e">
+  <meta name="description" content="A thoughtful camera workspace. Fine-tune light, color and composition, save your favorite looks, and capture snapshots with local browser processing.">
+  <meta name="color-scheme" content="light">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icons/meetinglens-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="./assets/icons/meetinglens-192.png">
   <link rel="stylesheet" href="./assets/styles/app.css">
-  <title>MeetingLens — Camera Preview Studio</title>
+  <title>MeetingLens — Your camera, considered.</title>
 </head>
 <body>
+  <svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-camera" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h7m5 0h4M4 17h3m5 0h8"/><circle cx="13.5" cy="7" r="2.5"/><circle cx="9.5" cy="17" r="2.5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.7 6.3L21 12l-6.3 2.7L12 21l-2.7-6.3L3 12l6.3-2.7ZM20 2v4m-2-2h4"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m4 18 5-5 4 4 4-6 4 5"/></symbol>
+    <symbol id="i-frame" viewBox="0 0 24 24"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6M8 12h8m-4-4v8"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-device" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M8 21h8m-4-5v5"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16l-6-4Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 4v6h6m-6 0a9 9 0 1 1 1 8"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14m6-14v14"/></symbol>
+  </defs></svg>
+  <a class="skip-link" href="#mainContent">Skip to camera workspace</a>
   <div class="app-shell">
     <header class="app-header">
-      <a class="brand" href="./" aria-label="MeetingLens home">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
-        <span>MeetingLens</span>
-        <small>CAMERA STUDIO</small>
-      </a>
-
-      <div class="header-status" aria-live="polite">
-        <span class="status-dot" id="cameraDot"></span>
-        <span id="cameraStatus">Demo preview · no camera access</span>
-      </div>
-
-      <div class="header-actions">
-        <button class="ghost-button install-button" id="installButton" hidden>Install app</button>
-        <button class="primary-button" id="startCameraButton"><span class="camera-icon" aria-hidden="true"></span>Start camera preview</button>
-      </div>
+      <a class="brand" href="./" aria-label="MeetingLens home"><img class="brand-mark" src="./assets/icons/meetinglens-icon.svg" width="36" height="36" alt=""><span>Meeting<span class="brand-light">Lens</span><small>YOUR CAMERA, CONSIDERED.</small></span></a>
+      <div class="header-status" aria-live="polite"><span class="status-dot" id="cameraDot"></span><span id="cameraStatus">Camera off · explore the sample</span><span class="offline-label" id="offlineLabel" hidden>Offline</span></div>
+      <div class="header-actions"><button class="ghost-button install-button" id="installButton" hidden>Install app</button><button class="ghost-button" id="updateNotice" hidden>Update available</button><button class="primary-button" id="startCameraButton"><svg class="icon"><use href="#i-camera"/></svg><span>Start camera</span></button></div>
     </header>
 
-    <nav class="side-nav" aria-label="MeetingLens sections">
-      <button class="nav-button active" data-panel="studio"><span class="nav-symbol">◉</span><span>Studio</span></button>
-      <button class="nav-button" data-panel="looks"><span class="nav-symbol">✦</span><span>Looks</span></button>
-      <button class="nav-button" data-panel="background"><span class="nav-symbol">◌</span><span>Background</span></button>
-      <button class="nav-button" data-panel="frame"><span class="nav-symbol">⌖</span><span>Frame</span></button>
-      <button class="nav-button" data-panel="privacy"><span class="nav-symbol">◈</span><span>Privacy</span></button>
-      <span class="nav-spacer"></span>
-      <a class="nav-button nav-link" href="./privacy.html"><span class="nav-symbol">?</span><span>Privacy</span></a>
+    <nav class="side-nav" aria-label="Workspace sections">
+      <p class="nav-caption">WORKSPACE</p>
+      <button class="nav-button active" data-panel="studio" aria-pressed="true"><svg class="icon"><use href="#i-sliders"/></svg><span>Studio</span></button>
+      <button class="nav-button" data-panel="looks" aria-pressed="false"><svg class="icon"><use href="#i-spark"/></svg><span>Light &amp; looks</span></button>
+      <button class="nav-button" data-panel="background" aria-pressed="false"><svg class="icon"><use href="#i-image"/></svg><span>Scenes</span></button>
+      <button class="nav-button" data-panel="frame" aria-pressed="false"><svg class="icon"><use href="#i-frame"/></svg><span>Composition</span></button>
+      <button class="nav-button" data-panel="presets" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><span>My presets</span></button>
+      <p class="nav-caption secondary-caption">SETTINGS</p>
+      <button class="nav-button" data-panel="device" aria-pressed="false"><svg class="icon"><use href="#i-device"/></svg><span>Camera &amp; capture</span></button>
+      <button class="nav-button" data-panel="privacy" aria-pressed="false"><svg class="icon"><use href="#i-shield"/></svg><span>Privacy</span></button>
+      <div class="nav-spacer"></div>
+      <div class="local-note"><svg class="icon"><use href="#i-shield"/></svg><b>A little more peace of mind.</b><p>Your camera preview is processed on your device.</p><a href="./privacy.html">Privacy policy <span aria-hidden="true">↗</span></a></div>
+      <span class="nav-version">MEETINGLENS · V2.0</span>
     </nav>
 
-    <main class="main-content">
+    <main class="main-content" id="mainContent">
       <section class="studio-area" aria-label="Camera preview">
-        <div class="title-row">
-          <div>
-            <p class="eyebrow">Meeting preparation</p>
-            <h1>Look clear and natural before you join.</h1>
-          </div>
-          <div class="processing-badge"><span class="lock-icon" aria-hidden="true"></span>Local browser processing</div>
-        </div>
+        <div class="title-row"><div><p class="eyebrow">THE CAMERA WORKSPACE</p><h1>Your best light.<br>Every meeting.</h1><p class="title-description">A few thoughtful adjustments. A more confident you.</p></div><div class="processing-badge"><svg class="icon"><use href="#i-shield"/></svg><span>Made to stay local</span></div></div>
+        <div class="notice storage-notice" id="storageNotice" role="status" hidden></div>
+        <div class="camera-error" id="cameraError" role="alert" hidden><svg class="icon"><use href="#i-info"/></svg><p id="cameraErrorText">The camera could not be started.</p><button class="control-button" id="retryCameraButton">Try again</button></div>
 
-        <div class="preview-wrap" id="previewWrap">
-          <canvas id="previewCanvas" width="1280" height="720" aria-label="Camera preview canvas"></canvas>
-          <video id="cameraVideo" autoplay muted playsinline hidden></video>
-
-          <div class="preview-overlay">
-            <div class="preview-topline">
-              <span class="live-chip" id="liveChip"><i></i><span id="liveLabel">DEMO PREVIEW</span></span>
-              <span class="quality-chip" id="qualityChip"><i></i><span id="qualityLabel">Balanced for a meeting</span></span>
+        <div class="preview-shell">
+          <div class="preview-shell-header"><span><i></i> YOUR PREVIEW</span><button class="icon-button" id="fullscreenButton" aria-label="Open preview fullscreen" title="Fullscreen preview"><svg class="icon"><use href="#i-expand"/></svg></button></div>
+          <div class="preview-wrap" id="previewWrap">
+            <canvas id="previewCanvas" width="1280" height="720" aria-label="Camera preview. The sample portrait is AI generated; start the camera to see yourself."></canvas>
+            <video id="cameraVideo" autoplay muted playsinline hidden></video>
+            <div class="preview-overlay">
+              <div class="preview-topline"><span class="live-chip" id="liveChip"><i></i><span id="liveLabel">SAMPLE PREVIEW</span></span><span class="quality-chip" id="qualityChip"><svg class="icon"><use href="#i-check"/></svg><span id="qualityLabel">Natural profile</span></span></div>
+              <div class="frame-guide" id="frameGuide" aria-hidden="true"></div>
+              <div class="thirds-grid" id="thirdsGrid" aria-hidden="true" hidden></div>
+              <div class="eye-line-guide" id="eyeLineGuide" aria-hidden="true"><span>EYE LINE</span></div>
+              <div class="split-line" id="splitLine" aria-hidden="true" hidden><span>Original</span><span>Enhanced</span></div>
+              <div class="preview-bottomline"><span class="effect-chip" id="effectLabel">Natural color · light lift</span><span class="resolution-chip" id="resolutionLabel">1280 × 720</span></div>
             </div>
-            <div class="frame-guide" id="frameGuide" aria-hidden="true"></div>
-            <div class="preview-bottomline">
-              <span class="effect-chip" id="effectLabel">Natural color · light lift</span>
-              <span class="resolution-chip" id="resolutionLabel">1280 × 720 preview</span>
-            </div>
+            <span class="demo-notice" id="demoNotice">Sample portrait · AI generated</span>
+            <div class="countdown" id="countdown" role="status" aria-live="assertive" hidden></div>
+            <div class="privacy-curtain" id="privacyCurtain" aria-hidden="true"><span class="privacy-curtain-icon"><svg class="icon"><use href="#i-shield"/></svg></span><strong>A moment just for you.</strong><small>Privacy Shield is on. Your preview is paused.</small></div>
           </div>
-
-          <div class="privacy-curtain" id="privacyCurtain" aria-hidden="true">
-            <span class="privacy-curtain-icon">◈</span>
-            <strong>Camera preview paused</strong>
-            <small>Privacy Shield is active on this device.</small>
-          </div>
+          <div class="preview-controls"><div class="preview-tools"><button class="control-button" id="holdOriginalButton" title="Press and hold to view the original"><svg class="icon"><use href="#i-sliders"/></svg><span>Hold original</span></button><label class="compare-control" for="enhancementRange"><span>Intensity</span><input id="enhancementRange" type="range" min="0" max="100" value="65"><output id="enhancementOutput" for="enhancementRange">65%</output></label></div><div class="capture-tools"><button class="icon-button shield-quick" id="shieldQuickButton" aria-label="Activate Privacy Shield" title="Privacy Shield"><svg class="icon"><use href="#i-shield"/></svg></button><button class="capture-button" id="captureButton"><svg class="icon"><use href="#i-camera"/></svg><span>Take snapshot</span></button><button class="icon-button" id="stopCameraButton" disabled aria-label="Stop camera" title="Stop camera"><svg class="icon"><use href="#i-pause"/></svg></button></div></div>
+          <div class="session-bar"><span><i class="session-indicator"></i><b id="sessionState">Sample mode</b></span><span id="deviceLabel">Camera not started</span><span id="fpsLabel">— fps</span></div>
         </div>
 
-        <div class="preview-controls">
-          <button class="control-button" id="holdOriginalButton">Hold original</button>
-          <label class="compare-control">Enhancement
-            <input id="enhancementRange" type="range" min="0" max="100" value="65">
-            <output id="enhancementOutput">65%</output>
-          </label>
-          <button class="control-button" id="captureButton">Save snapshot</button>
-          <button class="control-button" id="stopCameraButton" disabled>Stop camera</button>
+        <div class="scene-strip-heading"><div><b>Set the mood</b><span>Sample scenes</span></div><span>06 curated spaces</span></div>
+        <div class="scene-strip" aria-label="Sample scene shortcuts">
+          <button class="scene-button scene-tile active" data-scene="room" aria-pressed="true"><i class="scene-thumbnail room"></i><b>Home office</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
+          <button class="scene-button scene-tile" data-scene="soft" aria-pressed="false"><i class="scene-thumbnail soft"></i><b>Soft focus</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
+          <button class="scene-button scene-tile" data-scene="studio" aria-pressed="false"><i class="scene-thumbnail studio"></i><b>Studio blue</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
+          <button class="scene-button scene-tile" data-scene="night" aria-pressed="false"><i class="scene-thumbnail night"></i><b>Midnight</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
+          <button class="scene-button scene-tile" data-scene="dawn" aria-pressed="false"><i class="scene-thumbnail dawn"></i><b>Golden hour</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
+          <button class="scene-button scene-tile" data-scene="slate" aria-pressed="false"><i class="scene-thumbnail slate"></i><b>Slate</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
         </div>
+        <p class="scene-disclaimer">Scenes style the sample portrait. Live background replacement is not included.</p>
 
-        <div class="summary-grid">
-          <article class="summary-card">
-            <span class="summary-icon light">☼</span>
-            <div><b>Light &amp; color</b><small id="lightSummary">Natural lift enabled</small></div>
-            <span class="good-label">Ready</span>
-          </article>
-          <article class="summary-card">
-            <span class="summary-icon frame">⌖</span>
-            <div><b>Composition</b><small id="frameSummary">Centered guide shown</small></div>
-            <span class="good-label">Ready</span>
-          </article>
-          <article class="summary-card">
-            <span class="summary-icon privacy">◈</span>
-            <div><b>Privacy</b><small id="privacySummary">Camera stays on this device</small></div>
-            <span class="good-label">Local</span>
-          </article>
-        </div>
+        <div class="summary-grid"><article class="summary-card"><span class="summary-icon"><svg class="icon"><use href="#i-sun"/></svg></span><div><b>Light, your way</b><small id="lightSummary">Natural color applied</small></div></article><article class="summary-card"><span class="summary-icon"><svg class="icon"><use href="#i-frame"/></svg></span><div><b>Considered framing</b><small id="frameSummary">Conversation guide shown</small></div></article><article class="summary-card"><span class="summary-icon"><svg class="icon"><use href="#i-shield"/></svg></span><div><b>Private by design</b><small id="privacySummary">Camera stays on this device</small></div></article></div>
+        <footer class="workspace-footer"><span>Hold C to compare · Alt+P privacy · Alt+S snapshot</span><a href="./terms.html">Terms</a><a href="./privacy.html">Privacy</a></footer>
       </section>
 
-      <aside class="inspector" aria-label="MeetingLens controls">
-        <div class="inspector-header">
-          <div>
-            <p class="eyebrow" id="panelEyebrow">Home profile</p>
-            <h2 id="panelTitle">Meeting readiness</h2>
-          </div>
-          <button class="more-button" id="resetButton" title="Restore default settings" aria-label="Restore default settings">↺</button>
-        </div>
-
+      <aside class="inspector" aria-label="Camera controls">
+        <div class="inspector-header"><div><p class="eyebrow" id="panelEyebrow">MAKE IT YOURS</p><h2 id="panelTitle">Your studio</h2></div><button class="more-button" id="resetButton" title="Restore default adjustments" aria-label="Restore default adjustments"><svg class="icon"><use href="#i-reset"/></svg></button></div>
         <div class="inspector-content">
           <section class="control-panel active" id="studio-panel">
-            <article class="readiness-card" id="readinessCard">
-              <div class="readiness-icon">✓</div>
-              <div>
-                <h3 id="readinessTitle">Your preview is almost ready</h3>
-                <p id="readinessText">Apply a modest camera correction for a balanced, natural result.</p>
-              </div>
-              <button class="scan-button" id="fixNaturallyButton">Fix naturally</button>
-            </article>
-
-            <div class="readiness-list">
-              <div><span>Camera setup</span><b class="state-good">Ready</b></div>
-              <div><span>Light balance</span><b id="lightState" class="state-warn">Adjust</b></div>
-              <div><span>Face integrity</span><b class="state-good">Natural</b></div>
-              <div><span>Privacy status</span><b class="state-good">Local</b></div>
-            </div>
-
-            <p class="section-label">Quick profile</p>
-            <div class="profile-grid">
-              <button class="profile-button active" data-profile="natural"><span>✦</span><b>Natural</b><small>Balanced &amp; faithful</small></button>
-              <button class="profile-button" data-profile="lowlight"><span>☼</span><b>Low light</b><small>Lift dark rooms</small></button>
-              <button class="profile-button" data-profile="teaching"><span>▤</span><b>Teaching</b><small>Wider guide</small></button>
-              <button class="profile-button" data-profile="presentation"><span>▣</span><b>Presentation</b><small>Clean color</small></button>
-            </div>
-
-            <div class="capability-note"><span>i</span><p>This PWA enhances and previews your camera inside MeetingLens. A system-wide virtual camera for Teams or Zoom requires a separate native Windows companion.</p></div>
+            <article class="readiness-card" id="readinessCard"><span class="readiness-icon"><svg class="icon"><use href="#i-spark"/></svg></span><div><p class="card-kicker">A GOOD PLACE TO START</p><h3 id="readinessTitle">Naturally you.</h3><p id="readinessText">Balanced light and subtle color. A considered starting point for your camera.</p></div><button class="scan-button" id="fixNaturallyButton">Apply natural balance <svg class="icon"><use href="#i-arrow"/></svg></button></article>
+            <div class="readiness-list"><div><span>Camera</span><b id="cameraSetupState">Not started</b></div><div><span>Light profile</span><b id="lightState" class="state-good">Natural</b></div><div><span>Processing</span><b class="state-good">On this device</b></div></div>
+            <p class="section-label">Find your starting point <span>4 profiles</span></p>
+            <div class="profile-grid"><button class="profile-button active" data-profile="natural" aria-pressed="true"><svg class="icon"><use href="#i-spark"/></svg><b>Natural</b><small>Soft, balanced color</small></button><button class="profile-button" data-profile="lowlight" aria-pressed="false"><svg class="icon"><use href="#i-sun"/></svg><b>Low light</b><small>A warmer light lift</small></button><button class="profile-button" data-profile="teaching" aria-pressed="false"><svg class="icon"><use href="#i-bookmark"/></svg><b>Teaching</b><small>Room for ideas</small></button><button class="profile-button" data-profile="presentation" aria-pressed="false"><svg class="icon"><use href="#i-device"/></svg><b>Presentation</b><small>Crisp, composed color</small></button></div>
+            <div class="switch-row"><div><b>Side-by-side comparison</b><small>Original on the left, your look on the right</small></div><button class="switch" id="splitSwitch" type="button" role="switch" aria-checked="false" aria-label="Side-by-side comparison"><i></i></button></div>
+            <div class="capability-note"><svg class="icon"><use href="#i-info"/></svg><p>Adjustments appear inside MeetingLens. Using them as a camera in Teams, Zoom or Meet requires a separate Windows virtual camera companion.</p></div>
           </section>
 
           <section class="control-panel" id="looks-panel">
-            <p class="intro-copy">Fine-tune the real camera preview. Settings are stored only in this browser.</p>
-            <p class="section-label">Camera look</p>
-            <div class="look-grid">
-              <button class="look-button active" data-look="natural"><i class="look-preview natural"></i><b>Natural</b></button>
-              <button class="look-button" data-look="clear"><i class="look-preview clear"></i><b>Clear</b></button>
-              <button class="look-button" data-look="warm"><i class="look-preview warm"></i><b>Warm</b></button>
-              <button class="look-button" data-look="studio"><i class="look-preview studio"></i><b>Studio</b></button>
-              <button class="look-button" data-look="mono"><i class="look-preview mono"></i><b>Mono</b></button>
-              <button class="look-button" data-look="brand"><i class="look-preview brand"></i><b>Brand</b></button>
-            </div>
-
-            <div class="setting-block">
-              <label for="brightnessRange"><span>Light lift</span><output id="brightnessOutput">56%</output></label>
-              <input id="brightnessRange" type="range" min="0" max="100" value="56">
-            </div>
-            <div class="setting-block">
-              <label for="contrastRange"><span>Clarity</span><output id="contrastOutput">54%</output></label>
-              <input id="contrastRange" type="range" min="0" max="100" value="54">
-            </div>
-            <div class="setting-block">
-              <label for="saturationRange"><span>Color balance</span><output id="saturationOutput">53%</output></label>
-              <input id="saturationRange" type="range" min="0" max="100" value="53">
-            </div>
-            <div class="switch-row"><div><b>Softness</b><small>Very subtle full-frame smoothing</small></div><button class="switch" id="softnessSwitch" aria-label="Toggle subtle softness"><i></i></button></div>
+            <p class="intro-copy">Subtle adjustments, a more polished picture. Choose a look, then make it your own.</p>
+            <p class="section-label">Your look <span>6 finishes</span></p>
+            <div class="look-grid"><button class="look-button active" data-look="natural" aria-pressed="true"><i class="look-preview natural"></i><b>Natural</b></button><button class="look-button" data-look="clear" aria-pressed="false"><i class="look-preview clear"></i><b>Clear</b></button><button class="look-button" data-look="warm" aria-pressed="false"><i class="look-preview warm"></i><b>Warm</b></button><button class="look-button" data-look="studio" aria-pressed="false"><i class="look-preview studio"></i><b>Studio</b></button><button class="look-button" data-look="mono" aria-pressed="false"><i class="look-preview mono"></i><b>Mono</b></button><button class="look-button" data-look="brand" aria-pressed="false"><i class="look-preview brand"></i><b>Vivid</b></button></div>
+            <div class="setting-block"><label for="brightnessRange"><span>Light lift</span><output id="brightnessOutput" for="brightnessRange">56%</output></label><input id="brightnessRange" type="range" min="0" max="100" value="56"></div>
+            <div class="setting-block"><label for="contrastRange"><span>Contrast</span><output id="contrastOutput" for="contrastRange">54%</output></label><input id="contrastRange" type="range" min="0" max="100" value="54"></div>
+            <div class="setting-block"><label for="saturationRange"><span>Color</span><output id="saturationOutput" for="saturationRange">53%</output></label><input id="saturationRange" type="range" min="0" max="100" value="53"></div>
+            <div class="setting-block"><label for="temperatureRange"><span>Temperature</span><output id="temperatureOutput" for="temperatureRange">0</output></label><input id="temperatureRange" type="range" min="-50" max="50" value="0"><div class="range-hints"><span>Cool</span><span>Warm</span></div></div>
+            <div class="setting-block"><label for="vignetteRange"><span>Vignette</span><output id="vignetteOutput" for="vignetteRange">0%</output></label><input id="vignetteRange" type="range" min="0" max="60" value="0"></div>
+            <div class="switch-row"><div><b>Soft finish</b><small>Subtle smoothing across the whole frame</small></div><button class="switch" id="softnessSwitch" type="button" role="switch" aria-checked="false" aria-label="Soft finish"><i></i></button></div>
           </section>
 
           <section class="control-panel" id="background-panel">
-            <div class="capability-note amber-note"><span>i</span><p>These visual scenes work in the included demo preview. Real person/background separation needs an on-device segmentation model or native companion.</p></div>
-            <p class="section-label">Preview scene</p>
-            <div class="scene-list">
-              <button class="scene-button active" data-scene="room"><i class="scene-thumbnail room"></i><span><b>Keep my room</b><small>Natural home office</small></span><em>On</em></button>
-              <button class="scene-button" data-scene="soft"><i class="scene-thumbnail soft"></i><span><b>Soft focus</b><small>Subtle, calm visual preview</small></span></button>
-              <button class="scene-button" data-scene="studio"><i class="scene-thumbnail studio"></i><span><b>Studio blue</b><small>Professional demo scene</small></span></button>
-              <button class="scene-button" data-scene="night"><i class="scene-thumbnail night"></i><span><b>Dark neutral</b><small>Low-distraction demo scene</small></span></button>
-            </div>
-            <div class="setting-block">
-              <label for="sceneStrengthRange"><span>Scene strength</span><output id="sceneStrengthOutput">45%</output></label>
-              <input id="sceneStrengthRange" type="range" min="0" max="100" value="45">
-            </div>
+            <p class="intro-copy">Explore a different atmosphere with six curated scenes for the sample portrait.</p><div class="capability-note"><svg class="icon"><use href="#i-info"/></svg><p>Sample only. These scenes do not replace your live camera background.</p></div>
+            <p class="section-label">Curated scenes <span>6 spaces</span></p>
+            <div class="scene-list"><button class="scene-button active" data-scene="room" aria-pressed="true"><i class="scene-thumbnail room"></i><span><b>Home office</b><small>Warm, familiar surroundings</small></span></button><button class="scene-button" data-scene="soft" aria-pressed="false"><i class="scene-thumbnail soft"></i><span><b>Soft focus</b><small>A gentle sense of depth</small></span></button><button class="scene-button" data-scene="studio" aria-pressed="false"><i class="scene-thumbnail studio"></i><span><b>Studio blue</b><small>Cool and composed</small></span></button><button class="scene-button" data-scene="night" aria-pressed="false"><i class="scene-thumbnail night"></i><span><b>Midnight</b><small>Quiet, darker tones</small></span></button><button class="scene-button" data-scene="dawn" aria-pressed="false"><i class="scene-thumbnail dawn"></i><span><b>Golden hour</b><small>A touch of warmth</small></span></button><button class="scene-button" data-scene="slate" aria-pressed="false"><i class="scene-thumbnail slate"></i><span><b>Slate</b><small>A clean neutral palette</small></span></button></div>
+            <div class="setting-block"><label for="sceneStrengthRange"><span>Scene strength</span><output id="sceneStrengthOutput" for="sceneStrengthRange">45%</output></label><input id="sceneStrengthRange" type="range" min="0" max="100" value="45"><p class="field-help">Applies to the sample portrait only.</p></div>
           </section>
 
           <section class="control-panel" id="frame-panel">
-            <p class="intro-copy">Use the guide to position yourself comfortably. Automatic face tracking is not enabled in this PWA.</p>
-            <p class="section-label">Framing mode</p>
-            <div class="segmented-control">
-              <button class="segment active" data-frame="conversation">Conversation</button>
-              <button class="segment" data-frame="teaching">Teaching</button>
-              <button class="segment" data-frame="wide">Wide</button>
-            </div>
-            <div class="setting-block">
-              <label for="zoomRange"><span>Preview crop</span><output id="zoomOutput">100%</output></label>
-              <input id="zoomRange" type="range" min="85" max="120" value="100">
-            </div>
-            <div class="switch-row"><div><b>Show safe frame</b><small>Visible only inside MeetingLens</small></div><button class="switch on" id="frameSwitch" aria-label="Toggle framing guide"><i></i></button></div>
-            <div class="switch-row"><div><b>Keep eye line centered</b><small>Composition reminder</small></div><button class="switch on" id="eyeLineSwitch" aria-label="Toggle eye line guide"><i></i></button></div>
+            <p class="intro-copy">Give yourself a little space. Guides help you compose the picture; they do not track your face.</p>
+            <p class="section-label">Framing guide</p><div class="segmented-control"><button class="segment active" data-frame="conversation" aria-pressed="true">Portrait</button><button class="segment" data-frame="teaching" aria-pressed="false">Teaching</button><button class="segment" data-frame="wide" aria-pressed="false">Wide</button></div>
+            <div class="setting-block"><label for="zoomRange"><span>Preview crop</span><output id="zoomOutput" for="zoomRange">100%</output></label><input id="zoomRange" type="range" min="100" max="160" value="100"></div>
+            <div class="switch-row"><div><b>Safe frame</b><small>A quiet guide for your composition</small></div><button class="switch on" id="frameSwitch" type="button" role="switch" aria-checked="true" aria-label="Safe frame guide"><i></i></button></div>
+            <div class="switch-row"><div><b>Eye line</b><small>A visual reminder of your camera height</small></div><button class="switch on" id="eyeLineSwitch" type="button" role="switch" aria-checked="true" aria-label="Eye line guide"><i></i></button></div>
+            <div class="switch-row"><div><b>Rule of thirds</b><small>Find balance with a simple grid</small></div><button class="switch" id="gridSwitch" type="button" role="switch" aria-checked="false" aria-label="Rule of thirds grid"><i></i></button></div>
+            <div class="switch-row"><div><b>Mirror preview</b><small>A familiar view, like looking in a mirror</small></div><button class="switch on" id="mirrorSwitch" type="button" role="switch" aria-checked="true" aria-label="Mirror preview"><i></i></button></div>
+          </section>
+
+          <section class="control-panel" id="device-panel">
+            <p class="intro-copy">Choose your camera and a comfortable balance between picture quality and performance.</p>
+            <div class="field-group"><label for="cameraSelect">Camera</label><select id="cameraSelect"><option value="">Default camera</option></select><p class="field-help">Camera names appear after you allow access.</p></div>
+            <div class="field-group"><label for="qualitySelect">Preview quality</label><select id="qualitySelect"><option value="balanced">Balanced · 1280 × 720</option><option value="high">High · 1920 × 1080</option><option value="efficient">Efficient · 640 × 360</option></select><p class="field-help">Your camera may offer a different resolution.</p></div>
+            <p class="section-label">Snapshot settings</p>
+            <div class="field-group"><label for="timerSelect">Self-timer</label><select id="timerSelect"><option value="0">Off · capture immediately</option><option value="3">3 seconds</option><option value="5">5 seconds</option></select></div>
+            <div class="field-group"><label for="snapshotFormat">Image format</label><select id="snapshotFormat"><option value="png">PNG · best quality</option><option value="jpeg">JPEG · smaller file</option></select><p class="field-help">Guides and interface controls are excluded.</p></div>
+            <div class="capability-note"><svg class="icon"><use href="#i-info"/></svg><p>If playback feels slow, choose Efficient quality. Close other apps using the camera before switching devices.</p></div>
+          </section>
+
+          <section class="control-panel" id="presets-panel">
+            <p class="intro-copy">Keep the look that works for you. Presets save your adjustments on this device.</p>
+            <div class="field-group"><label for="presetName">Name your look</label><input id="presetName" type="text" maxlength="40" placeholder="e.g. Morning meetings" autocomplete="off"></div>
+            <button class="wide-button" id="savePresetButton"><svg class="icon"><use href="#i-bookmark"/></svg>Save current adjustments</button>
+            <p class="section-label">Your saved presets</p><div class="preset-list" id="presetList"><p class="empty-presets">Your favorite looks will feel right at home here.</p></div>
+            <div class="preset-actions"><button class="control-button" id="exportPresetButton"><svg class="icon"><use href="#i-download"/></svg>Export</button><label class="control-button import-button" for="importPresetInput">Import JSON<input id="importPresetInput" type="file" accept="application/json,.json"></label></div>
+            <button class="text-button danger-button" id="clearPresetsButton">Clear saved presets</button><p class="field-help">Export a backup before clearing browser storage.</p>
           </section>
 
           <section class="control-panel" id="privacy-panel">
-            <article class="privacy-card">
-              <span class="shield-mark">◈</span>
-              <div><h3>Privacy Shield</h3><p>Instantly pauses the camera preview and hides the frame in MeetingLens.</p></div>
-              <button class="privacy-button" id="privacyButton">Activate shield</button>
-            </article>
-            <div class="privacy-list">
-              <div><span>Camera data</span><b>Not uploaded</b></div>
-              <div><span>Saved settings</span><b>Local browser storage</b></div>
-              <div><span>Snapshots</span><b>You choose when to download</b></div>
-            </div>
-            <a class="policy-link" href="./privacy.html">Read the full privacy policy <span>→</span></a>
+            <article class="privacy-card"><span class="shield-mark"><svg class="icon"><use href="#i-shield"/></svg></span><div><p class="card-kicker">YOUR SPACE. YOUR CONTROL.</p><h3>Privacy Shield</h3><p>Pause your camera and cover the preview whenever you need a moment.</p></div><button class="privacy-button" id="privacyButton">Activate shield <svg class="icon"><use href="#i-shield"/></svg></button></article>
+            <div class="switch-row"><div><b>Pause when you switch away</b><small>Release the camera while this app is hidden</small></div><button class="switch on" id="autoPauseSwitch" type="button" role="switch" aria-checked="true" aria-label="Pause camera when app is hidden"><i></i></button></div>
+            <div class="privacy-list"><div><span>Camera processing</span><b>On your device</b></div><div><span>Camera video uploaded</span><b>Never</b></div><div><span>Saved adjustments</span><b>This browser only</b></div><div><span>Snapshots</span><b>Saved at your request</b></div></div>
+            <p class="intro-copy">Privacy Shield controls the MeetingLens preview. It does not mute or pause other meeting apps.</p><a class="policy-link" href="./privacy.html">Read our privacy policy <svg class="icon"><use href="#i-arrow"/></svg></a>
           </section>
         </div>
+        <div class="inspector-footer"><svg class="icon"><use href="#i-check"/></svg><span id="settingsSaveStatus">Adjustments saved on this device</span></div>
       </aside>
     </main>
   </div>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"><span>✓</span><p id="toastText">Ready.</p></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"><span><svg class="icon"><use href="#i-check"/></svg></span><p id="toastText">Ready.</p></div>
   <script src="./assets/js/app.js" defer></script>
 </body>
 </html>
