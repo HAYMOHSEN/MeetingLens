@@ -1,4 +1,4 @@
-# MeetingLens 3.1.0 Store Upload Pack
+# MeetingLens 3.1.1 Store Upload Pack
 
 Use these files for the **PWA** listing. English/Arabic copy is in STORE_LISTING.md; the source project includes RELEASE_CHECKLIST.md and FEATURE_MATRIX.md. Native Windows source projects are separate and are not part of the PWABuilder PWA package.
 
@@ -48,6 +48,7 @@ Check the current Partner Center field for accepted size/format. These assets ar
 ## Feature boundaries for the listing
 
 - Auto Framing, live background replacement/blur, and modest landmark-assisted refinement run locally inside the PWA. Selecting one of six scenes loads local segmentation automatically; actual-room fallback and status feedback apply until usable analysis is ready. The labeled fictional sample also demonstrates the scenes without camera access.
+- Version 3.1.1 reduces the foggy person boundary during replacement. Scene softness stays behind the person. Avoid claims of perfect hair/finger separation or guaranteed results under all lighting and motion conditions.
 - Local vision runs through CPU/WebAssembly with a required WebGL2 texture bridge. Effects apply to MeetingLens preview and snapshots; they do not route enhanced video into Zoom or Teams.
 - Photo enhancement and small-object inpainting are local image-processing tools, not cloud/generative reconstruction.
 - Microphone noise suppression depends on browser support and does not route audio into meetings.

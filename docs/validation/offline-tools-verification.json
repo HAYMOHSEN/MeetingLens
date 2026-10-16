@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-16T20:06:22.494Z",
+  "checkedAt": "2026-10-16T21:25:49.608Z",
   "environment": "Headless Chromium/Linux, SwiftShader WebGL2",
   "offlineAfterSuccessfulFirstInstall": true,
   "physicalWindowsHardwareTested": false,
@@ -7,27 +7,27 @@
     {
       "name": "Real service worker installs every v3 tool and all eight local AI runtime files",
       "passed": true,
-      "ms": 353
+      "ms": 356
     },
     {
       "name": "Offline Photo Lab loads its real whiteboard sample and suggests physical board corners",
       "passed": true,
-      "ms": 3066
+      "ms": 2838
     },
     {
       "name": "Offline Windows capability viewer imports a local report without probing hardware",
       "passed": true,
-      "ms": 555
+      "ms": 585
     },
     {
       "name": "Cached jsQR decoder loads offline and decodes a real QR fixture",
       "passed": true,
-      "ms": 804
+      "ms": 1237
     },
     {
       "name": "Offline studio initializes actual cached AI models and detects face and person matte",
       "passed": true,
-      "ms": 2189
+      "ms": 2238
     }
   ],
   "evidence": {
@@ -60,7 +60,7 @@
       {
         "file": "assets/js/vision-effects.js",
         "cached": true,
-        "bytes": 21935
+        "bytes": 27113
       },
       {
         "file": "assets/vendor/jsqr/jsQR.js",
@@ -161,23 +161,23 @@
         "errors": {}
       },
       "face": {
-        "x": 0.42377910017967224,
-        "y": 0.20269106328487396,
-        "width": 0.14317354559898376,
-        "height": 0.3039179593324661,
+        "x": 0.42378076910972595,
+        "y": 0.20269690454006195,
+        "width": 0.14317038655281067,
+        "height": 0.30390729010105133,
         "eyes": [
           {
-            "x": 0.46319781243801117,
-            "y": 0.3056623637676239
+            "x": 0.46319854259490967,
+            "y": 0.3056642860174179
           },
           {
-            "x": 0.5233401954174042,
-            "y": 0.29610371589660645
+            "x": 0.5233418941497803,
+            "y": 0.29610490798950195
           }
         ],
         "mouth": {
-          "x": 0.49905169010162354,
-          "y": 0.41504769027233124
+          "x": 0.4990518391132355,
+          "y": 0.4150460511445999
         }
       },
       "landmarks": 478,
@@ -187,7 +187,7 @@
         "foreground": 65270,
         "background": 163138
       },
-      "inferenceMs": 214.20000000298023
+      "inferenceMs": 189.5
     }
   },
   "errors": []

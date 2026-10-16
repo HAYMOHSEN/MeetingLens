@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-10-16T20:10:57.476626+00:00",
-  "version": "3.1.0",
+  "checkedAt": "2026-10-16T21:31:33.087844+00:00",
+  "version": "3.1.1",
   "command": "node scripts/verify-offline.cjs",
   "environment": "Headless Chromium/Linux, real service worker",
   "checks": [

@@ -1,51 +1,51 @@
 {
-  "checkedAt": "2026-10-16T20:06:06.414Z",
+  "checkedAt": "2026-10-16T21:25:32.832Z",
   "physicalWindowsHardwareTested": false,
   "reports": [
     {
       "name": "Studio modules, every panel and linked workspaces load without errors",
       "pass": true,
-      "ms": 4240
+      "ms": 4502
     },
     {
       "name": "Fine zoom keeps 0.1 percent precision in stored state and rendered crop",
       "pass": true,
-      "ms": 2299
+      "ms": 2256
     },
     {
       "name": "Requested camera resolution and FPS recover safely from unsupported constraints",
       "pass": true,
-      "ms": 1100
+      "ms": 2034
     },
     {
       "name": "Real local models detect the portrait; UI blur changes the background while preserving the face",
       "pass": true,
-      "ms": 10994
+      "ms": 11215
     },
     {
       "name": "Auto Framing uses a real face box and changes the preview crop",
       "pass": true,
-      "ms": 9164
+      "ms": 8926
     },
     {
       "name": "Basic preview bypasses app filters, mirror, zoom and AI without claiming raw Windows access",
       "pass": true,
-      "ms": 11910
+      "ms": 12972
     },
     {
       "name": "Missing AI models leave camera and manual preview usable",
       "pass": true,
-      "ms": 8005
+      "ms": 8176
     },
     {
       "name": "Privacy Shield rejects pending inference results and ends all camera tracks",
       "pass": true,
-      "ms": 2873
+      "ms": 2918
     },
     {
       "name": "Changing sample effects during pending inference schedules the current configuration",
       "pass": true,
-      "ms": 2540
+      "ms": 2873
     }
   ]
 }

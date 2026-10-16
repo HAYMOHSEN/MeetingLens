@@ -1,10 +1,10 @@
-# MeetingLens 3.1.0 validation record
+# MeetingLens 3.1.1 validation record
 
-Checked on **16 October 2026**. This is development evidence for the tested configuration, not Microsoft Store certification or proof of compatibility with every webcam. Browser tests ran in headless Chromium on Linux; camera/microphone flows used synthetic media and controlled events unless otherwise stated.
+Checked for the **17 October 2026** release. This is development evidence for the tested configuration, not Microsoft Store certification or proof of compatibility with every webcam. Browser tests ran in headless Chromium on Linux; camera/microphone flows used synthetic media and controlled events unless otherwise stated.
 
 ## Browser results
 
-**136 browser checks passed** across fourteen suites. This includes the existing camera, photo, session and shipping workflows, plus 20 checks for the live background compositor and its camera integration.
+**140 browser checks passed** across fourteen suites. This includes the existing camera, photo, session and shipping workflows, plus 24 checks for the live background compositor and its camera integration.
 
 | Suite | Result | What the checks establish |
 |---|---:|---|
@@ -20,7 +20,7 @@ Checked on **16 October 2026**. This is development evidence for the tested conf
 | Shipping photo — scripts/verify-shipping-photo.cjs | 7/7 | Rejected-import edit/selection/mask/Undo preservation, bounded tall-image thumbnails, enlarged-whiteboard memory accounting, alpha/EXIF handling and export. |
 | Shipping session — scripts/verify-shipping-session.cjs | 16/16 | Backup mode/picker/deletion races, recorder callback isolation, tied-time retention, database retry/late connection closure, quota/write aborts, QR privacy and late microphone cleanup. |
 | Shipping shell — scripts/verify-shipping-shell.cjs | 6/6 | Local links/assets, manifest scope/dimensions, actual repository-path service worker, 320/768/1366 layouts/named controls, offline pages and scoped update/cache cleanup. |
-| Background compositor — scripts/verify-background-compositor.cjs | 11/11 | Actual scene/person compositing, foreground preservation, aspect-cover cropping, scene-only softness, matte edge cleanup, unavailable-image/mask fallback, real bundled segmentation and browser errors. |
+| Background compositor — scripts/verify-background-compositor.cjs | 15/15 | Actual scene/person compositing, foreground preservation, aspect-cover cropping, scene-only softness, matte edge cleanup, narrower confidence transitions, exact clothing texture, partial hair coverage, smooth diagonal boundaries, unavailable-image/mask fallback, real bundled segmentation and browser errors. |
 | Live backgrounds — scripts/verify-live-backgrounds.cjs | 9/9 | All six scenes on a controlled MediaStream, automatic model loading, actual PNG export, real-room restore, delayed/missing models, scene-loading races, original/Basic bypass, stale masks, Shield and camera restart. |
 
 Suite totals are behavioral scenarios, not a guarantee of defect-free software. The session folder tests use simulated directory APIs; they do not replace a real Windows folder permission/write test. Synthetic microphones do not establish speech clarity or real-room noise suppression. File exports and QR decoding are actual browser outputs from controlled fixtures.
@@ -30,6 +30,8 @@ Native-report testing exposed and corrected overflow from long imported text at 
 Reviewed JSON results are included in docs/validation/. The separate offline-tools run detected 478 face landmarks and a person mask from cached models. Recorded fixture timings describe Linux/SwiftShader runs, not Windows performance. SHIP_REVIEW.md lists corrected defects and the remaining publication requirements.
 
 The live-background checks feed a generated portrait and a controlled room through an actual browser MediaStream and the bundled segmentation model. Pixel comparisons verify that all six scenes change the room while retaining measured foreground pixels; the exported PNG is decoded and checked too. This reproduces the live rendering path without opening a physical webcam. The Store background screenshot shows that controlled stream and visibly labels the generated-portrait demonstration. Real-camera quality across hair, motion and lighting still requires Windows hardware testing.
+
+The v3.1.1 boundary regressions compare a broad confidence ramp with an independent copy of the prior rendering path. The measured 10–90% transition narrowed from 77 to 37 pixels while retaining intermediate alpha coverage. The controlled room-fringe fixture measured a 40.7% reduction against its untrimmed baseline. Separate fixtures check byte-exact clothing texture, visible partial hair strands and gaps, gradual diagonal crossings without ringing, and unchanged subject pixels when only scene softness increases. These are fixture measurements, not quality guarantees for every webcam. A passing synthetic hair fixture does not prove that the model detects every real hair. Refinement timings in the JSON record describe this Linux fixture only; they are not Windows frame-rate claims.
 
 ## Real bundled vision inference
 
@@ -55,7 +57,7 @@ Evidence: native-windows/validation/managed-source-check.json.
 
 ## Historical v2.0.1 baseline
 
-The previous professional-background update passed 22 checks on 16 October 2026: six background, 13 studio, and three offline/update scenarios. Visual checks covered 1920×1080, 1366×768, and 390×844. Those historical results remain a separate baseline; the table above describes the v3.1.0 test run.
+The previous professional-background update passed 22 checks on 16 October 2026: six background, 13 studio, and three offline/update scenarios. Visual checks covered 1920×1080, 1366×768, and 390×844. Those historical results remain a separate baseline; the table above describes the v3.1.1 test run.
 
 ## Release requirements still separate
 

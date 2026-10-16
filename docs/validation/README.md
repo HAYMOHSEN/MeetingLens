@@ -1,6 +1,6 @@
 # Release validation evidence
 
-These reviewed JSON records accompany MeetingLens 3.1.0. See ../../VALIDATION.md for the 136 browser scenarios, actual live background/model/QR/image processing, synthetic-device boundaries, and separate native protocol/source validation.
+These reviewed JSON records accompany MeetingLens 3.1.1. See ../../VALIDATION.md for the 140 browser scenarios, actual live background/model/QR/image processing, body-edge regressions, synthetic-device boundaries, and separate native protocol/source validation.
 
 Browser records use local fixtures and synthetic camera/microphone streams on Linux. They contain no user camera frames, personal photos or recordings. They do not certify Windows hardware, full native packaging, C++ builds, NPU performance or meeting-app routing.
 

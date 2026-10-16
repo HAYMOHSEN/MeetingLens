@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-16T20:06:44.855Z",
+  "testedAt": "2026-10-16T21:26:12.373Z",
   "environment": "Headless Chromium; deterministic deferred permissions, recorder callbacks and backup writes; real IndexedDB",
   "checks": [
     {

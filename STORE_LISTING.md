@@ -1,6 +1,6 @@
 # MeetingLens — Microsoft Store Listing Pack
 
-Copy for the **3.1.0 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
+Copy for the **3.1.1 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
 
 ## Product identity
 
@@ -9,7 +9,7 @@ Copy for the **3.1.0 PWA release**. Confirm it against the deployed and generate
 | Product name | MeetingLens | MeetingLens |
 | Short title | MeetingLens | MeetingLens |
 | Suggested category | Productivity | الإنتاجية |
-| Version | 3.1.0 | 3.1.0 |
+| Version | 3.1.1 | 3.1.1 |
 
 Reserve the final name in Partner Center. Package identity, supported Windows versions, languages, and declarations must match the actual submitted package.
 
@@ -119,15 +119,15 @@ camera snapshots
 لقطات الكاميرا
 ~~~
 
-## What's new in 3.1.0
+## What's new in 3.1.1
 
 **English**
 
-Professional backgrounds now work with your live webcam inside MeetingLens. Choose a scene to load local person segmentation automatically, keep yourself in front of the selected interior, and adjust scene softness. Use real background restores the actual room and disables blur. Loading and unavailable states show clear feedback. Existing installations should apply the app's Update banner and reload. Includes the reliability corrections from 3.0.1 for local models, photo imports, backups and capture cleanup.
+Reduced the foggy outline around the person when replacing the camera background. A tighter transition keeps the subject clearer, while scene softness stays behind the person. Fine hair, fingers and fast motion still depend on model detection and camera conditions. All six live backgrounds, automatic local model loading and safe real-room fallback are retained. Existing installations should apply the app's Update banner and reload.
 
 **Arabic**
 
-تعمل الخلفيات الاحترافية الآن مع كاميرتك المباشرة داخل MeetingLens. اختر خلفية لتحميل فصل الشخص المحلي تلقائياً وإظهارك أمام الخلفية الداخلية المختارة، ثم اضبط نعومتها. يعيد Use real background الغرفة الفعلية ويوقف التمويه أيضاً. تعرض حالات التحميل وعدم التوفر رسائل واضحة. على المستخدمين الحاليين تطبيق إشعار Update وإعادة تحميل التطبيق. ويشمل الإصدار إصلاحات 3.0.1 لتحميل النماذج واستيراد الصور والنسخ الاحتياطي وإيقاف الالتقاط.
+تقليل الهالة الضبابية حول الشخص عند استبدال خلفية الكاميرا، مع انتقال أدق عند الحواف للحفاظ على وضوح الشخص. تظل نعومة الخلفية مطبّقة خلف الشخص. وتعتمد دقة فصل الشعر الرفيع والأصابع والحركة السريعة على النموذج وظروف التصوير. يحتفظ الإصدار بالخلفيات الست المباشرة والتحميل التلقائي للنماذج المحلية والعودة الآمنة إلى الغرفة الفعلية عند تعذّر التحليل. على المستخدمين الحاليين تطبيق إشعار Update وإعادة تحميل التطبيق.
 
 ## Screenshot assets and captions
 

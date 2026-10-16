@@ -173,30 +173,104 @@
     ctx.drawImage(image, (width - dw) / 2, (height - dh) / 2, dw, dh);
     return true;
   }
-  function cleanPersonMask(mask, version) {
+  // The model matte is much smaller than a camera frame. Treat it as
+  // confidence, rather than displaying its entire soft transition as fog.
+  // Color weights are quantized only for lookup; source RGB is never changed.
+  const matteColorWeights = Float32Array.from({ length: 3073 }, (_, i) => Math.exp(-i * 64 / (2 * 36 * 36)));
+  function matteAxis(length, modelLength, pixelStride, maskStride) {
+    const positions = new Int32Array(length * 4), measured = new Int32Array(length * 4);
+    const weights = new Float32Array(length * 4), distances = new Float32Array(length * 4);
+    const scale = length / modelLength;
+    for (let p = 0; p < length; p++) {
+      const at = (p + 0.5) / scale - 0.5, center = Math.floor(at);
+      for (let d = -1; d <= 2; d++) {
+        const q = Math.max(0, Math.min(modelLength - 1, center + d)), i = p * 4 + d + 1;
+        positions[i] = Math.min(length - 1, Math.floor((q + 0.5) * scale)) * pixelStride;
+        measured[i] = q * maskStride; distances[i] = (q - at) * (q - at);
+        // Fade the small outer tail to zero before a sample leaves the window.
+        // That makes floor-based sampling continuous along diagonal outlines.
+        const taper = clamp(2 - Math.abs(q - at));
+        weights[i] = Math.exp(-distances[i] / (2 * 0.85 * 0.85)) * taper * taper * (3 - 2 * taper);
+      }
+    }
+    return { positions, measured, weights, distances };
+  }
+  function cleanPersonMask(mask, version, source, width, height) {
     const size = imageSize(mask);
     if (!size || size.width * size.height > 1048576) return mask;
+    // Bound the occasional readback on very large camera inputs. At ordinary
+    // 720p this is native resolution, so no extra mask enlargement softens it.
+    const scale = Math.min(1, 1280 / Math.max(width, height));
+    const w = Math.max(1, Math.round(width * scale)), h = Math.max(1, Math.round(height * scale));
+    const sourceSize = imageSize(source);
     let record = edgeMasks.get(mask);
-    if (record && Number.isFinite(version) && record.version === version && record.canvas.width === size.width && record.canvas.height === size.height) return record.canvas;
-    if (!record) { record = { canvas: canvas(), version: null }; edgeMasks.set(mask, record); }
-    const c = record.canvas; c.width = size.width; c.height = size.height;
+    if (record && Number.isFinite(version) && record.version === version && record.canvas.width === w && record.canvas.height === h &&
+      record.maskWidth === size.width && record.maskHeight === size.height && record.source === source &&
+      record.sourceWidth === sourceSize?.width && record.sourceHeight === sourceSize?.height) return record.canvas;
+    if (!record) { record = { canvas: canvas(), measured: canvas(), guide: canvas(), version: null }; edgeMasks.set(mask, record); }
+    const c = record.canvas; c.width = w; c.height = h;
     const ctx = c.getContext("2d", { willReadFrequently: true });
     try {
-      ctx.drawImage(mask, 0, 0);
-      const image = ctx.getImageData(0, 0, size.width, size.height), original = new Uint8ClampedArray(image.data);
-      // Pull the matte in by less than half of one model pixel. Mixing a local
-      // minimum with the measured confidence reduces room-colored fringes;
-      // unlike repeated alpha multiplication it preserves soft uniform regions
-      // and full-confidence foreground. Do not trim where a person meets the
-      // frame edge. Source RGB pixels are never recolored.
-      for (let y = 1; y < size.height - 1; y++) for (let x = 1; x < size.width - 1; x++) {
-        const i = (y * size.width + x) * 4 + 3, alpha = original[i];
-        if (!alpha) continue;
-        let minimum = alpha;
-        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) minimum = Math.min(minimum, original[i + (dy * size.width + dx) * 4]);
-        image.data[i] = Math.round(alpha * 0.55 + minimum * 0.45);
+      ctx.imageSmoothingEnabled = true; ctx.drawImage(mask, 0, 0, w, h);
+      const image = ctx.getImageData(0, 0, w, h), pixels = image.data;
+      const measured = record.measured; measured.width = size.width; measured.height = size.height;
+      const measuredContext = measured.getContext("2d", { willReadFrequently: true });
+      measuredContext.drawImage(mask, 0, 0);
+      const alpha = measuredContext.getImageData(0, 0, size.width, size.height).data;
+      const sx = w / size.width, sy = h / size.height;
+      let guide = null;
+      // The guide is read once for a new inference result, not every rendered
+      // video frame. If readback is unavailable, confidence cleanup still works.
+      if (sourceSize && (sx > 1.25 || sy > 1.25)) try {
+        const g = record.guide; g.width = w; g.height = h;
+        const guideContext = g.getContext("2d", { willReadFrequently: true });
+        guideContext.drawImage(source, 0, 0, w, h); guide = guideContext.getImageData(0, 0, w, h).data;
+      } catch { /* Cross-origin/closed image: retain the confidence-only matte. */ }
+      const guided = Boolean(guide && (sx > 1.25 || sy > 1.25));
+      if (guided && (!record.geometry || record.geometry.width !== w || record.geometry.height !== h ||
+        record.geometry.maskWidth !== size.width || record.geometry.maskHeight !== size.height)) {
+        // Geometry is constant between model frames. Precompute the separable
+        // four-sample neighborhood so uncertain pixels use cheap lookups,
+        // not coordinate conversions and exponentials on every draw. The tapered
+        // outer tail keeps diagonal edges continuous when the window advances.
+        record.geometry = { width: w, height: h, maskWidth: size.width, maskHeight: size.height,
+          x: matteAxis(w, size.width, 4, 4), y: matteAxis(h, size.height, w * 4, size.width * 4) };
       }
-      ctx.putImageData(image, 0, 0); record.version = version;
+      const gx = record.geometry?.x, gy = record.geometry?.y;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4, original = pixels[i + 3];
+        if (original === 0 || original === 255) continue;
+        let confidence = original / 255;
+        if (guided && original > 8 && original < 247) {
+          const xi = x * 4, yi = y * 4;
+          let total = 0.1, weighted = confidence * total, matchingMinimum = confidence;
+          // Joint bilateral upsampling favors nearby mask samples with colors
+          // matching this camera pixel. It follows shoulders and hair edges
+          // without using scene colors or shrinking every silhouette equally.
+          for (let dy = 0; dy < 4; dy++) for (let dx = 0; dx < 4; dx++) {
+            const q = gy.positions[yi + dy] + gx.positions[xi + dx];
+            const dr = guide[i] - guide[q], dg = guide[i + 1] - guide[q + 1], db = guide[i + 2] - guide[q + 2];
+            const colorWeight = matteColorWeights[(dr * dr + dg * dg + db * db) >> 6];
+            const distance = gy.distances[yi + dy] + gx.distances[xi + dx];
+            const weight = colorWeight * gy.weights[yi + dy] * gx.weights[xi + dx];
+            const measuredConfidence = alpha[gy.measured[yi + dy] + gx.measured[xi + dx] + 3] / 255;
+            total += weight; weighted += measuredConfidence * weight;
+            if (colorWeight > 0.8 && distance <= 2.25) matchingMinimum = Math.min(matchingMinimum, measuredConfidence);
+          }
+          confidence = weighted / total;
+          // A broad model edge can include room-colored pixels. Contract only
+          // toward nearby low-confidence samples matching this source color,
+          // rather than eroding hair against a differently colored room.
+          confidence = confidence * 0.8 + Math.min(confidence, matchingMinimum) * 0.2;
+        }
+        // Narrow, symmetric transition: 50% remains 50%, confident pixels stay
+        // opaque, and a small antialiased band survives instead of a hard cut.
+        const t = clamp((confidence - 0.18) / 0.64);
+        pixels[i + 3] = Math.round(t * t * (3 - 2 * t) * 255);
+      }
+      ctx.putImageData(image, 0, 0);
+      Object.assign(record, { version, maskWidth: size.width, maskHeight: size.height, source,
+        sourceWidth: sourceSize?.width, sourceHeight: sourceSize?.height });
       return c;
     } catch { return mask; }
   }
@@ -218,10 +292,10 @@
       fg.globalCompositeOperation = "source-over"; fg.globalAlpha = 1; fg.filter = "none";
       fg.clearRect(0, 0, w, h); fg.drawImage(b.source, 0, 0);
       fg.globalCompositeOperation = "destination-in";
-      // The bundled segmentation mask stores person confidence in alpha. A
-      // small feather removes stair stepping without erasing foreground detail.
-      fg.filter = `blur(${Math.max(0.4, w / 1800)}px)`;
-      fg.drawImage(cleanPersonMask(mask, maskVersion), 0, 0, w, h); fg.filter = "none";
+      // Refinement already supplies an antialiased edge at camera resolution.
+      // Scene softness applies only below; never blur the person's outline.
+      fg.filter = "none";
+      fg.drawImage(cleanPersonMask(mask, maskVersion, b.source, w, h), 0, 0, w, h);
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1; ctx.filter = "none";
       ctx.clearRect(0, 0, w, h);
       // Opaque backing also makes transparent custom scenes predictable.

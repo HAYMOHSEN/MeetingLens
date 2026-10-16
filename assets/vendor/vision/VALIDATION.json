@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-16T20:09:44.342Z",
+  "testedAt": "2026-10-16T21:29:16.953Z",
   "capabilities": {
     "face": true,
     "segmentation": true,
@@ -42,7 +42,7 @@
     "foregroundMAE": 0,
     "backgroundMAE": 47.29088541666667
   },
-  "inferenceMs": 214.30000000447035,
+  "inferenceMs": 240.69999999552965,
   "concurrent": 6,
   "framing": {
     "x": 54.18079579462773,

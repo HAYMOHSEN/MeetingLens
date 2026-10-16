@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.1 — 2026-10-17
+
+- Reduced the foggy outline around the person during live background replacement with a tighter transition at the person boundary.
+- Kept selected-scene softness behind the person without adding blur to the captured foreground.
+- Retained local model loading, actual-room fallback, privacy cleanup and the six professional scenes. Fine hair, fingers and fast motion remain subject to segmentation quality and camera conditions.
+
+Apply the app's Update banner and reload an existing installation before evaluating the change. See VALIDATION.md for the completed checks and their limits. The effect still applies to MeetingLens previews and snapshots; external meeting-app routing and native source are unchanged.
+
 ## 3.1.0 — 2026-10-16
 
 - Corrected the background-selection limitation: all six professional scenes can now replace the room behind a person in the live MeetingLens camera preview and captured snapshots.

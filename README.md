@@ -1,6 +1,6 @@
 # MeetingLens — Camera Studio and Photo Lab
 
-Version **3.1.0**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
+Version **3.1.1**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
 
 ## Camera studio
 
@@ -19,7 +19,7 @@ Face tracking, segmentation, and landmark assistance use bundled MediaPipe model
 
 1. Choose **Start camera**, then open **Scenes** and click a scene. A scene can also be chosen before starting the camera.
 2. Allow the bundled local vision models to finish their initial load. The app keeps the real background visible while segmentation is loading or unavailable; read the background status for progress or retry guidance.
-3. The detected person is composited over the selected scene inside MeetingLens. Use the replacement switch to toggle that selection and the softness slider to soften the scene.
+3. The detected person is composited over the selected scene inside MeetingLens. Use the replacement switch to toggle that selection and the softness slider to soften the scene. Scene softness blurs the selected room; it does not add blur to the person.
 4. Choose **Use real background** to turn off both replacement and room blur. **Original**, **Basic preview**, and zero enhancement intensity also bypass background processing.
 
 After installing an older version, apply the app's **Update** banner and reload the updated app before testing. If no update appears, close and reopen the app online. This feature changes MeetingLens previews and snapshots; it does not change the camera selected in Zoom or Teams.

@@ -1,4 +1,4 @@
-# MeetingLens 3.1.0 release checklist
+# MeetingLens 3.1.1 release checklist
 
 Record results for the exact deployed source and generated Windows package being submitted. Unchecked items remain pending. Automated simulations do not establish hardware reliability, native binary compatibility, or Store certification.
 
@@ -98,7 +98,8 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Edge installation and standalone launch work; repeat camera, microphone, privacy, and local-file checks in the generated PWABuilder package.
 - [ ] After initial cache, all three workspaces and bundled models/decoders open offline; test cold reload and cache eviction behavior.
 - [ ] Explicit update activates the next version safely, preserves unrelated caches, and upgrades saved presets.
-- [ ] Upgrade an existing 3.0.1 installation through the Update banner, then test a selected scene with a live camera in 3.1.0.
+- [ ] Upgrade an existing 3.0.1 or 3.1.0 installation through the Update banner, then test a selected scene with a live camera in 3.1.1.
+- [ ] Inspect shoulders, arms, hair and fingers against both dark and light scenes. Confirm the body boundary is clear without a broad translucent halo, excessive trimming or jagged edges. Check while still and moving; repeat with built-in and USB webcams.
 - [ ] Keyboard focus, labeled controls, reduced motion, narrow layout, 200% zoom, and readable status messages work.
 - [ ] Partner Center identity, supported Windows versions, permissions, privacy/age declarations, languages, pricing, availability, and support match the actual app.
 - [ ] Store copy and ten screenshots match FEATURE_MATRIX.md; native-only or unfinished integration is not advertised as a PWA feature.

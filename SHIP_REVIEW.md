@@ -1,6 +1,12 @@
-# MeetingLens 3.1.0 shipping review
+# MeetingLens 3.1.1 shipping review
 
-Reviewed on 16 October 2026. This review covers the supplied source and local browser tests. A deployed public URL or signed Windows package was not supplied for installed-package testing.
+Reviewed on 17 October 2026. This review covers the supplied source and local browser tests. A deployed public URL or signed Windows package was not supplied for installed-package testing.
+
+## 3.1.1 person-boundary correction
+
+The live-background compositor could leave a wide, soft transition around the body, making the subject's outline appear foggy against the selected scene. Version 3.1.1 tightens this transition while keeping selected-scene softness behind the person. The replacement path does not add blur to foreground camera pixels.
+
+This correction does not guarantee perfect separation of fine hair, fingers or fast movement. Lighting, camera resolution, framing and model confidence still affect the result. Review the boundary on physical Windows webcams before publication, including dark clothing, hair, hands, motion and contrasting backgrounds.
 
 ## 3.1.0 live-background correction
 
@@ -10,7 +16,7 @@ Version 3.1.0 adds that live compositing path. A selected scene arms replacement
 
 Existing installations must apply the app's Update banner and reload the updated app. The change affects MeetingLens preview and snapshots. It does not add a virtual-camera bridge to Zoom or Teams, an NPU backend, or browser gaze correction. The native source is unchanged by this fix.
 
-Use VALIDATION.md and docs/validation/ for the completed 3.1.0 checks and their exact scope. The release checklist includes physical-camera replacement tests, missing-model/WebGL2 failure, stalled analysis, existing-installation updates and full archive extraction/download verification. A completed sample screenshot alone does not verify a physical webcam.
+Use VALIDATION.md and docs/validation/ for the completed current-release checks and their exact scope. The release checklist includes physical-camera replacement tests, missing-model/WebGL2 failure, stalled analysis, existing-installation updates and full archive extraction/download verification. A completed sample screenshot alone does not verify a physical webcam.
 
 ## Publication requirements
 
@@ -20,7 +26,7 @@ Do not release the separate native companion as a tested finished product yet. I
 
 ## Historical 3.0.1 review — completed corrections
 
-The earlier shipping review corrected the defects below in 3.0.1. Those fixes are retained in 3.1.0; they do not establish that the later live-background change has passed a particular test. Review the current validation records separately.
+The earlier shipping review corrected the defects below in 3.0.1. Those fixes are retained in 3.1.1; they do not establish that later background changes have passed a particular test. Review the current validation records separately.
 
 | Severity | Area | Before | Correction |
 |---|---|---|---|

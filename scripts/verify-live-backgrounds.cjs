@@ -149,7 +149,10 @@ async function run() {
     const changed = await page.evaluate(() => { window.__liveQA.background = "#72777b"; return performance.now(); });
     await page.waitForFunction(timestamp => window.MeetingLensStudio.getAnalysis()?.timestamp > timestamp + 150, changed);
     await settleFrame(page);
-    await page.waitForFunction(() => !document.querySelector("#toast")?.classList.contains("show"));
+    await page.waitForFunction(() => {
+      const toast = document.querySelector("#toast");
+      return !toast || (!toast.classList.contains("show") && Number(getComputedStyle(toast).opacity) < 0.01);
+    });
     await page.evaluate(() => {
       const label = document.createElement("span"); label.id = "qaCameraDisclosure"; label.textContent = "AI-generated camera demo";
       label.style.cssText = "position:absolute;left:16px;bottom:48px;z-index:12;padding:6px 10px;border-radius:7px;background:rgba(16,24,37,.82);color:white;font:500 12px system-ui;pointer-events:none";
