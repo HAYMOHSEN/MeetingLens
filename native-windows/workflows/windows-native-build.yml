@@ -1,0 +1,55 @@
+name: Windows native companion
+on:
+  workflow_dispatch:
+  push:
+    paths: ['native-windows/**', '.github/workflows/windows-native-build.yml']
+  pull_request:
+    paths: ['native-windows/**', '.github/workflows/windows-native-build.yml']
+permissions:
+  contents: read
+jobs:
+  controls-and-directshow:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build Windows controls and DirectShow diagnostics
+        shell: pwsh
+        run: ./native-windows/build.ps1
+      - name: Check native property layout and malformed-response handling
+        shell: pwsh
+        run: |
+          $process = Start-Process ./native-windows/artifacts/controls-x64/MeetingLens.Windows.exe -ArgumentList '--self-test' -PassThru -Wait
+          if ($process.ExitCode -ne 0) { throw 'Native self-tests failed.' }
+          $report = Get-Content ./native-self-test.json | ConvertFrom-Json
+          if (-not $report.passed -or $report.checks -ne 10) { throw 'Missing or incomplete self-test report.' }
+      - name: Enumerate DirectShow devices without starting a camera
+        shell: pwsh
+        run: |
+          & ./native-windows/artifacts/basic-camera-x64/Release/MeetingLens.BasicCamera.exe --list
+          if ($LASTEXITCODE -ne 0) { throw 'DirectShow enumeration smoke test failed.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MeetingLens-Windows-controls-and-diagnostics
+          path: |
+            native-windows/artifacts/controls-x64/**
+            native-windows/artifacts/basic-camera-x64/Release/MeetingLens.BasicCamera.exe
+            native-self-test.json
+  virtual-camera-source-reference:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: microsoft/setup-msbuild@v2
+      - uses: NuGet/setup-nuget@v2
+      - name: Build pinned Microsoft source DLL and installer console
+        shell: pwsh
+        run: ./native-windows/build-virtual-camera-reference.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Microsoft-virtual-camera-reference-not-integrated
+          path: |
+            native-windows/vendor/Samples/VirtualCamera/x64/Release/*.dll
+            native-windows/vendor/Samples/VirtualCamera/x64/Release/*.exe

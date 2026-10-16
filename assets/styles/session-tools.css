@@ -1,0 +1,39 @@
+.session-tools { display: grid; gap: 16px; }
+.session-tool-card { padding: 15px 13px; border: 1px solid #e6e0ed; background: #fdfcfe; border-radius: 8px; }
+.session-tool-heading { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+.session-tool-heading h3 { font-size: 15px; font-weight: 650; color: #574365; margin: 0; }
+.session-tool-heading p { font-size: 10px; color: #84748e; margin: 4px 0 0; }
+.session-tool-symbol { display: grid; place-items: center; width: 31px; height: 31px; flex: none; border-radius: 7px; color: #8c6da8; background: #eee7f5; font-size: 20px; }
+.session-tool-tag { padding: 4px 5px; background: #f1edf5; color: #7d678d; border-radius: 4px; font-size: 10px; letter-spacing: .4px; margin-left: auto; white-space: nowrap; }
+.session-tool-copy { color: #796486; font-size: 12px; line-height: 1.8; margin: 0 0 12px; }
+.session-tool-note { color: #887393; font-size: 10px; line-height: 1.8; margin: 10px 0 0; }
+.session-button-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.session-button-row .control-button { font-size: 12px; padding: 8px 9px; min-height: 40px; }
+.session-duration { font-size: 10px; color: #897293; }
+.session-tool-status { font-size: 11px; color: #7c678a; padding: 8px 9px; line-height: 1.7; border-radius: 5px; background: #f4f0f8; margin: 10px 0 0; overflow-wrap: anywhere; }
+.session-tool-status[data-level="error"] { color: #995c53; background: #faf0ed; }
+.session-tool-status[data-level="success"] { color: #4e7c63; background: #edf6f0; }
+.session-meter-row { display: flex; gap: 9px; align-items: center; margin: 14px 0; }
+.session-meter-row meter { width: 100%; height: 10px; flex: 1; accent-color: #9074a8; }
+.session-meter-row meter::-webkit-meter-bar { background: #e9e2ef; border: 0; border-radius: 99px; }
+.session-meter-row meter::-webkit-meter-optimum-value { background: #a78aba; border-radius: 99px; }
+.session-meter-row span { font-size: 10px; color: #80658e; width: 46px; font-variant-numeric: tabular-nums; text-align: right; }
+.voice-playback { margin-top: 12px; }
+.voice-playback audio { display: block; width: 100%; height: 33px; margin-bottom: 10px; }
+.session-text-link { background: transparent; padding: 0; border: 0; color: #806094; font-size: 11px; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.voice-playback .session-text-link { margin-right: 12px; }
+.session-check { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; line-height: 1.7; color: #806c8f; margin: 13px 0; cursor: pointer; }
+.session-check input { appearance: auto; width: 13px; height: 13px; margin-top: 2px; accent-color: #9d7ab8; flex: none; }
+.session-field-label { display: block; font-size: 11px; color: #80628f; margin: 12px 0 6px; }
+.session-qr-value { width: 100%; display: block; border: 1px solid #e2d9eb; border-radius: 5px; resize: vertical; min-height: 62px; background: white; color: #6c587d; padding: 9px; font-family: inherit; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.session-backup-heading { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 17px; }
+.session-backup-heading b { font-size: 11px; font-weight: 550; color: #7d658d; }
+.session-backup-list { margin: 9px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; max-height: 230px; overflow-y: auto; }
+.session-backup-empty { font-size: 10px; color: #8d7599; line-height: 1.7; }
+.session-backup-item { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 8px; align-items: center; border: 1px solid #ece6f1; border-radius: 5px; padding: 6px; background: white; }
+.session-backup-item img { width: 40px; height: 30px; object-fit: cover; border-radius: 3px; grid-row: span 2; }
+.session-backup-item b { font-size: 10px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #84708f; }
+.session-backup-item div { display: flex; gap: 10px; margin-top: 4px; }
+.session-backup-item .session-text-link { font-size: 10px; }
+.session-delete-all { margin-top: 13px; color: #9d747a; }
+.session-tools button:disabled { opacity: .5; cursor: not-allowed; }

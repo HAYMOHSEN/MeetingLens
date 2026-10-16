@@ -1,0 +1,38 @@
+{
+  "testedAt": "2026-10-16T11:51:27.619Z",
+  "environment": "Headless Chromium; local fixture reports; no physical Windows devices",
+  "checks": [
+    {
+      "name": "report viewer starts without camera/microphone access or imported data",
+      "passed": true
+    },
+    {
+      "name": "real native v1 schema renders capabilities, rational FPS, and snapshot scope",
+      "passed": true
+    },
+    {
+      "name": "active system blur snapshot shows duplicate-effect guidance",
+      "passed": true
+    },
+    {
+      "name": "untrusted report strings render as text without HTML execution",
+      "passed": true
+    },
+    {
+      "name": "malformed JSON reports a useful error and preserves the previous report",
+      "passed": true
+    },
+    {
+      "name": "files over 1 MB are rejected before parsing",
+      "passed": true
+    },
+    {
+      "name": "unsupported schemas and malformed effect records are rejected",
+      "passed": true
+    },
+    {
+      "name": "narrow layout, explicit clearing, and no unhandled browser or capture requests",
+      "passed": true
+    }
+  ]
+}

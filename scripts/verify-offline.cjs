@@ -9,13 +9,16 @@ const mime = { ".html":"text/html", ".js":"text/javascript", ".css":"text/css", 
 let revision = 1;
 let server, browser;
 (async () => {
+  const workerSource = await fs.readFile(path.join(root, "service-worker.js"), "utf8");
+  const cacheVersion = workerSource.match(/\bv\d+\.\d+\.\d+\b/)?.[0];
+  assert.ok(cacheVersion, "Service worker has a release version for the update check");
   server = http.createServer(async (req, res) => {
     try {
       const pathname = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
       const filename = path.resolve(root, `.${pathname === "/" ? "/index.html" : pathname}`);
       if (!filename.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
       let data = await fs.readFile(filename);
-      if (filename.endsWith("service-worker.js") && revision === 2) data = Buffer.from(data.toString().replaceAll("v2.0.0", "v2.0.0-test-update"));
+      if (filename.endsWith("service-worker.js") && revision === 2) data = Buffer.from(data.toString().replaceAll(cacheVersion, `${cacheVersion}-test-update`));
       res.writeHead(200, { "Content-Type": mime[path.extname(filename)] || "application/octet-stream", "Cache-Control": "no-store" }); res.end(data);
     } catch { res.writeHead(404).end(); }
   });
@@ -41,15 +44,35 @@ let server, browser;
   });
   assert.equal(portrait, 1536, "Portrait must be available offline");
   console.log("PASS offline shell, query shortcut and portrait");
+  const scenes = {
+    room: ["executive-office", "Executive office"], soft: ["scandinavian-office", "Scandinavian office"],
+    studio: ["architect-studio", "Architect studio"], night: ["city-lounge", "City lounge"],
+    dawn: ["warm-library", "Warm library"], slate: ["minimal-gallery", "Minimal gallery"]
+  };
+  for (const [scene, [filename, name]] of Object.entries(scenes)) {
+    const background = await page.evaluate(async filename => {
+      const url = new URL(`./assets/demo/backgrounds/${filename}.webp`, location.href).href;
+      const cached = await caches.match(url);
+      const image = new Image(); image.src = url; await image.decode();
+      return { cached: !!cached, width: image.naturalWidth, height: image.naturalHeight };
+    }, filename);
+    assert.ok(background.cached && background.width >= 1280 && background.height >= 720, `${name} photograph is pre-cached and decodes offline`);
+    await page.locator(`.scene-tile[data-scene="${scene}"]`).click();
+    await page.waitForFunction(name => document.querySelector("#backgroundLoadStatus")?.textContent === `${name} · ready on this device`, name);
+  }
+  console.log("PASS all six photographic backgrounds are cached and selectable offline");
   await context.setOffline(false);
   revision = 2;
   await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).update());
   await page.locator("#updateNotice").waitFor({ state: "visible", timeout: 15000 });
   await page.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration()).waiting);
-  await page.locator("#updateNotice").click();
-  await page.waitForFunction(async () => {
-    const keys = await caches.keys(); return keys.some(key => key.endsWith("v2.0.0-test-update")) && !keys.some(key => key.endsWith("-v2.0.0"));
-  }, null, { timeout: 15000 });
+  await Promise.all([
+    page.waitForEvent("load"),
+    page.locator("#updateNotice").click()
+  ]);
+  await page.waitForFunction(async version => {
+    const keys = await caches.keys(); return keys.some(key => key.endsWith(`${version}-test-update`)) && !keys.some(key => key.endsWith(`-${version}`));
+  }, cacheVersion, { timeout: 15000 });
   assert.ok(await page.evaluate(async () => (await caches.keys()).includes("unrelated-app-kept")), "Update must preserve unrelated caches");
   assert.deepEqual(errors, []);
   console.log("PASS user-applied update, old release cleanup and unrelated cache preservation");

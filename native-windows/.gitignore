@@ -1,0 +1,10 @@
+artifacts/
+**/bin/
+**/obj/
+**/packages/
+**/x64/
+**/Debug/
+**/Release/
+native-self-test.json
+*.user
+*.suo

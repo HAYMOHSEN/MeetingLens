@@ -1,0 +1,92 @@
+{
+  "testedAt": "2026-10-16T11:41:07.125Z",
+  "capabilities": {
+    "face": true,
+    "segmentation": true,
+    "backend": "CPU/WASM worker",
+    "eyeContact": false,
+    "errors": {}
+  },
+  "face": {
+    "x": 0.4083581864833832,
+    "y": 0.20048153400421143,
+    "width": 0.1722707450389862,
+    "height": 0.2950027585029602,
+    "eyes": [
+      {
+        "x": 0.45584456622600555,
+        "y": 0.2957611382007599
+      },
+      {
+        "x": 0.5279508829116821,
+        "y": 0.2859707325696945
+      }
+    ],
+    "mouth": {
+      "x": 0.49911928176879883,
+      "y": 0.4070403575897217
+    }
+  },
+  "landmarks": 478,
+  "maskStats": {
+    "opaque": 95774,
+    "transparent": 175323,
+    "partial": 2183,
+    "total": 273280,
+    "center": 255,
+    "corner": 0,
+    "silhouetteIoU": 0.9872926007810402
+  },
+  "difference": 6.127265076112412,
+  "blurEvidence": {
+    "foregroundMAE": 0,
+    "backgroundMAE": 47.29088541666667
+  },
+  "inferenceMs": 233.59999999962747,
+  "concurrent": 6,
+  "framing": {
+    "x": 54.18079579462773,
+    "y": 0,
+    "width": 524.5901639344262,
+    "height": 350
+  },
+  "statuses": [
+    {
+      "state": "loading",
+      "message": "Loading on-device face tracking and person segmentation…",
+      "capabilities": {
+        "face": false,
+        "segmentation": false,
+        "backend": "unavailable",
+        "eyeContact": false
+      }
+    },
+    {
+      "state": "ready",
+      "message": "On-device AI ready · CPU/WASM · no camera uploads",
+      "capabilities": {
+        "face": true,
+        "segmentation": true,
+        "backend": "CPU/WASM worker",
+        "eyeContact": false,
+        "errors": {}
+      }
+    }
+  ],
+  "resetClears": true,
+  "disposed": true,
+  "requests": [
+    "/vision-test",
+    "/assets/js/vision-effects.js",
+    "/assets/vendor/vision/meetinglens-worker.js",
+    "/assets/vendor/vision/vision_bundle.js",
+    "/assets/vendor/vision/wasm/vision_wasm_internal.js",
+    "/assets/vendor/vision/wasm/vision_wasm_internal.wasm",
+    "/assets/models/face_landmarker.task",
+    "/assets/vendor/vision/wasm/vision_wasm_internal.js",
+    "/assets/vendor/vision/wasm/vision_wasm_internal.wasm",
+    "/assets/models/selfie_segmenter.tflite",
+    "/assets/demo/professional-portrait.webp"
+  ],
+  "errors": []
+}

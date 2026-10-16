@@ -1,13 +1,20 @@
 {
   "name": "meetinglens-pwa",
   "private": true,
-  "version": "2.0.0",
-  "description": "Development helper for MeetingLens PWA Store screenshots.",
+  "version": "3.0.0",
+  "description": "Local camera effects, photo editing, whiteboard capture and session tools for MeetingLens.",
   "scripts": {
     "capture:store-assets": "node scripts/capture-store-assets.mjs",
     "generate:store-art": "node scripts/generate-store-art.cjs",
     "test": "node scripts/verify-studio.cjs && node scripts/verify-offline.cjs",
-    "test:offline": "node scripts/verify-offline.cjs"
+    "test:offline": "node scripts/verify-offline.cjs",
+    "test:backgrounds": "node scripts/verify-backgrounds.cjs",
+    "test:advanced": "node scripts/verify-advanced.cjs",
+    "test:session": "node scripts/verify-session.cjs",
+    "test:photo": "node scripts/verify-photo-workbench.cjs",
+    "test:native-report": "node scripts/verify-native-report.cjs",
+    "test:offline-tools": "node scripts/verify-offline-tools.cjs",
+    "test:vision": "node assets/vendor/vision/verify-vision.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.80",

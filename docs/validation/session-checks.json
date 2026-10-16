@@ -1,0 +1,58 @@
+{
+  "testedAt": "2026-10-16T11:40:27.207Z",
+  "environment": "Headless Chromium with synthetic microphone; simulated folder API; real IndexedDB and jsQR fixture decoding",
+  "checks": [
+    {
+      "name": "no microphone request before explicit start",
+      "pass": true
+    },
+    {
+      "name": "explicit microphone activation",
+      "pass": true
+    },
+    {
+      "name": "real local recording produces playable/downloadable blob",
+      "pass": true
+    },
+    {
+      "name": "privacy shield releases mic and discards test",
+      "pass": true
+    },
+    {
+      "name": "cancelled permission race stops late microphone track",
+      "pass": true
+    },
+    {
+      "name": "opted-in snapshot backup and latest 50 retention",
+      "pass": true
+    },
+    {
+      "name": "single stored backup deletion",
+      "pass": true
+    },
+    {
+      "name": "delete-all requires explicit confirmation",
+      "pass": true
+    },
+    {
+      "name": "actual QR image decodes with local jsQR fallback",
+      "pass": true
+    },
+    {
+      "name": "decoded QR copies only on explicit copy",
+      "pass": true
+    },
+    {
+      "name": "folder backup writes and confirms success through simulated directory API",
+      "pass": true
+    },
+    {
+      "name": "revoked folder permission turns backup off safely",
+      "pass": true
+    },
+    {
+      "name": "no unhandled browser errors",
+      "pass": true
+    }
+  ]
+}

@@ -1,88 +1,97 @@
-# MeetingLens 2.0.0 release checklist
+# MeetingLens 3.0.0 release checklist
 
-Record results for the exact deployed revision and generated Windows package you plan to submit. An unchecked item is still pending. This checklist does not claim a successful test run, certification, or zero defects.
+Record results for the exact deployed source and generated Windows package being submitted. Unchecked items remain pending. Automated simulations do not establish hardware reliability, native binary compatibility, or Store certification.
 
 ## Release record
 
 | Field | Record before submission |
 |---|---|
-| Source commit or ZIP identifier | |
-| Deployed HTTPS app URL | |
-| Version and package identity | |
-| Windows version/build | |
-| Edge version | |
-| Cameras and driver versions tested | |
-| Test date and tester | |
-| Known issues and release decision | |
+| Source commit / archive identifier | |
+| Deployed HTTPS URL | |
+| Version / package identity | |
+| Windows build / Edge version | |
+| Camera / microphone / driver versions | |
+| Native binary build identifier, if distributed separately | |
+| Tester / date / known issues / release decision | |
 
-## Automated development checks
+## Automated checks and packaging
 
-~~~bash
-npm install
-npx playwright install chromium
-npm test
-~~~
+- [ ] Install development dependencies and run the full test command plus every relevant dedicated suite in package.json.
+- [ ] Review vision, advanced-studio, Photo Lab, session, native-report, background, and offline results; retain actual output.
+- [ ] Verify syntax, manifest paths, licensed bundled dependencies/models, required files, and archives.
+- [ ] Run at the deployed repository subpath, not only localhost root.
+- [ ] Review all ten Store screenshots at full size; confirm they show the shipped UI and preserve AI sample labels.
 
-Set CHROMIUM_PATH to the browser executable if using an existing Chromium installation. The test command runs studio checks and service-worker offline/update checks. Review both scripts and their output to establish which behaviors were exercised; a completed command is not evidence for checks it does not implement.
+## Camera and device recovery on Windows
 
-- [ ] Dependencies install and both browser-check scripts pass.
-- [ ] No uncaught app exceptions occur during the exercised browser flows.
-- [ ] Manifest, service-worker paths, icons, portrait, and screenshots load at the deployed repository path.
-- [ ] Inspect all six screenshots at full size and confirm they match the shipped interface.
+- [ ] Camera remains off at first launch; camera and microphone permissions are requested separately.
+- [ ] Deny/restore camera permission; confirm clear feedback and usable demo/manual tools.
+- [ ] Switch built-in/USB cameras; confirm previous tracks stop.
+- [ ] Disconnect/reconnect the active USB camera; test a camera occupied by another application.
+- [ ] Stop or shield during a delayed permission request; confirm late tracks are released.
+- [ ] Verify the Windows/browser camera indicator goes off after Stop/Shield.
+- [ ] Hide/minimize with automatic stop on and off; verify the chosen camera behavior. Hidden microphone capture must stop in both cases.
+- [ ] Sleep/resume with camera active and confirm recoverable status.
+- [ ] Test reported resolution/FPS modes and fallback; check actual delivered resolution.
+- [ ] Test fine digital zoom and Basic preview; ensure Basic preview is not described as raw DirectShow.
+- [ ] Run a sustained session on a target low-power PC; record frame responsiveness, memory, CPU, thermal behavior, and recovery.
 
-## Required manual Windows camera checks
+## Local vision and visual tools
 
-Use Microsoft Edge on the intended supported Windows versions with real hardware. Browser simulation cannot establish hardware reliability.
+- [ ] Confirm local models load from bundled paths with no inference upload.
+- [ ] Move a face across the frame: Auto Framing follows smoothly and falls back sensibly when no face is detected.
+- [ ] Inspect person-blur edges around hair, hands, movement, and difficult backgrounds.
+- [ ] Compare Portrait Light and skin/teeth refinement at modest strength; check visible artifacts.
+- [ ] Simulate missing model/worker failure: ordinary preview/manual controls remain usable.
+- [ ] Verify no browser UI promises gaze synthesis, NPU selection, or perfect glare removal.
+- [ ] With Windows Studio Effects already active, inspect the result and disable duplicate local effects.
+- [ ] All six sample backgrounds and softness work without blurring the sample foreground.
+- [ ] Original/split comparison, mirror, guides, presets, imports, PNG/JPEG capture, timers, and cancellation work as labeled.
 
-- [ ] First launch: the camera stays off until the user starts it and grants permission.
-- [ ] Deny permission in Edge: a useful error appears, no live camera starts, and the demo remains usable.
-- [ ] Restore permission in Edge and retry without losing control of the app.
-- [ ] With two cameras, switch between built-in and USB cameras and confirm old tracks stop.
-- [ ] Disconnect an active USB camera: verify a clear status and recovery after reconnection.
-- [ ] Test a camera occupied by another application and recover after that application releases it.
-- [ ] Start permission acquisition, then activate Privacy Shield or hide the app before completing permission; verify the delayed request does not leave the camera running.
-- [ ] Stop the camera repeatedly and confirm the browser camera indicator turns off when capture tracks stop.
-- [ ] Hide the tab or minimize the installed app with automatic stop enabled; verify capture stops and requires an explicit restart.
-- [ ] Disable automatic stop and verify the selected behavior and visible status are clear.
-- [ ] Sleep and resume Windows with the camera active, then check status and recovery.
-- [ ] Test 720p, 1080p, and efficient preferences; verify the displayed actual resolution.
-- [ ] Run a sustained live session and assess responsiveness, CPU/memory behavior, and recoverable errors on the target PC.
+## Photo Lab and whiteboard
 
-## Required manual visual and local-file checks
+- [ ] Import supported image types; reject corrupt/oversize input with useful feedback.
+- [ ] Up to eight photos load with a capped 2048-pixel edge; switching/undo/reset/original comparison works.
+- [ ] Smart Enhance changes tone; reference Color Match changes a set; exported JPEG/ZIP files open correctly.
+- [ ] Small-object masks fill predictably; inspect complex-texture limits and Undo.
+- [ ] Manual skin/teeth brushes and optional landmark assistance remain bounded to intended areas.
+- [ ] Capture/import an angled classroom or meeting-room whiteboard; inspect suggested corners and correct them manually.
+- [ ] Move every corner by mouse/touch/keyboard; check perspective, orientation, ink contrast, and saved JPEG.
+- [ ] Test unusual/dim/glossy boards; do not accept unchecked automatic corner guesses as reliable output.
 
-- [ ] Brightness, contrast, saturation, temperature, vignette, and looks visibly affect the preview.
-- [ ] Original view removes enhancements; split view shows original and adjusted regions correctly.
-- [ ] Zoom and mirror behave predictably for demo and live preview.
-- [ ] Grid, eye-line, and framing guides are legible and do not imply automatic face tracking.
-- [ ] All six backgrounds work with the demo, and live-background limitations are clearly stated.
-- [ ] The fictional AI demo subject stays labeled throughout its flow and screenshots.
-- [ ] Download PNG and JPEG snapshots, including a timed capture, and open the files to check format, orientation, crop, and rendering.
-- [ ] Privacy Shield cancels a pending timed capture and prevents hidden image capture.
-- [ ] Save/load/delete presets, reload the app, and verify expected persistence.
-- [ ] Export a preset and import it in a fresh local session.
-- [ ] Invalid, excessive, or incompatible imported input shows a useful message and preserves usable settings.
-- [ ] Simulate unavailable browser storage and verify that the app stays usable with appropriate feedback.
-- [ ] Test keyboard operation, visible focus, reduced-motion preference, 200% zoom, and a narrow window.
+## Audio, QR, clipboard, and backups
 
-## Required hosted PWA and Windows package checks
+- [ ] Microphone does not start automatically; deny/retry and switch device permissions in Windows.
+- [ ] Verify actual supported noise suppression/echo cancellation/gain settings and listen to a real spoken sample.
+- [ ] Meter, mute, up-to-60-second recording, playback/download, and discard work; no audio routes to other apps.
+- [ ] Hidden-tab and Shield disconnect microphone tracks and clear temporary audio; Stop mic releases tracks and ends recording while retaining the completed clip for review.
+- [ ] Decode an actual QR code through available detector and local jsQR fallback.
+- [ ] Verify explicit copying; enable optional link auto-copy and test duplicates and blocked clipboard access. No URL opens automatically.
+- [ ] Backups stay off until enabled; verify the selected folder and browser IndexedDB modes separately.
+- [ ] Capture stills and open normal downloads and backup copies; verify latest-50 browser retention.
+- [ ] Revoke folder permission, fill storage, and test failed writes; failures must not be reported as successful backups.
+- [ ] Turning backup off stops future automatic copies without deleting previous files; delete-browser-backup controls work.
 
-- [ ] The HTTPS host serves the app and all files successfully.
-- [ ] Privacy and terms pages contain the real publisher/support contact, not placeholders.
-- [ ] The public privacy-policy URL opens without sign-in.
-- [ ] The app installs from Edge and launches as a standalone window.
-- [ ] After a successful first load, the shell reopens offline.
-- [ ] Deploy a newer version and verify the update notice and explicit update action.
-- [ ] Review PWABuilder's report, manifest, identity, icons, and Windows support settings.
-- [ ] Install the generated Windows package on a test Windows PC; repeat permission, privacy, camera-loss, and snapshot checks there.
-- [ ] Upgrade the previous installed package and verify launch, saved presets, updates, and policy links.
-- [ ] Review uninstall/reinstall behavior and document expected local-data persistence.
+## Native companion, when distributed separately
 
-## Store readiness
+- [ ] Follow native-windows/README.md to compile the managed utility and DirectShow diagnostic on Windows.
+- [ ] Run native self-tests; record Windows build, compiler/SDK versions, and exact binaries.
+- [ ] Inspect unsupported cameras and ensure unavailable KS modes remain disabled.
+- [ ] Test supported blur/eye-contact/portrait-light/framing/device-zoom controls and restore behavior on real hardware.
+- [ ] Verify basic DirectShow diagnostic preview; do not call its output guaranteed raw sensor data.
+- [ ] Export/import a capability report, malformed JSON, unsupported schema, and files over 1 MB; all strings render safely as text.
+- [ ] Confirm the report page describes snapshots, not live control; Settings opens only by user click.
+- [ ] Test OS multi-app camera options only on supported Windows/device setups; document availability.
+- [ ] Keep the upstream virtual-camera reference separate from claims of connected PWA output. Build/start testing does not prove end-to-end routing.
+- [ ] Do not claim NPU performance or a Windows effect without hardware evidence.
 
-- [ ] Reserve the final Store name and match Partner Center identity values exactly.
-- [ ] Confirm all descriptions, captions, six screenshots, and optional art describe this version.
-- [ ] Keep the in-app AI demo disclosure visible in screenshots showing the sample portrait.
-- [ ] Do not claim virtual-camera output, meeting-app integration, live background replacement, face tracking, or a measured readiness score.
-- [ ] Declare only implemented and tested interface languages. Localized listing text alone does not establish interface support.
-- [ ] Complete the current Partner Center age-rating, privacy, availability, pricing, support, and package declarations.
-- [ ] Record remaining known issues and decide whether they block release before submission.
+## Hosted PWA, accessibility, and Store
+
+- [ ] Public HTTPS URL serves all required assets and actual publisher-completed policies without sign-in.
+- [ ] Edge installation and standalone launch work; repeat camera, microphone, privacy, and local-file checks in the generated PWABuilder package.
+- [ ] After initial cache, all three workspaces and bundled models/decoders open offline; test cold reload and cache eviction behavior.
+- [ ] Explicit update activates the next version safely, preserves unrelated caches, and upgrades saved presets.
+- [ ] Keyboard focus, labeled controls, reduced motion, narrow layout, 200% zoom, and readable status messages work.
+- [ ] Partner Center identity, supported Windows versions, permissions, privacy/age declarations, languages, pricing, availability, and support match the actual app.
+- [ ] Store copy and ten screenshots match FEATURE_MATRIX.md; native-only or unfinished integration is not advertised as a PWA feature.
+- [ ] Record all known limitations and the release decision before submission.

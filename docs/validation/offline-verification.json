@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-16T11:55:04.775294+00:00",
+  "command": "node scripts/verify-offline.cjs",
+  "environment": "Headless Chromium on Linux, real service worker",
+  "checks": [
+    {
+      "name": "Offline shell, query shortcut and portrait",
+      "pass": true
+    },
+    {
+      "name": "All six photographic backgrounds cached and selectable offline",
+      "pass": true
+    },
+    {
+      "name": "User-applied update, old release cleanup, unrelated cache preservation",
+      "pass": true
+    }
+  ],
+  "notes": "Reviewed successful command output. No physical Windows hardware tested."
+}

@@ -6,14 +6,17 @@
   const text = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
   const hide = (id, hidden) => { const el = document.getElementById(id); if (el) el.hidden = hidden; };
   const defaults = Object.freeze({ look: "natural", brightness: 56, contrast: 54, saturation: 53, enhancement: 65,
-    softness: false, scene: "room", sceneStrength: 45, frame: "conversation", zoom: 100, showFrame: true,
+    softness: false, scene: "room", sceneStrength: 25, frame: "conversation", zoom: 100, showFrame: true,
     eyeLine: true, mirror: true, grid: false, temperature: 0, vignette: 8, split: false,
-    quality: "balanced", timer: 0, snapshotFormat: "png", autoPause: true });
+    quality: "balanced", timer: 0, snapshotFormat: "png", autoPause: true,
+    autoFrame: false, backgroundBlur: false, blurAmount: 12, portraitLight: false, portraitLightAmount: 50,
+    refinement: false, teeth: false, browserBasic: false, requestedResolution: "auto", requestedFps: 30 });
   const limits = { brightness: [0, 100], contrast: [0, 100], saturation: [0, 100], enhancement: [0, 100],
-    sceneStrength: [0, 100], zoom: [100, 160], temperature: [-50, 50], vignette: [0, 60] };
+    sceneStrength: [0, 100], zoom: [100, 200], temperature: [-50, 50], vignette: [0, 60], blurAmount: [0, 30], portraitLightAmount: [0, 100] };
   const enums = { look: ["natural", "clear", "warm", "studio", "mono", "brand"],
     scene: ["room", "soft", "studio", "night", "dawn", "slate"], frame: ["conversation", "teaching", "wide"],
-    quality: ["balanced", "high", "efficient"], timer: [0, 3, 5], snapshotFormat: ["png", "jpeg"] };
+    quality: ["balanced", "high", "efficient"], timer: [0, 3, 5], snapshotFormat: ["png", "jpeg"],
+    requestedResolution: ["auto", "640x480", "1280x720", "1920x1080", "2560x1440", "3840x2160"], requestedFps: [15, 24, 30, 60] };
   const SETTINGS_KEY = "meetinglens-settings", PRESETS_KEY = "meetinglens-presets-v1", MAX_PRESETS = 20;
   let storageProblem = false;
 
@@ -23,7 +26,7 @@
     if (!input || typeof input !== "object" || Array.isArray(input)) return clean;
     for (const key of Object.keys(defaults)) {
       const value = Object.prototype.hasOwnProperty.call(input, key) ? input[key] : undefined;
-      if (limits[key] && typeof value === "number" && Number.isFinite(value)) clean[key] = Math.round(Math.min(limits[key][1], Math.max(limits[key][0], value)));
+      if (limits[key] && typeof value === "number" && Number.isFinite(value)) { const v = Math.min(limits[key][1], Math.max(limits[key][0], value)); clean[key] = key === "zoom" ? Math.round(v * 10) / 10 : Math.round(v); }
       else if (enums[key]?.includes(value)) clean[key] = value;
       else if (typeof defaults[key] === "boolean" && typeof value === "boolean") clean[key] = value;
     }
@@ -54,10 +57,77 @@
   let deferredInstallPrompt = null, swRegistration = null, updateRequested = false;
   const objectUrls = new Set();
   const lookNames = { natural: "Natural", clear: "Clear", warm: "Warm", studio: "Studio", mono: "Monochrome", brand: "Vivid" };
-  const sceneNames = { room: "Modern office", soft: "Soft daylight", studio: "Blue studio", night: "Evening office", dawn: "Golden hour", slate: "Slate studio" };
+  const sceneNames = { room: "Executive office", soft: "Scandinavian office", studio: "Architect studio", night: "City lounge", dawn: "Warm library", slate: "Minimal gallery" };
+  const sceneFiles = { room: "executive-office", soft: "scandinavian-office", studio: "architect-studio", night: "city-lounge", dawn: "warm-library", slate: "minimal-gallery" };
+  const sceneImages = new Map();
+  const rawEffectCanvas = document.createElement("canvas"), processedEffectCanvas = document.createElement("canvas");
+  let visionReady = false, visionLoading = false, visionCapabilities = {}, analysis = null, visionPending = false, visionGeneration = 0;
+  let lastVisionAt = -Infinity, demoRevision = 0, analyzedDemoRevision = -1, trackingCenter = null;
+  let sessionTools = null;
   const panelText = { studio: ["Your studio", "SESSION OVERVIEW"], looks: ["Light & color", "NATURAL ENHANCEMENT"],
     background: ["Sample backgrounds", "SCENE EXPLORER"], frame: ["Framing & capture", "COMPOSITION"],
-    device: ["Camera & capture", "DEVICE SETUP"], presets: ["My presets", "SAVED SETUPS"], privacy: ["Privacy & settings", "ON YOUR DEVICE"] };
+    device: ["Camera & capture", "DEVICE SETUP"], presets: ["My presets", "SAVED SETUPS"], privacy: ["Privacy & settings", "ON YOUR DEVICE"],
+    effects: ["Live effects", "LOCAL CAMERA INTELLIGENCE"], session: ["Voice, QR & backup", "SESSION TOOLS"] };
+
+  function resetVision() {
+    visionGeneration++; analysis = null; trackingCenter = null; lastVisionAt = -Infinity; analyzedDemoRevision = -1;
+    window.MeetingLensVision?.reset();
+  }
+  function effectsActive() { return visionReady && !state.browserBasic && !state.originalHeld && state.enhancement > 0 && (state.autoFrame || state.backgroundBlur || state.portraitLight || state.refinement || state.teeth); }
+  async function enableVision() {
+    if (visionLoading || visionReady) return;
+    if (!window.MeetingLensVision) { text("visionStatus", "Local vision files are unavailable. Manual controls still work."); return; }
+    visionLoading = true; updateControls();
+    try {
+      visionCapabilities = await window.MeetingLensVision.init({ onStatus: status => {
+        text("visionStatus", status.message || "Checking local models…");
+        if (status.state === "error" || status.state === "unavailable") { visionReady = false; updateControls(); }
+      } });
+      visionReady = Boolean(visionCapabilities.face || visionCapabilities.segmentation);
+      if (visionReady) { resetVision(); requestRender(); }
+    } catch { text("visionStatus", "Local AI could not start. Check WebGL support or use manual controls."); }
+    finally { visionLoading = false; updateControls(); }
+  }
+  function scheduleAnalysis(source) {
+    if (!effectsActive() || visionPending || disposed || state.privacy || document.hidden) return;
+    const now = performance.now();
+    if (phase === "live" ? now - lastVisionAt < 200 : analyzedDemoRevision === demoRevision) return;
+    lastVisionAt = now; analyzedDemoRevision = demoRevision; visionPending = true;
+    const generation = visionGeneration;
+    window.MeetingLensVision.analyze(source, now, { face: state.autoFrame || state.refinement || state.teeth, segmentation: state.backgroundBlur || state.portraitLight }).then(result => {
+      if (generation !== visionGeneration || disposed || state.privacy || document.hidden) return;
+      analysis = result;
+      text("trackingStatus", result.face ? "Face located · local tracking active" : state.autoFrame ? "No face located · using the wider frame" : "Local person effects active");
+      requestRender();
+    }).catch(() => text("trackingStatus", "Frame analysis paused. Manual preview remains available.")).finally(() => { visionPending = false; if (generation !== visionGeneration) requestRender(); });
+  }
+  function prepareEffects(source) {
+    scheduleAnalysis(source);
+    if (!effectsActive() || !analysis) return source;
+    const sw = source === video ? video.videoWidth : source.width, sh = source === video ? video.videoHeight : source.height;
+    const scale = Math.min(1, (state.quality === "efficient" ? 640 : 1280) / Math.max(sw, sh));
+    const w = Math.max(1, Math.round(sw * scale)), h = Math.max(1, Math.round(sh * scale));
+    if (rawEffectCanvas.width !== w || rawEffectCanvas.height !== h) { rawEffectCanvas.width = w; rawEffectCanvas.height = h; }
+    rawEffectCanvas.getContext("2d", { alpha: false }).drawImage(source, 0, 0, w, h);
+    try {
+      const strength = state.enhancement / 100;
+      window.MeetingLensVision.process(rawEffectCanvas, processedEffectCanvas, { analysis,
+        backgroundBlur: state.backgroundBlur ? state.blurAmount * strength : 0,
+        portraitLight: state.portraitLight ? state.portraitLightAmount / 100 * strength : 0,
+        skinSmoothing: state.refinement ? .35 * strength : 0, teethWhitening: state.teeth ? .35 * strength : 0 });
+      return processedEffectCanvas;
+    } catch { return source; }
+  }
+  function updateDeviceCapabilities() {
+    const track = activeStream?.getVideoTracks()[0], caps = track?.getCapabilities?.() || {}, actual = track?.getSettings?.() || {};
+    text("cameraCapabilitiesText", track ? "Actual input: " + (actual.width || "—") + " × " + (actual.height || "—") + " at " + Math.round(actual.frameRate || 0) + " fps. Driver ranges are hints; unsupported requests fall back safely." : "Start a camera to inspect the modes its driver exposes. Requested modes are not guaranteed.");
+    const select = $("#deviceResolutionSelect");
+    if (select) [...select.options].forEach(option => {
+      if (option.value === "auto") return;
+      const [w, h] = option.value.split("x").map(Number);
+      option.disabled = Boolean(caps.width?.max && (w > caps.width.max || h > (caps.height?.max || Infinity)));
+    });
+  }
 
   function makeId() { return typeof crypto?.randomUUID === "function" ? crypto.randomUUID() : `preset-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`; }
   function normalizePresets(input) {
@@ -99,6 +169,15 @@
     }
     for (const [id, key] of Object.entries({ softnessSwitch: "softness", frameSwitch: "showFrame", eyeLineSwitch: "eyeLine", mirrorSwitch: "mirror", gridSwitch: "grid", splitSwitch: "split", autoPauseSwitch: "autoPause" })) setSwitch(id, state[key]);
     for (const [id, key] of Object.entries({ qualitySelect: "quality", timerSelect: "timer", snapshotFormat: "snapshotFormat" })) { const el = document.getElementById(id); if (el) el.value = String(state[key]); }
+    const lightRange = $("#portraitLightRange"); if (lightRange) lightRange.value = state.portraitLightAmount;
+    text("portraitLightOutput", state.portraitLightAmount + "%"); text("blurAmountOutput", state.blurAmount + " px");
+    for (const [id, key] of Object.entries({ autoFrameSwitch: "autoFrame", backgroundBlurSwitch: "backgroundBlur", portraitLightSwitch: "portraitLight", refinementSwitch: "refinement", teethSwitch: "teeth", browserBasicSwitch: "browserBasic" })) setSwitch(id, state[key]);
+    for (const id of ["autoFrameSwitch", "backgroundBlurSwitch", "portraitLightSwitch", "refinementSwitch", "teethSwitch"]) {
+      const el = document.getElementById(id); if (el) el.disabled = !visionReady || state.browserBasic || (id === "backgroundBlurSwitch" || id === "portraitLightSwitch" ? !visionCapabilities.segmentation : !visionCapabilities.face);
+    }
+    const resolution = $("#deviceResolutionSelect"); if (resolution) resolution.value = state.requestedResolution;
+    const fps = $("#deviceFpsSelect"); if (fps) fps.value = String(state.requestedFps);
+    const aiButton = $("#enableVisionButton"); if (aiButton) { aiButton.disabled = visionLoading || visionReady; aiButton.textContent = visionLoading ? "Loading local models…" : visionReady ? "Local models ready" : "Load local AI models"; }
     const guide = $("#frameGuide"); if (guide) { guide.classList.toggle("hidden", !state.showFrame); guide.hidden = !state.showFrame; guide.dataset.frame = state.frame; }
     hide("eyeLineGuide", !state.eyeLine); hide("thirdsGrid", !state.grid); hide("splitLine", !state.split || state.originalHeld || state.privacy);
     for (const [selector, key] of [[".look-button", "look"], [".scene-button", "scene"], [".segment[data-frame]", "frame"]]) $$(selector).forEach(button => { const active = button.dataset[key] === state[key]; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); });
@@ -107,7 +186,7 @@
   }
   function updateLabels() {
     const live = phase === "live";
-    text("effectLabel", state.originalHeld ? "Original · effects bypassed" : `${lookNames[state.look]} · ${live ? "Your camera background" : sceneNames[state.scene]}`);
+    text("effectLabel", state.browserBasic ? "Basic preview · app effects bypassed" : state.originalHeld ? "Original · effects bypassed" : `${lookNames[state.look]}${state.backgroundBlur && visionReady ? " · background blur" : ""} · ${live ? "Your camera background" : sceneNames[state.scene]}`);
     text("lightSummary", state.enhancement === 0 ? "Effects bypassed" : `${lookNames[state.look]} · ${state.enhancement}% intensity`);
     text("frameSummary", `${state.frame[0].toUpperCase() + state.frame.slice(1)} · ${state.zoom}% crop`);
     text("lightState", state.enhancement === 0 ? "Original" : "Custom");
@@ -125,13 +204,14 @@
     const stop = $("#stopCameraButton"); if (stop) stop.disabled = !starting && !activeStream;
     const capture = $("#captureButton"); if (capture) capture.disabled = state.privacy || starting || countdownActive || cameraMuted;
     const original = $("#holdOriginalButton"); if (original) original.disabled = state.privacy || starting;
-    for (const id of ["cameraSelect", "qualitySelect"]) { const el = document.getElementById(id); if (el) el.disabled = starting; }
+    for (const id of ["cameraSelect", "qualitySelect", "deviceResolutionSelect", "deviceFpsSelect"]) { const el = document.getElementById(id); if (el) el.disabled = starting; }
     $("#privacyCurtain")?.classList.toggle("visible", state.privacy); $("#privacyCurtain")?.setAttribute("aria-hidden", String(!state.privacy));
     for (const id of ["privacyButton", "shieldQuickButton"]) { const el = document.getElementById(id); if (el) { el.setAttribute("aria-pressed", String(state.privacy)); el.classList.toggle("active", state.privacy); } }
     text("privacyButton", state.privacy ? "Deactivate Privacy Shield" : "Activate Privacy Shield");
     $("#shieldQuickButton")?.setAttribute("aria-label", state.privacy ? "Deactivate Privacy Shield" : "Activate Privacy Shield");
     if (!live) { text("resolutionLabel", `${canvas.width} × ${canvas.height} sample`); text("deviceLabel", "Camera is off"); text("fpsLabel", "Sample · still image"); }
     else { const track = activeStream?.getVideoTracks()[0]; text("deviceLabel", track?.label || "Connected camera"); text("resolutionLabel", `${canvas.width} × ${canvas.height} output`); text("cameraSetupState", `${video.videoWidth || track?.getSettings?.().width || "—"} × ${video.videoHeight || track?.getSettings?.().height || "—"} input · no audio`); text("fpsLabel", cameraMuted ? "Signal paused" : measuredFps === null ? "Measuring frames…" : `${measuredFps} fps · preview`); }
+    updateBackgroundNotice();
   }
   function clearCameraError() { hide("cameraError", true); text("cameraErrorText", ""); }
   function cameraError(message) { text("cameraErrorText", message); hide("cameraError", false); }
@@ -147,38 +227,51 @@
     demoDirty = true; dirty = true; lastRender = -Infinity; clearPreview();
   }
 
+  function updateBackgroundNotice() {
+    const scene = sceneImages.get(state.scene), failed = scene?.status === "failed";
+    text("backgroundNotice", "This sample background is unavailable. A neutral studio is shown. Choose another space, or reload when online.");
+    hide("backgroundNotice", !failed || phase === "live" || state.privacy);
+    text("backgroundLoadStatus", failed ? "Background unavailable · neutral studio shown" : scene?.status === "ready" ? `${sceneNames[state.scene]} · ready on this device` : `Loading ${sceneNames[state.scene].toLowerCase()}…`);
+  }
+  function loadScene(scene) {
+    if (sceneImages.has(scene)) return;
+    const image = new Image(), entry = { image, status: "loading" };
+    sceneImages.set(scene, entry); image.decoding = "async";
+    const finish = status => {
+      entry.status = status;
+      // Each scene keeps its own image. A late response can never replace the
+      // selected scene or trigger a redundant render after the user moves on.
+      if (state.scene !== scene || disposed) return;
+      demoDirty = true; updateBackgroundNotice(); requestRender();
+    };
+    image.onload = () => finish(image.naturalWidth && image.naturalHeight ? "ready" : "failed");
+    image.onerror = () => finish("failed");
+    image.src = `./assets/demo/backgrounds/${sceneFiles[scene]}.webp`;
+    if (state.scene === scene) updateBackgroundNotice();
+  }
   function drawDemoSource() {
-    if (!demoDirty || !demoCtx) return; demoDirty = false;
+    if (!demoDirty || !demoCtx) return; demoDirty = false; demoRevision++;
     const w = demoCanvas.width, h = demoCanvas.height;
-    const palettes = { room: ["#d7dcd9", "#a8b7b3", "#485a60"], soft: ["#e2e7e6", "#b4c4c4", "#637775"], studio: ["#294c69", "#183149", "#0c1728"], night: ["#384253", "#202c3d", "#0e1726"], dawn: ["#e8d6ba", "#bb9b81", "#665d5a"], slate: ["#9aa5af", "#6a7785", "#344455"] };
-    const [a, b, c] = palettes[state.scene], gradient = demoCtx.createLinearGradient(0, 0, w, h);
-    gradient.addColorStop(0, a); gradient.addColorStop(.55, b); gradient.addColorStop(1, c); demoCtx.fillStyle = gradient; demoCtx.fillRect(0, 0, w, h);
-    demoCtx.save(); demoCtx.filter = `blur(${state.scene === "soft" ? 13 : 5}px)`;
-    if (["room", "soft", "night", "dawn"].includes(state.scene)) {
-      demoCtx.fillStyle = state.scene === "night" ? "#192838" : "#edf1eb"; demoCtx.fillRect(w * .03, -20, w * .25, h * .71);
-      demoCtx.fillStyle = state.scene === "night" ? "#36536c" : "#bacbca"; demoCtx.fillRect(w * .043, 0, w * .10, h * .67); demoCtx.fillRect(w * .157, 0, w * .105, h * .67);
-      demoCtx.fillStyle = "rgba(20,39,47,.18)"; demoCtx.fillRect(0, h * .70, w * .36, h * .025);
-      demoCtx.fillStyle = state.scene === "night" ? "#192330" : "#75766e"; demoCtx.fillRect(w * .81, h * .10, w * .16, h * .55);
-      demoCtx.fillStyle = "rgba(21,31,37,.40)";
-      for (let row = 0; row < 3; row++) {
-        demoCtx.fillRect(w * .81, h * (.26 + row * .16), w * .16, 9);
-        for (let book = 0; book < 5; book++) { demoCtx.fillStyle = ["#b8c6c1", "#465865", "#b59671", "#86948a", "#d3cdbb"][book]; demoCtx.fillRect(w * (.824 + book * .025), h * (.13 + row * .16), w * .018, h * .12); }
-        demoCtx.fillStyle = "rgba(21,31,37,.40)";
-      }
-      demoCtx.fillStyle = "#3a5144";
-      for (let i = 0; i < 5; i++) { demoCtx.beginPath(); demoCtx.ellipse(w * (.73 + i * .012), h * (.61 - (i % 3) * .04), w * .025, h * .11, (i - 2) * .3, 0, Math.PI * 2); demoCtx.fill(); }
-      demoCtx.fillStyle = "#9b8d7b"; demoCtx.fillRect(w * .725, h * .69, w * .07, h * .11);
-    } else {
-      const glow = demoCtx.createRadialGradient(w * .23, h * .25, 0, w * .23, h * .25, w * .66);
-      glow.addColorStop(0, state.scene === "studio" ? "rgba(127,198,212,.31)" : "rgba(220,231,240,.24)"); glow.addColorStop(1, "rgba(20,30,48,0)"); demoCtx.fillStyle = glow; demoCtx.fillRect(0, 0, w, h);
-      demoCtx.fillStyle = "rgba(255,255,255,.035)"; demoCtx.fillRect(w * .79, 0, w * .012, h);
+    // A quiet studio gradient stays usable while an image loads or is missing.
+    const neutral = demoCtx.createRadialGradient(w * .4, h * .35, 0, w * .5, h * .5, w * .8);
+    neutral.addColorStop(0, "#d0d3d3"); neutral.addColorStop(1, "#7b878c");
+    demoCtx.fillStyle = neutral; demoCtx.fillRect(0, 0, w, h);
+    const background = sceneImages.get(state.scene);
+    if (background?.status === "ready") {
+      const image = background.image, blur = state.sceneStrength / 100 * 8 * h / 720;
+      const padding = Math.ceil(blur * 3 + 2), dw = w + padding * 2, dh = h + padding * 2;
+      const scale = Math.max(dw / image.naturalWidth, dh / image.naturalHeight);
+      const sw = dw / scale, sh = dh / scale;
+      demoCtx.save(); demoCtx.filter = blur > 0 ? `blur(${blur}px)` : "none";
+      // Overscan keeps the blurred image edge outside the visible canvas.
+      demoCtx.drawImage(image, (image.naturalWidth - sw) / 2, (image.naturalHeight - sh) / 2, sw, sh, -padding, -padding, dw, dh);
+      demoCtx.restore();
     }
-    demoCtx.restore(); demoCtx.fillStyle = `rgba(13,25,37,${state.sceneStrength / 100 * .11})`; demoCtx.fillRect(0, 0, w, h);
     if (portraitReady) { const height = h * .985, width = portrait.naturalWidth * height / portrait.naturalHeight; demoCtx.drawImage(portrait, (w - width) / 2, h - height, width, height); }
     else { demoCtx.fillStyle = "rgba(14,27,40,.65)"; demoCtx.beginPath(); demoCtx.arc(w / 2, h * .45, 68, 0, Math.PI * 2); demoCtx.fill(); demoCtx.fillStyle = "#e6edf1"; demoCtx.font = "500 35px system-ui"; demoCtx.textAlign = "center"; demoCtx.fillText("ML", w / 2, h * .45 + 12); demoCtx.font = "20px system-ui"; demoCtx.fillText(portraitFailed ? "Sample portrait unavailable · start your camera" : "Loading professional sample…", w / 2, h * .66); }
   }
   function filterString(original = false) {
-    const strength = original ? 0 : state.enhancement / 100; if (strength === 0) return "none";
+    const strength = original || state.browserBasic ? 0 : state.enhancement / 100; if (strength === 0) return "none";
     let brightness = 100 + (state.brightness - 50) * 1.2, contrast = 100 + (state.contrast - 50), saturation = 100 + (state.saturation - 50) * 1.2, sepia = 0, hue = 0, grayscale = 0;
     if (state.look === "clear") { contrast += 9; saturation += 5; }
     if (state.look === "warm") { sepia = 13; saturation += 4; brightness += 2; }
@@ -193,11 +286,19 @@
     if (!sw || !sh) return;
     const aspect = w / h; let cropWidth = sw, cropHeight = sh;
     if (sw / sh > aspect) cropWidth = sh * aspect; else cropHeight = sw / aspect;
-    const zoom = Math.max(1, state.zoom / 100); cropWidth /= zoom; cropHeight /= zoom;
-    const sx = (sw - cropWidth) / 2, sy = (sh - cropHeight) / 2;
-    ctx.save(); ctx.filter = filterString(original); if (state.mirror) { ctx.translate(w, 0); ctx.scale(-1, 1); }
+    let zoom = state.browserBasic ? 1 : Math.max(1, state.zoom / 100), centerX = .5, centerY = .5;
+    if (!original && effectsActive() && state.autoFrame && analysis?.face) {
+      const face = analysis.face, target = { x: Math.max(0, Math.min(1, face.x + face.width / 2)), y: Math.max(0, Math.min(1, face.y + face.height / 2)), zoom: Math.max(zoom, Math.min(2, .32 / Math.max(.05, face.height))) };
+      if (!trackingCenter) trackingCenter = target;
+      else for (const key of ["x", "y", "zoom"]) trackingCenter[key] += (target[key] - trackingCenter[key]) * .18;
+      zoom = trackingCenter.zoom; centerX = trackingCenter.x; centerY = trackingCenter.y;
+    }
+    cropWidth /= zoom; cropHeight /= zoom;
+    if (!original && effectsActive() && state.autoFrame && analysis?.face) centerY += .12 * cropHeight / sh;
+    const sx = Math.max(0, Math.min(sw - cropWidth, centerX * sw - cropWidth / 2)), sy = Math.max(0, Math.min(sh - cropHeight, centerY * sh - cropHeight / 2));
+    ctx.save(); ctx.filter = filterString(original); if (state.mirror && !state.browserBasic) { ctx.translate(w, 0); ctx.scale(-1, 1); }
     ctx.drawImage(source, sx, sy, cropWidth, cropHeight, 0, 0, w, h); ctx.restore();
-    const strength = original ? 0 : state.enhancement / 100;
+    const strength = original || state.browserBasic ? 0 : state.enhancement / 100;
     if (strength && state.temperature) { const alpha = Math.abs(state.temperature) / 50 * .13 * strength; ctx.fillStyle = state.temperature > 0 ? `rgba(255,161,62,${alpha})` : `rgba(58,139,255,${alpha})`; ctx.fillRect(0, 0, w, h); }
     if (strength && state.vignette) { const vignette = ctx.createRadialGradient(w / 2, h * .46, h * .30, w / 2, h / 2, w * .68); vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, `rgba(3,9,18,${state.vignette / 100 * strength})`); ctx.fillStyle = vignette; ctx.fillRect(0, 0, w, h); }
   }
@@ -205,13 +306,15 @@
     if (state.privacy || document.hidden || disposed) return;
     if (phase === "starting" || cameraMuted) { clearPreview(); return; }
     let source; if (phase === "live") { if (video.readyState < 2) return; source = video; } else { drawDemoSource(); source = demoCanvas; }
+    const originalSource = source;
+    source = prepareEffects(source);
     ctx.save(); ctx.filter = "none"; ctx.fillStyle = "#101825"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore(); drawView(source, state.originalHeld);
-    if (state.split && !state.originalHeld) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, canvas.width / 2, canvas.height); ctx.clip(); drawView(source, true); ctx.restore(); }
+    if (state.split && !state.originalHeld) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, canvas.width / 2, canvas.height); ctx.clip(); drawView(originalSource, true); ctx.restore(); }
   }
   function requestRender() { dirty = true; if (!rafId && !document.hidden && !state.privacy && !disposed) rafId = requestAnimationFrame(render); }
   function render(time) {
     rafId = 0; if (document.hidden || state.privacy || disposed) return;
-    const live = phase === "live", targetFps = state.quality === "efficient" ? 20 : 30;
+    const live = phase === "live", targetFps = state.quality === "efficient" ? Math.min(20, state.requestedFps) : state.requestedFps;
     const newFrame = live && !cameraMuted && video.readyState >= 2 && video.currentTime !== lastVideoTime;
     if (dirty || (newFrame && time - lastRender >= 1000 / targetFps - 1)) {
       drawFrame(); dirty = false; lastRender = time;
@@ -222,6 +325,7 @@
 
   function stopTracks(stream) { stream?.getTracks().forEach(track => { try { track.stop(); } catch { /* Already disconnected. */ } }); }
   function releaseCamera() {
+    resetVision();
     const previous = activeStream; activeStream = null; try { video.pause(); } catch { /* Can reject during startup. */ }
     video.srcObject = null; stopTracks(previous); cameraMuted = false; measuredFps = null; sampleStart = 0; sampleFrames = 0; lastVideoTime = -1;
     if (rafId) cancelAnimationFrame(rafId); rafId = 0; clearPreview();
@@ -235,18 +339,19 @@
   function cameraConstraints(fallback = false) {
     const device = selectedCameraId ? { deviceId: { exact: selectedCameraId } } : {};
     if (fallback) return { video: Object.keys(device).length ? device : true, audio: false };
-    const size = state.quality === "high" ? [1920, 1080, 30] : state.quality === "efficient" ? [640, 360, 20] : [1280, 720, 30];
-    return { video: { ...device, width: { ideal: size[0] }, height: { ideal: size[1] }, frameRate: { ideal: size[2], max: size[2] }, ...(selectedCameraId ? {} : { facingMode: "user" }) }, audio: false };
+    const size = state.quality === "high" ? [1920, 1080] : state.quality === "efficient" ? [640, 360] : [1280, 720];
+    const explicit = state.requestedResolution !== "auto", requested = explicit ? state.requestedResolution.split("x").map(Number) : size;
+    return { video: { ...device, width: { [explicit ? "exact" : "ideal"]: requested[0] }, height: { [explicit ? "exact" : "ideal"]: requested[1] }, frameRate: { ideal: state.requestedFps, max: state.requestedFps }, ...(selectedCameraId ? {} : { facingMode: "user" }) }, audio: false };
   }
   async function startCamera() {
     if (disposed || phase === "starting") return;
     if (state.privacy) { showToast("Deactivate Privacy Shield before starting the camera."); return; }
     if (document.hidden) { showToast("Return to the studio before starting the camera."); return; }
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) { phase = "error"; cameraError("Camera access needs a secure HTTPS page and a supported browser. Publish the app, or use localhost for development."); updateCameraUI(); return; }
-    const id = ++requestId; cancelCapture(); releaseCamera(); phase = "starting"; clearCameraError(); updateControls(); requestRender(); let acquired = null;
+    const id = ++requestId; cancelCapture(); releaseCamera(); phase = "starting"; clearCameraError(); updateControls(); requestRender(); let acquired = null, usedFallback = false;
     try {
       try { acquired = await navigator.mediaDevices.getUserMedia(cameraConstraints()); }
-      catch (error) { if (error?.name !== "OverconstrainedError" || !requestIsCurrent(id)) throw error; acquired = await navigator.mediaDevices.getUserMedia(cameraConstraints(true)); }
+      catch (error) { if (error?.name !== "OverconstrainedError" || !requestIsCurrent(id)) throw error; usedFallback = true; acquired = await navigator.mediaDevices.getUserMedia(cameraConstraints(true)); }
       if (!requestIsCurrent(id)) { stopTracks(acquired); return; }
       const track = acquired.getVideoTracks()[0]; if (!track || track.readyState === "ended") throw new Error("No active video track");
       activeStream = acquired; video.srcObject = acquired;
@@ -260,8 +365,8 @@
         })]);
       } finally { clearTimeout(playTimeout); }
       if (!requestIsCurrent(id) || activeStream !== acquired) { stopTracks(acquired); if (video.srcObject === acquired) video.srcObject = null; if (activeStream === acquired) activeStream = null; return; }
-      phase = "live"; cameraMuted = Boolean(track.muted); updateControls(); requestRender(); await refreshDevices();
-      if (requestIsCurrent(id)) showToast("Camera connected. Audio is never requested; video stays on your device.");
+      phase = "live"; cameraMuted = Boolean(track.muted); updateControls(); updateDeviceCapabilities(); requestRender(); await refreshDevices();
+      if (requestIsCurrent(id)) showToast(usedFallback ? "Requested camera mode was unavailable. The driver default is shown instead." : "Camera connected. The microphone stays off until you start it separately.");
     } catch (error) { stopTracks(acquired); if (id !== requestId) return; releaseCamera(); phase = "error"; cameraError(errorMessage(error)); updateControls(); requestRender(); }
   }
   async function refreshDevices() {
@@ -281,7 +386,7 @@
       if (activeStream?.getVideoTracks()[0]?.getSettings?.().deviceId === previous && !devices.some(device => device.kind === "videoinput" && device.deviceId === previous)) { stopCamera(false, "error"); cameraError("Your camera was disconnected. Connect it or choose another camera, then select Retry."); }
     } catch { /* Track ended remains the primary disconnect signal. */ }
   }
-  function activatePrivacyShield() { state.privacy = !state.privacy; stopCamera(false); updateControls(); showToast(state.privacy ? "Privacy Shield on. Camera tracks stopped and the preview cleared." : "Privacy Shield off. Start the camera when ready."); }
+  function activatePrivacyShield() { state.privacy = !state.privacy; sessionTools?.setPrivacyShield(state.privacy); stopCamera(false); updateControls(); showToast(state.privacy ? "Privacy Shield on. Camera and microphone stopped; preview cleared." : "Privacy Shield off. Start the camera when ready."); }
 
   function downloadBlob(blob, name) {
     const url = URL.createObjectURL(blob); objectUrls.add(url); const link = document.createElement("a"); link.href = url; link.download = name; link.hidden = true; document.body.append(link); link.click(); link.remove();
@@ -296,7 +401,8 @@
       try { canvas.toBlob(blob => {
         if (token !== captureToken || state.privacy || document.hidden || disposed) return;
         if (!blob) { showToast("The snapshot could not be saved. Try again."); return; }
-        const stamp = new Date().toISOString().replace(/[:.]/g, "-"); downloadBlob(blob, `meetinglens-${phase === "live" ? "camera" : "sample"}-${stamp}.${format === "jpeg" ? "jpg" : "png"}`); showToast("Snapshot downloaded. Framing guides are excluded.");
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-"), filename = `meetinglens-${phase === "live" ? "camera" : "sample"}-${stamp}.${format === "jpeg" ? "jpg" : "png"}`;
+        downloadBlob(blob, filename); sessionTools?.backupSnapshot(blob, filename).catch(() => showToast("Snapshot downloaded. Its backup could not be completed.")); showToast("Snapshot downloaded. Framing guides are excluded.");
       }, format === "jpeg" ? "image/jpeg" : "image/png", .92); } catch { showToast("This browser could not create the snapshot. Try PNG format."); }
     };
     if (!state.timer) { finish(); return; }
@@ -304,10 +410,12 @@
     const tick = () => { if (token !== captureToken || state.privacy || document.hidden || disposed) return; if (!remaining) { finish(); return; } text("countdown", String(remaining--)); hide("countdown", false); captureTimer = setTimeout(tick, 1000); }; tick();
   }
   function applyChanges(changes, message) {
-    const oldScene = state.scene, oldStrength = state.sceneStrength, oldQuality = state.quality; Object.assign(state, sanitize({ ...state, ...changes }));
+    const oldScene = state.scene, oldStrength = state.sceneStrength, oldQuality = state.quality, oldResolution = state.requestedResolution, oldFps = state.requestedFps; Object.assign(state, sanitize({ ...state, ...changes }));
+    if (["autoFrame", "backgroundBlur", "portraitLight", "refinement", "teeth", "browserBasic"].some(key => Object.hasOwn(changes, key))) resetVision();
     if (oldScene !== state.scene || oldStrength !== state.sceneStrength) demoDirty = true;
+    if (oldScene !== state.scene) loadScene(state.scene);
     const qualityChanged = oldQuality !== state.quality;
-    const restart = qualityChanged && (phase === "live" || phase === "starting");
+    const restart = (qualityChanged || oldResolution !== state.requestedResolution || oldFps !== state.requestedFps) && (phase === "live" || phase === "starting");
     if (qualityChanged) { cancelCapture(); resizeOutput(); }
     updateControls(); saveSettings(); requestRender(); if (message) showToast(message);
     if (restart) { stopCamera(false); startCamera(); }
@@ -361,9 +469,15 @@
     on("timerSelect", "change", event => { cancelCapture(); applyChanges({ timer: Number(event.target.value) }); });
     on("snapshotFormat", "change", event => applyChanges({ snapshotFormat: event.target.value }));
     on("qualitySelect", "change", event => applyChanges({ quality: event.target.value }));
+    on("deviceResolutionSelect", "change", event => applyChanges({ requestedResolution: event.target.value }));
+    on("deviceFpsSelect", "change", event => applyChanges({ requestedFps: Number(event.target.value) }));
+    on("portraitLightRange", "input", event => applyChanges({ portraitLightAmount: Number(event.target.value) }));
+    on("enableVisionButton", "click", enableVision);
+    for (const [id, key] of Object.entries({ autoFrameSwitch: "autoFrame", backgroundBlurSwitch: "backgroundBlur", portraitLightSwitch: "portraitLight", refinementSwitch: "refinement", teethSwitch: "teeth", browserBasicSwitch: "browserBasic" })) on(id, "click", () => applyChanges({ [key]: !state[key] }));
+    on("openWindowsCameraSettings", "click", () => { if (/Windows/i.test(navigator.userAgent)) location.href = "ms-settings:camera"; else showToast("Open Windows Settings → Bluetooth & devices → Cameras on your Windows PC."); });
     on("cameraSelect", "change", event => { selectedCameraId = event.target.value; if (phase === "live") { stopCamera(false); startCamera(); } });
     on("privacyButton", "click", activatePrivacyShield); on("shieldQuickButton", "click", activatePrivacyShield); on("startCameraButton", "click", startCamera); on("retryCameraButton", "click", startCamera);
-    on("stopCameraButton", "click", () => stopCamera()); on("captureButton", "click", captureSnapshot);
+    on("stopCameraButton", "click", () => { sessionTools?.stopPrivateResources("Camera session stopped"); stopCamera(); }); on("captureButton", "click", captureSnapshot);
     on("fixNaturallyButton", "click", () => { applyProfile("natural"); text("readinessTitle", "A natural starting point"); text("readinessText", "A gentle light and color preset is applied. Check the preview and adjust it for your room."); }); on("resetButton", "click", resetSettings);
     on("savePresetButton", "click", savePreset); on("presetName", "keydown", event => { if (event.key === "Enter") { event.preventDefault(); savePreset(); } }); on("importPresetInput", "change", importPresets);
     on("exportPresetButton", "click", () => { if (presets.length) downloadBlob(new Blob([JSON.stringify({ schema: "meetinglens.presets", version: 1, presets }, null, 2)], { type: "application/json" }), "meetinglens-setups.json"); });
@@ -377,7 +491,7 @@
     document.addEventListener("keyup", event => { if (event.key.toLowerCase() === "c") setOriginal(false); }); window.addEventListener("blur", () => setOriginal(false)); on("cameraVideo", "loadedmetadata", updateCameraUI);
     navigator.mediaDevices?.addEventListener?.("devicechange", () => { clearTimeout(deviceRefreshTimer); deviceRefreshTimer = setTimeout(handleDeviceChange, 250); });
     document.addEventListener("visibilitychange", () => { setOriginal(false); cancelCapture(); if (document.hidden) { if (phase === "starting" || (phase === "live" && state.autoPause)) stopCamera(false, "paused"); else { if (rafId) cancelAnimationFrame(rafId); rafId = 0; sampleStart = 0; sampleFrames = 0; measuredFps = null; } } else { updateCameraUI(); requestRender(); } });
-    window.addEventListener("pagehide", () => { stopCamera(false); disposed = true; clearTimeout(deviceRefreshTimer); for (const url of objectUrls) URL.revokeObjectURL(url); objectUrls.clear(); });
+    window.addEventListener("pagehide", () => { sessionTools?.stopPrivateResources("App closed"); stopCamera(false); disposed = true; clearTimeout(deviceRefreshTimer); for (const url of objectUrls) URL.revokeObjectURL(url); objectUrls.clear(); });
     window.addEventListener("pageshow", event => { if (event.persisted) { disposed = false; phase = "demo"; updateControls(); requestRender(); } });
     window.addEventListener("beforeinstallprompt", event => { event.preventDefault(); deferredInstallPrompt = event; hide("installButton", false); });
     on("installButton", "click", async () => { if (!deferredInstallPrompt) return; try { await deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; } catch { showToast("Use your browser’s Install app option to install MeetingLens."); } deferredInstallPrompt = null; hide("installButton", true); });
@@ -395,8 +509,11 @@
   }
   portrait.onload = () => { portraitReady = true; demoDirty = true; requestRender(); };
   let triedPng = false; portrait.onerror = () => { if (!triedPng) { triedPng = true; portrait.src = "./assets/demo/professional-portrait.png"; } else { portraitFailed = true; demoDirty = true; requestRender(); } };
+  loadScene(state.scene);
   portrait.src = "./assets/demo/professional-portrait.webp";
+  sessionTools = window.MeetingLensSessionTools?.init({ getCanvas: () => canvas, onStatus: (message, level) => { if (level === "error") showToast(message); } }) || null;
   resizeOutput(); registerEvents(); updateControls(); renderPresets(); storageNotice(); updateConnection(); refreshDevices(); registerServiceWorker(); requestRender();
+  window.MeetingLensStudio = { getState: () => ({ ...sanitize(state), phase, privacy: state.privacy, visionReady, visionPending }), getAnalysis: () => analysis, loadAI: enableVision, stop: () => { sessionTools?.stopPrivateResources("Session stopped"); stopCamera(false); } };
   const params = new URLSearchParams(location.search); if (Object.prototype.hasOwnProperty.call(panelText, params.get("screen"))) setPanel(params.get("screen"));
   if (params.get("action") === "camera") showToast("Select Start camera when you are ready to grant permission.");
 })();

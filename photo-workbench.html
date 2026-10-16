@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#191d2e">
+  <meta name="description" content="Private local photo enhancement, batch color matching, brush retouching and perspective whiteboard capture.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icons/meetinglens-192.png">
+  <link rel="stylesheet" href="./assets/styles/photo-workbench.css">
+  <title>Photo Lab — MeetingLens</title>
+  <script defer src="./assets/js/vision-effects.js"></script>
+  <script defer src="./assets/js/photo-workbench.js"></script>
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to photo workspace</a>
+  <header class="header"><a class="brand" href="./"><img src="./assets/icons/meetinglens-icon.svg" width="36" height="36" alt=""><span>Meeting<span class="brand-light">Lens</span><small>YOUR CAMERA, CONSIDERED.</small></span></a><nav aria-label="Workspaces"><a href="./">Camera studio</a><a class="selected" aria-current="page" href="./photo-workbench.html">Photo Lab</a></nav><span class="local-badge"><i></i> Photos stay on this device</span></header>
+  <div class="layout">
+    <aside class="tools" aria-label="Photo tools"><p class="eyebrow">YOUR WORKSPACE</p><button data-tool="enhance" class="tool active" aria-pressed="true"><span aria-hidden="true">✧</span><b>Smart Enhance</b><small>Light &amp; color, balanced</small></button><button data-tool="match" class="tool" aria-pressed="false"><span aria-hidden="true">◐</span><b>Color Match</b><small>One tone. A whole set.</small></button><button data-tool="remove" class="tool" aria-pressed="false"><span aria-hidden="true">⌁</span><b>Object Removal</b><small>Brush away distractions</small></button><button data-tool="retouch" class="tool" aria-pressed="false"><span aria-hidden="true">◌</span><b>Face Refinement</b><small>Subtle, targeted retouch</small></button><button data-tool="board" class="tool" aria-pressed="false"><span aria-hidden="true">▱</span><b>Whiteboard</b><small>Straighten your ideas</small></button><div class="sidebar-note"><b>A little more control.</b><p>Edits happen in your browser. Import a photo, refine it, then save a copy.</p><a href="./privacy.html">Privacy policy ↗</a></div></aside>
+    <main id="workspace" class="main">
+      <div class="heading"><div><p class="eyebrow">THE PHOTO WORKSPACE</p><h1>A considered finish.</h1><p class="intro">Better light, consistent color, and clearer ideas. All on your device.</p></div><label class="button primary import-label">+ Import photos<input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/bmp" multiple></label></div>
+      <div id="status" class="status" role="status" aria-live="polite">Loading your sample…</div>
+      <section id="dropZone" class="editor" aria-label="Photo editor and image drop area">
+        <div class="editor-head"><span><i></i> <b id="photoName">Sample portrait</b></span><span id="photoDimensions">—</span></div>
+        <div class="canvas-area"><div id="canvasWrap" class="canvas-wrap"><canvas id="photoCanvas" width="1280" height="720" aria-label="Current edited photo"></canvas><canvas id="maskCanvas" width="1280" height="720" aria-label="Paint over the area you want to edit" tabindex="0"></canvas><svg id="boardOverlay" aria-hidden="true" viewBox="0 0 1280 720" hidden><polygon id="boardPolygon" points=""></polygon></svg><div id="boardCorners" hidden><button class="corner" data-corner="0" aria-label="Top left corner. Use arrow keys to move.">1</button><button class="corner" data-corner="1" aria-label="Top right corner. Use arrow keys to move.">2</button><button class="corner" data-corner="2" aria-label="Bottom right corner. Use arrow keys to move.">3</button><button class="corner" data-corner="3" aria-label="Bottom left corner. Use arrow keys to move.">4</button></div><span id="sampleLabel" class="sample-label">AI-generated sample portrait</span></div></div>
+        <div class="editor-actions"><div><button id="undoButton" class="button subtle" disabled>↶ Undo</button><button id="resetPhotoButton" class="button subtle">Reset photo</button><button id="compareButton" class="button subtle" aria-pressed="false">Show original</button></div><button id="exportPhotoButton" class="button light">↓ Save JPEG</button></div>
+      </section>
+      <div class="set-header"><div><b>Your photo set</b><span id="setCount">1 photo</span></div><span>Drop images anywhere in the editor</span></div>
+      <div id="filmstrip" class="filmstrip" aria-label="Imported photos"></div>
+      <footer><span>Up to 8 photos · 2048 px maximum edge · JPEG, PNG, WebP, AVIF or BMP</span><a href="./privacy.html">Privacy</a></footer>
+    </main>
+    <aside class="inspector" aria-label="Photo adjustments">
+      <div class="inspector-heading"><p class="eyebrow">THE FINISHING TOUCH</p><h2 id="toolTitle">Smart Enhance</h2></div>
+      <section id="enhancePanel" class="panel active">
+        <div class="feature-card"><span class="card-symbol">✧</span><p class="eyebrow">LET THE LIGHT IN</p><h3>A natural lift.</h3><p>Analyze the photo’s tones, recover contrast, gently balance color, and lift the midtones.</p></div>
+        <label class="slider-label" for="enhanceAmount">Enhancement strength <output id="enhanceAmountValue">65%</output></label><input id="enhanceAmount" type="range" min="10" max="100" value="65">
+        <button id="enhanceButton" class="button primary wide">Enhance this photo <span>↗</span></button><button id="enhanceAllButton" class="button secondary wide">Enhance the full set</button>
+        <p class="note">Automatic local tone analysis. This is an image-processing tool; it does not invent missing detail.</p>
+      </section>
+      <section id="matchPanel" class="panel">
+        <div class="feature-card"><span class="card-symbol">◐</span><p class="eyebrow">A COHESIVE COLLECTION</p><h3>Find your tone.</h3><p>Choose a reference photo. Match its overall color and contrast across the set.</p></div>
+        <label class="button secondary wide import-label">Import reference photo<input id="referenceInput" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/bmp"></label><div id="referenceCard" class="reference" hidden><img id="referenceThumb" alt="Color reference"><span id="referenceName"></span></div><button id="useCurrentReferenceButton" class="button subtle wide">Use current photo as reference</button>
+        <label class="slider-label" for="matchAmount">Match strength <output id="matchAmountValue">65%</output></label><input id="matchAmount" type="range" min="10" max="100" value="65"><button id="matchButton" class="button primary wide" disabled>Match this photo</button><button id="matchAllButton" class="button secondary wide" disabled>Match the full set</button><button id="exportSetButton" class="button secondary wide">↓ Save set as ZIP</button><p class="note">Perceptual Lab color statistics transfer the reference tone. Similar lighting and subjects produce the most consistent results.</p>
+      </section>
+      <section id="removePanel" class="panel">
+        <div class="feature-card"><span class="card-symbol">⌁</span><p class="eyebrow">LESS DISTRACTION</p><h3>Make a little space.</h3><p>Paint over a small unwanted item, then fill the area from its surroundings.</p></div>
+        <label class="slider-label" for="brushSize">Brush diameter <output id="brushSizeValue">40 px</output></label><input id="brushSize" type="range" min="8" max="150" value="40"><div class="row"><button id="undoMaskButton" class="button secondary">Undo stroke</button><button id="clearMaskButton" class="button secondary">Clear mask</button></div><button id="removeButton" class="button primary wide">Fill painted area</button><p class="note">Local neighborhood inpainting works best on small objects against simple walls, floors, or sky. Complex textures may blur; Undo restores the previous photo.</p><p id="maskCount" class="detail">No area painted</p>
+      </section>
+      <section id="retouchPanel" class="panel">
+        <div class="feature-card"><span class="card-symbol">◌</span><p class="eyebrow">STILL NATURALLY YOU</p><h3>A lighter touch.</h3><p>Use a soft brush to smooth skin or brighten teeth only where you choose.</p></div>
+        <label class="field-label" for="retouchMode">Retouch brush</label><select id="retouchMode"><option value="skin">Skin smoothing · manual mask</option><option value="teeth">Teeth whitening · manual mask</option></select><label class="slider-label" for="retouchBrushSize">Brush diameter <output id="retouchBrushSizeValue">40 px</output></label><input id="retouchBrushSize" type="range" min="6" max="100" value="40"><label class="slider-label" for="retouchAmount">Retouch strength <output id="retouchAmountValue">30%</output></label><input id="retouchAmount" type="range" min="5" max="70" value="30"><button id="retouchButton" class="button primary wide">Apply to painted area</button><button id="clearRetouchMaskButton" class="button secondary wide">Clear painted area</button>
+        <div class="divider"></div><p class="section-label">Optional face assistance <span>LOCAL AI</span></p><p class="note">Find facial landmarks, then apply modest skin smoothing and teeth lift inside the detected regions.</p><button id="faceRefineButton" class="button secondary wide">Find face &amp; refine</button><p id="faceRefineStatus" class="detail">Manual brushes work without AI models.</p>
+      </section>
+      <section id="boardPanel" class="panel">
+        <div class="feature-card"><span class="card-symbol">▱</span><p class="eyebrow">BRING IDEAS INTO FOCUS</p><h3>Every angle, readable.</h3><p>Move the four corner handles onto the board. Flatten perspective and save a clean JPEG.</p></div>
+        <button id="loadBoardSampleButton" class="button secondary wide">Try whiteboard sample</button><p class="corner-order">1 Top left → 2 Top right → 3 Bottom right → 4 Bottom left</p><button id="suggestBoardButton" class="button secondary wide">Suggest bright board corners</button><p id="boardDetectionStatus" class="detail">Manual corners always remain available.</p><label class="field-label" for="boardSize">Longest output edge</label><select id="boardSize"><option value="1600">1600 px · standard</option><option value="2048">2048 px · detailed</option></select><label class="checkbox-row"><input id="cleanBoard" type="checkbox" checked>Clean white background &amp; improve ink contrast</label><button id="rectifyButton" class="button primary wide">Straighten whiteboard</button><p class="note">Drag handles, or focus a handle and use the arrow keys. Hold Shift for larger steps. Verify suggested corners before applying.</p>
+      </section>
+      <div class="inspector-footer"><i></i> Local processing · no photo uploads</div>
+    </aside>
+  </div>
+</body>
+</html>

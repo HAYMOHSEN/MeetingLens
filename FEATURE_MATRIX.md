@@ -1,0 +1,37 @@
+# MeetingLens 3.0.0 feature status
+
+This table describes the implemented source, not certification or proof of compatibility with every device. The installable PWA and the separate native Windows source projects have different capabilities. See VALIDATION.md and RELEASE_CHECKLIST.md for testing.
+
+| Requested feature | PWA behavior | Windows/native scope and practical limit |
+|---|---|---|
+| Auto Framing | Local MediaPipe face detection drives a smoothed digital crop to follow the detected face. | Native utility exposes the Windows automatic-framing camera control when reported as supported. Neither approach guarantees detection in every pose. |
+| Background Blur | Local person segmentation composites a softer background behind the foreground person. | Native utility can select supported standard/portrait Windows blur modes through KS. Check system effects before adding duplicate local blur. |
+| Professional background replacement | Six interior scenes work with the labeled AI sample portrait. | Live replacement with those scenes is not implemented; live segmentation is used for blur. |
+| Eye Contact | No browser gaze alteration or simulated eye-contact toggle. | Native utility reads/changes the supported Windows eye-contact modes. Hardware/driver support is required. |
+| Portrait Light | Local fill-light adjustment lifts the foreground; modest highlight handling is not glare reconstruction. | Native utility exposes the supported Windows portrait-light effect through KS. Availability depends on the device. |
+| Voice Focus | Opt-in microphone check requests browser noise suppression, echo cancellation, and automatic gain control, with reported support/status, a meter, and a local test clip up to 60 seconds. | Windows Voice Focus is opened through Sound settings. No proprietary AI voice engine or audio output route to meeting apps is included. |
+| Smart Enhance | Local image statistics adjust tone, contrast, and color for one photo or a set. | This algorithm is not generative AI and cannot recover clipped/missing detail. |
+| Object Removal | A brush mask selects a small area for local neighboring-pixel inpainting, with Undo. | Not prompt-based or generative fill; large objects and complex texture can smear or blur. |
+| Face Refinement | Manual skin/teeth brushes in Photo Lab; optional local landmark assistance. Live refinements use landmark masks for modest smoothing/teeth lift. | No facial identity recognition, face reshaping, or promised zero-effort professional result. Review the visible result. |
+| Color Match | Lab mean/variance color-statistic transfer from a selected reference; batch up to eight photos; JPEG ZIP export. | A reference tone is approximated, not a calibrated match under every lighting/subject condition. |
+| Kernel Streaming / double-filter avoidance | Browser page can import a validated local capability report and warns if its snapshot reported active Windows blur. Basic preview bypasses app effects. | Separate native utility reads/sets supported KS effect properties. Report import is not live synchronization or an automatic system-wide filter policy. |
+| NPU offload | Browser models execute with CPU/WebAssembly in a worker. | Windows chooses acceleration for supported Studio Effects; the utility does not select or benchmark an NPU provider. |
+| USB webcams / multiple cameras | Enumerate available cameras and switch the active device, releasing the previous stream. | Modes/behavior depend on camera and driver; simultaneous multi-camera composition is not implemented. |
+| Multi-App Camera | PWA does not register a virtual camera or broadcast its canvas. | Open Windows camera settings for available OS multi-app controls. A pinned Microsoft virtual-camera reference and build script are included, but its source provider is not connected to the PWA canvas. End-to-end enhanced Zoom/Teams/Camera routing is unfinished. |
+| Basic Camera Mode / raw DirectShow | Basic preview bypasses MeetingLens visual processing only; browser/driver system effects may remain. | A separate C++ DirectShow diagnostic preview is provided. It does not guarantee raw sensor data or override enterprise policy/system effects. |
+| Fine zoom / resolution / FPS | Digital crop zoom in 0.1% steps; supported camera capability ranges inform resolution/FPS choices, with safe request fallback and actual output readout. | Native utility lists driver-reported formats and exposes device zoom/ranges when supported. Hidden or unsupported driver modes cannot be manufactured. |
+| QR links to clipboard | Local BarcodeDetector or bundled jsQR decoding; explicit copy, optional copy of newly decoded links, and a fallback when clipboard permission is blocked. | No automatic URL opening. Clipboard access remains subject to browser/OS permissions. |
+| Automatic still backup | Session opt-in to a user-selected writable folder or IndexedDB; browser backups retain the latest 50 images. | Folder permission is required each session; local storage is not cloud backup and can be cleared/evicted. No photos are saved before opt-in. |
+| Perspective Whiteboard Mode | Bright-board corner suggestion plus four editable corners; homography rectification, ink cleanup, JPEG export. Import a photo or take a studio snapshot first. | Detection is a heuristic for a bright board outline, not guaranteed semantic board detection. Correct corners manually for unusual lighting or boundaries. |
+| Privacy and error recovery | No capture without user permission; Privacy Shield stops camera/mic, cancels pending work, and clears the temporary audio test; hidden-app stops, stale-request cancellation, recoverable model/device errors. | Physical Windows devices and generated packages still require manual testing. |
+| Offline use | Bundled interface, sample scenes, vision models, and QR decoder are cached after a successful initial load. | Browser storage eviction or a missing first cache requires reconnecting. Browser/device feature support is unchanged offline. |
+
+## Native report boundary
+
+The report schema is meetinglens.windows.capabilities.v1. The PWA accepts JSON up to 1 MB, validates the structure, renders strings as text, and keeps the report only in that page's memory. Reports contain capability/device metadata, not captured video/audio. A report can become stale after a Windows update, driver change, device switch, or changed system setting.
+
+The report viewer never controls the camera, requests microphone access, launches Settings automatically, or treats a file as an executable command.
+
+## Before claiming a capability publicly
+
+Use the exact shipped version and package, verify the workflow on the supported hardware, keep optional controls unavailable when unsupported, and keep the Store copy aligned with this matrix. Native reference source, Windows settings links, and a completed PWA are not proof of an integrated virtual camera.

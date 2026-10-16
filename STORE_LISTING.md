@@ -1,6 +1,6 @@
 # MeetingLens — Microsoft Store Listing Pack
 
-Copy for the **2.0.0 PWA release**. Confirm every item against the deployed and packaged app before submission. English and Arabic metadata are provided; declare an Arabic interface language only if the app interface is actually translated and tested.
+Copy for the **3.0.0 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
 
 ## Product identity
 
@@ -9,49 +9,57 @@ Copy for the **2.0.0 PWA release**. Confirm every item against the deployed and 
 | Product name | MeetingLens | MeetingLens |
 | Short title | MeetingLens | MeetingLens |
 | Suggested category | Productivity | الإنتاجية |
-| Version | 2.0.0 | 2.0.0 |
+| Version | 3.0.0 | 3.0.0 |
 
-Reserve the final name in Partner Center. Package identity and supported Windows versions must match the actual PWABuilder package and your Partner Center account.
+Reserve the final name in Partner Center. Package identity, supported Windows versions, languages, and declarations must match the actual submitted package.
 
 ## Short description
 
 **English**
 
-Prepare your webcam with local color controls, original comparisons, framing guides, presets, and private snapshots.
+Prepare your webcam, blur the room, refine photos, match a photo set, and straighten whiteboards with local processing.
 
 **Arabic**
 
-جهّز كاميرتك بأدوات محلية لضبط الألوان ومقارنة الأصل والتأطير وحفظ الإعدادات واللقطات بخصوصية.
+جهّز كاميرتك، وموّه الخلفية، وحسّن الصور ووحّد ألوانها، وصحّح منظور السبورة بمعالجة محلية.
 
 ## Full description
 
 ### English
 
-Look prepared before your next meeting, lesson, or presentation. MeetingLens gives you a focused workspace to preview your webcam, adjust its appearance, check your framing, and save a local snapshot.
+Bring a clearer image to your next meeting, lesson, or presentation. MeetingLens combines a local camera studio with a practical Photo Lab and perspective whiteboard tools.
 
-Refine brightness, contrast, saturation, color temperature, and vignette, or choose a visual look. Switch between the original image and your adjustments, or use a split comparison to see the difference clearly. Mirror the preview, zoom in, and use the grid and eye-line guides to compose your shot.
+Preview a built-in or USB webcam, select a supported quality preference, and see the actual delivered resolution. Local face tracking can keep the detected face centered with Auto Framing. Person segmentation blurs the live room while preserving the foreground. Add a gentle Portrait Light, refine color and contrast, adjust digital zoom precisely, and compare the original and enhanced image. Subtle landmark-assisted skin smoothing and teeth brightening are available when local face analysis succeeds.
 
-Choose a camera and a 720p, 1080p, or efficient preview preference. Actual resolution depends on your webcam and browser. Save your preferred settings as local presets, export them for backup, or import a compatible preset file. Download a PNG or JPEG snapshot immediately or after a countdown.
+Save favorite settings as local presets. Download PNG or JPEG snapshots immediately or after a countdown. Explore six professional photographic interiors with the clearly labeled, fictional AI demo portrait. These replacement scenes apply to the sample portrait; live video supports background blur.
 
-Explore six sample backgrounds with a clearly labeled, fictional AI-generated professional portrait. These backgrounds are for the demo only; this release does not replace the background of live camera video.
+Open Photo Lab to enhance tone and color, brush over small distractions using local inpainting, apply modest skin/teeth retouching, or match the overall tone of a reference photo across a set. Work with up to eight photos and export JPEGs in a ZIP. Smart Enhance and Object Removal use local image processing; Object Removal works best on small items against simple backgrounds.
 
-Privacy Shield stops the camera. The default privacy setting also stops it when MeetingLens is hidden; you choose when to restart. Camera images are processed locally, and the app does not upload camera video, record automatically, or require an account.
+Capture a board photo and use Perspective Whiteboard to suggest its bright outline, adjust four corners, flatten the angle, improve ink contrast, and save a readable JPEG. Check suggested corners before applying.
 
-**Scope:** MeetingLens improves the preview inside this app. It does not create a system-wide virtual camera or change the video sent by Teams, Zoom, Google Meet, Webex, or other meeting apps. Framing guides are manual composition aids, not face detection or a camera-readiness measurement. A compatible webcam and permission are needed for live preview; the sample demo is available without camera access.
+Session tools offer an optional microphone check with supported browser noise suppression, a level meter, and a short local test recording. Scan QR content locally and copy it after review; automatic copying of new QR links is an opt-in setting. Choose optional automatic still backup to browser storage or a permitted local folder.
+
+Camera, photos, and audio are processed on your device without a cloud upload or account. Privacy Shield stops camera and microphone capture. Camera and microphone permissions are requested separately, and recording and backups start only when you choose.
+
+**Compatibility and scope:** Effects improve the preview inside MeetingLens. The PWA does not create a system-wide virtual camera or route processed video/audio into Zoom, Teams, Meet, or other meeting apps. Eye-contact correction and NPU acceleration are not browser features. Windows camera tools link to supported system settings and can display a locally imported capability report from the separate Windows utility; the report is a snapshot, not a live connection. Hardware, browser support, permissions, and model detection affect availability and results. The offline shell works after a successful first cache.
 
 ### Arabic
 
-استعد لاجتماعك أو محاضرتك أو عرضك التقديمي القادم. يوفر MeetingLens مساحة واضحة لمعاينة كاميرا الويب وضبط مظهر الصورة والتحقق من التأطير وحفظ لقطة محلياً.
+قدّم صورة أوضح في اجتماعك أو محاضرتك أو عرضك القادم. يجمع MeetingLens بين استوديو كاميرا محلي ومختبر عملي لتحرير الصور وأدوات لتصحيح منظور السبورة.
 
-اضبط السطوع والتباين والتشبع وحرارة الألوان والتظليل عند الحواف، أو اختر مظهراً بصرياً جاهزاً. انتقل بين الصورة الأصلية والمعدّلة، أو استخدم المقارنة المقسّمة لمشاهدة الفرق بوضوح. اعكس المعاينة وكبّر الصورة واستعن بالشبكة وخط العين لترتيب اللقطة.
+عاين كاميرا الجهاز أو كاميرا USB، واختر تفضيل جودة مدعوماً، واطّلع على الدقة الفعلية. يساعد تتبّع الوجه المحلي في إبقاء الوجه المكتشف في المنتصف باستخدام التأطير التلقائي. ويتيح فصل الشخص تمويه خلفية الفيديو المباشر مع الحفاظ على المقدمة. أضف إضاءة تعبئة لطيفة، واضبط الألوان والتباين والتكبير الرقمي بدقة، وقارن الصورة الأصلية بالمحسّنة. يتوفر تنعيم خفيف للبشرة وتفتيح للأسنان بمساعدة معالم الوجه عند نجاح التحليل المحلي.
 
-اختر الكاميرا وتفضيل جودة 720p أو 1080p أو الوضع الاقتصادي. تعتمد الدقة الفعلية على الكاميرا والمتصفح. احفظ إعداداتك المفضلة محلياً، وصدّرها للاحتفاظ بنسخة، أو استورد ملف إعدادات متوافقاً. نزّل لقطة PNG أو JPEG مباشرة أو بعد عدّ تنازلي.
+احفظ إعداداتك المفضلة محلياً. نزّل لقطات PNG أو JPEG مباشرة أو بعد عدّ تنازلي. واستكشف ست خلفيات داخلية احترافية مع صورة الشخص التجريبي الخيالي المولّدة بالذكاء الاصطناعي والمعلّمة بوضوح. تُطبّق هذه الخلفيات البديلة على الصورة التجريبية فقط؛ أما الفيديو المباشر فيدعم تمويه الخلفية.
 
-جرّب ست خلفيات مع صورة احترافية لشخص خيالي مولّدة بالذكاء الاصطناعي وتحمل علامة توضيحية. هذه الخلفيات مخصصة للنموذج التجريبي فقط؛ ولا يستبدل هذا الإصدار خلفية فيديو الكاميرا المباشر.
+افتح مختبر الصور لتحسين الإضاءة والألوان، أو تحديد عناصر صغيرة بالفرشاة وملء مواضعها من البكسلات المجاورة، أو تنقيح البشرة والأسنان باعتدال، أو نقل الطابع اللوني العام لصورة مرجعية إلى مجموعة صور. اعمل على ما يصل إلى ثماني صور وصدّر ملفات JPEG داخل ملف ZIP. يعتمد التحسين التلقائي وإزالة العناصر على معالجة محلية للصور؛ وتناسب إزالة العناصر الأجسام الصغيرة فوق خلفيات بسيطة.
 
-توقف ميزة Privacy Shield الكاميرا. كما يوقف إعداد الخصوصية الافتراضي الكاميرا عند إخفاء MeetingLens، وتختار أنت وقت إعادة تشغيلها. تُعالج صور الكاميرا محلياً، ولا يرفع التطبيق فيديو الكاميرا ولا يسجل تلقائياً ولا يتطلب حساباً.
+التقط صورة للسبورة، ثم اقترح حدودها الساطعة وعدّل زواياها الأربع لتصحيح الميل وتحسين تباين الكتابة وحفظ صورة JPEG واضحة. تحقّق من الزوايا المقترحة قبل التطبيق.
 
-**نطاق العمل:** يحسّن MeetingLens المعاينة داخل التطبيق فقط. ولا ينشئ كاميرا افتراضية على مستوى النظام، ولا يغيّر الفيديو المرسل عبر Teams أو Zoom أو Google Meet أو Webex أو تطبيقات الاجتماعات الأخرى. أدلة التأطير أدوات يدوية لتكوين الصورة، وليست لكشف الوجه أو قياس الجاهزية. تتطلب المعاينة المباشرة كاميرا متوافقة وإذن الوصول إليها؛ ويمكن استخدام النموذج التجريبي دون تشغيل الكاميرا.
+تتضمن أدوات الجلسة اختباراً اختيارياً للميكروفون مع تقليل الضوضاء الذي يدعمه المتصفح، ومؤشراً لمستوى الصوت، وتسجيلاً اختبارياً محلياً قصيراً. افحص محتوى رموز QR محلياً وانسخه بعد مراجعته؛ والنسخ التلقائي للروابط الجديدة خيار يحتاج إلى تفعيل. ويمكنك اختيار نسخ احتياطي تلقائي للقطات في المتصفح أو مجلد محلي تمنح الإذن باستخدامه.
+
+تُعالج الكاميرا والصور والصوت على جهازك دون رفعها إلى خدمة سحابية أو إنشاء حساب. توقف ميزة Privacy Shield الكاميرا والميكروفون. تُطلب أذونات الكاميرا والميكروفون بشكل منفصل، ولا يبدأ التسجيل أو النسخ الاحتياطي إلا باختيارك.
+
+**التوافق ونطاق العمل:** تحسّن المؤثرات المعاينة داخل MeetingLens. ولا ينشئ إصدار PWA كاميرا افتراضية على مستوى النظام، ولا يرسل الفيديو أو الصوت المعالج إلى Zoom أو Teams أو Meet أو تطبيقات الاجتماعات الأخرى. تصحيح اتجاه النظر وتسريع NPU ليسا ميزتين في المتصفح. تفتح أدوات كاميرا Windows إعدادات النظام المدعومة، ويمكنها عرض تقرير إمكانات محلي مستورد من أداة Windows المنفصلة؛ والتقرير لقطة لحالة سابقة وليس اتصالاً مباشراً. يعتمد توفر الأدوات ونتائجها على الجهاز والمتصفح والأذونات ونجاح اكتشاف النموذج. تعمل الواجهة دون اتصال بعد اكتمال التخزين الأول بنجاح.
 
 ## Product features
 
@@ -59,120 +67,116 @@ Enter each feature separately in Partner Center.
 
 ### English
 
-1. Local live webcam preview with camera selection
-2. Brightness, contrast, saturation, temperature, vignette, and visual looks
-3. Original-view and split-view comparisons
-4. Zoom, mirror, grid, and manual framing guides
-5. 720p, 1080p, and efficient preview preferences
-6. Six demo-only backgrounds with a labeled AI sample portrait
-7. Immediate or timed PNG and JPEG snapshot downloads
-8. Local presets with save, load, delete, import, and export
-9. Privacy Shield and optional stop-camera-when-hidden protection, enabled by default
-10. Installable app with an offline shell after the first successful load
+1. Local camera preview with built-in/USB camera selection and reported quality controls
+2. Face-based Auto Framing and live person Background Blur with bundled local models
+3. Portrait fill light, subtle face refinement, color controls, and original/split comparison
+4. Fine digital zoom, mirror, local presets, and timed PNG/JPEG snapshots
+5. Photo Lab with automatic tone enhancement, small-object inpainting, and skin/teeth brushes
+6. Reference Color Match across up to eight photos with JPEG ZIP export
+7. Four-corner whiteboard perspective correction, suggested board outline, and ink cleanup
+8. Optional browser microphone processing, a level meter, and a local test recording
+9. Local QR decoding with chosen clipboard copying and optional still backup
+10. Privacy Shield, no cloud image/audio uploads, and an offline shell after the first successful cache
 
 ### Arabic
 
-1. معاينة محلية مباشرة لكاميرا الويب مع اختيار الكاميرا
-2. ضبط السطوع والتباين والتشبع وحرارة الألوان وتظليل الحواف والمظاهر البصرية
-3. عرض الصورة الأصلية والمقارنة المقسّمة
-4. التكبير والانعكاس والشبكة وأدلة التأطير اليدوية
-5. تفضيلات جودة 720p و1080p والوضع الاقتصادي
-6. ست خلفيات للنموذج التجريبي فقط مع صورة مولّدة بالذكاء الاصطناعي ومعلّمة بوضوح
-7. تنزيل لقطات PNG وJPEG مباشرة أو باستخدام مؤقت
-8. حفظ الإعدادات محلياً وتحميلها وحذفها واستيرادها وتصديرها
-9. Privacy Shield وإيقاف الكاميرا عند إخفاء التطبيق، مع تفعيل هذا الخيار افتراضياً
-10. تطبيق قابل للتثبيت مع واجهة متاحة دون اتصال بعد أول تحميل ناجح
+1. معاينة محلية مع اختيار كاميرا الجهاز أو USB وعرض خيارات الجودة المبلّغ عنها
+2. تأطير تلقائي بحسب الوجه وتمويه خلفية الفيديو المباشر بنماذج محلية مضمّنة
+3. إضاءة تعبئة وتنقيح خفيف للوجه وضبط الألوان ومقارنة الأصل والعرض المقسّم
+4. تكبير رقمي دقيق وانعكاس وإعدادات محلية ولقطات PNG وJPEG بمؤقت
+5. مختبر صور لتحسين الدرجات اللونية وملء مواضع العناصر الصغيرة وفرش البشرة والأسنان
+6. مطابقة لون مرجعي لما يصل إلى ثماني صور وتصدير JPEG داخل ملف ZIP
+7. تصحيح منظور السبورة بأربع زوايا واقتراح حدودها وتحسين وضوح الكتابة
+8. معالجة ميكروفون اختيارية بحسب دعم المتصفح ومؤشر مستوى الصوت وتسجيل اختباري محلي
+9. فك رموز QR محلياً ونسخ اختياري للحافظة ونسخ احتياطي اختياري للقطات
+10. Privacy Shield دون رفع الصور أو الصوت إلى السحابة وواجهة دون اتصال بعد التخزين الأول
 
 ## Search terms
 
-Use relevant terms within the limits shown in the current Partner Center form.
+Use terms within the current Partner Center form limits.
 
 **English**
 
 ~~~text
 webcam preview
-camera filters
-camera lighting
-webcam snapshot
-camera presets
-online teaching
-meeting preparation
+camera background blur
+auto framing
+photo enhancement
+photo color match
+whiteboard scanner
+camera snapshots
 ~~~
 
 **Arabic**
 
 ~~~text
 معاينة الكاميرا
-فلاتر الكاميرا
-إضاءة الكاميرا
-لقطة كاميرا
-إعدادات الكاميرا
-التدريس عن بعد
-التحضير للاجتماع
+تمويه خلفية الكاميرا
+تأطير تلقائي
+تحسين الصور
+مطابقة ألوان الصور
+تصوير السبورة
+لقطات الكاميرا
 ~~~
 
-## What's new in 2.0.0
+## What's new in 3.0.0
 
 **English**
 
-Redesigned the studio with a professional AI demo portrait and clearer controls. Added original/split comparisons, camera and quality selection, six demo backgrounds, manual framing tools, local presets with import/export, and timed PNG/JPEG snapshots. Improved camera error handling, privacy stops, and app update behavior.
+Added local face-based Auto Framing, live person Background Blur, Portrait Light, subtle landmark-assisted face refinement, fine zoom and supported camera mode controls. New Photo Lab includes automatic enhancement, reference color matching, small-object inpainting, batch ZIP export, and perspective whiteboard correction. New session tools provide optional microphone checks, QR copying, and still backups. Added a local Windows capability-report viewer and clearer unsupported-feature fallbacks.
 
 **Arabic**
 
-إعادة تصميم الاستوديو مع صورة احترافية تجريبية مولّدة بالذكاء الاصطناعي وأدوات أوضح. إضافة المقارنة الأصلية والمقسّمة، واختيار الكاميرا والجودة، وست خلفيات تجريبية، وأدوات تأطير يدوية، وإعدادات محلية قابلة للاستيراد والتصدير، ولقطات PNG وJPEG مع مؤقت. تحسين معالجة أخطاء الكاميرا وإيقافها لحماية الخصوصية وتحديث التطبيق.
+إضافة التأطير التلقائي المحلي بحسب الوجه، وتمويه خلفية الفيديو المباشر، وإضاءة تعبئة، وتنقيح خفيف بمعالم الوجه، وتكبير دقيق وخيارات كاميرا مدعومة. يتضمن مختبر الصور الجديد تحسيناً تلقائياً ومطابقة ألوان مرجعية وملء مواضع العناصر الصغيرة وتصديراً جماعياً بصيغة ZIP وتصحيح منظور السبورة. توفر أدوات الجلسة اختبار ميكروفون اختيارياً ونسخ رموز QR ونسخاً احتياطياً للقطات. إضافة عارض محلي لتقرير إمكانات Windows ومعالجة أوضح لعدم توفر الميزات.
 
 ## Screenshot assets and captions
 
-The six 1920×1080 PNGs in `assets/store-assets/screenshots/` are captured from the actual v2 interface. The person visible in demo screenshots is fictional and AI-generated; keep the in-app demo label visible. Recapture screenshots after any visible interface change.
+Ten 1920×1080 PNGs in assets/store-assets/screenshots/ show the running v3 app. The sample person is fictional and AI-generated; retain its visible label. Sample imagery demonstrates the app and is not a physical webcam test.
 
 | Asset | English caption | Arabic caption |
 |---|---|---|
-| `01-studio-1920x1080.png` | Prepare your local camera preview in a clear, focused studio. The labeled portrait is an AI demo. | جهّز معاينة كاميرتك محلياً في استوديو واضح. الصورة المعلّمة نموذج مولّد بالذكاء الاصطناعي. |
-| `02-looks-1920x1080.png` | Refine color and lighting, then compare the original and adjusted view. | اضبط الألوان والإضاءة ثم قارن العرض الأصلي بالعرض المعدّل. |
-| `03-background-1920x1080.png` | Explore six backgrounds with the AI demo portrait. Backgrounds apply to the demo only. | استكشف ست خلفيات مع صورة النموذج التجريبي. تُطبّق الخلفيات على النموذج فقط. |
-| `04-privacy-1920x1080.png` | Stop the camera with Privacy Shield and control what happens when the app is hidden. | أوقف الكاميرا باستخدام Privacy Shield وتحكّم بسلوكها عند إخفاء التطبيق. |
-| `05-camera-1920x1080.png` | Choose a webcam and preview-quality preference for your setup. | اختر كاميرا الويب وتفضيل جودة المعاينة المناسب لإعدادك. |
-| `06-presets-1920x1080.png` | Keep favorite settings as local presets, with import and export for backup. | احتفظ بإعداداتك المفضلة محلياً واستوردها وصدّرها للاحتفاظ بنسخة. |
+| 01-studio-1920x1080.png | Prepare your camera in a focused local studio. Portrait shown is the labeled AI sample. | جهّز كاميرتك في استوديو محلي واضح. الصورة المعروضة نموذج مولّد بالذكاء الاصطناعي ومعلّم بوضوح. |
+| 02-looks-1920x1080.png | Refine color and light, then compare the original and enhanced view. | اضبط الألوان والإضاءة وقارن العرض الأصلي بالمحسّن. |
+| 03-background-1920x1080.png | Explore six professional interiors with the sample portrait. Live video supports background blur. | استكشف ست خلفيات احترافية مع الصورة التجريبية. يدعم الفيديو المباشر تمويه الخلفية. |
+| 04-privacy-1920x1080.png | Stop camera and microphone capture with Privacy Shield. | أوقف التقاط الكاميرا والميكروفون باستخدام Privacy Shield. |
+| 05-camera-1920x1080.png | Choose a webcam and supported quality preferences, with actual output feedback. | اختر كاميرا وتفضيلات جودة مدعومة واطّلع على الإخراج الفعلي. |
+| 06-presets-1920x1080.png | Keep favorite settings locally, with import and export. | احتفظ بإعداداتك المفضلة محلياً مع الاستيراد والتصدير. |
+| 07-effects-1920x1080.png | Use local face tracking, person blur, and portrait adjustments when supported. | استخدم تتبع الوجه المحلي وتمويه الخلفية وضبط الصورة عند توفر الدعم. |
+| 08-photo-lab-1920x1080.png | Enhance photos and match reference color across a local photo set. | حسّن الصور وطابق لوناً مرجعياً عبر مجموعة صور محلية. |
+| 09-whiteboard-1920x1080.png | Adjust four corners to flatten a board photo and improve readability. | عدّل الزوايا الأربع لتصحيح منظور صورة السبورة وتحسين وضوحها. |
+| 10-session-1920x1080.png | Check your microphone, scan QR content, and choose optional still backups. | اختبر الميكروفون وافحص رموز QR واختر النسخ الاحتياطي للقطات. |
 
 ## Store visual assets
 
 | Asset | Size | Use |
 |---|---:|---|
-| `assets/store-assets/store-icon-300.png` | 300×300 | Store logo |
-| `assets/store-assets/screenshots/*.png` | 1920×1080 | Six desktop screenshots |
-| `assets/store-assets/posters/meetinglens-poster-1440x2160.png` | 1440×2160 | Optional poster art |
-| `assets/store-assets/hero/meetinglens-hero-3840x2160.png` | 3840×2160 | Optional hero art |
+| assets/store-assets/store-icon-300.png | 300×300 | Store logo |
+| assets/store-assets/screenshots/*.png | 1920×1080 | Ten desktop screenshots |
+| assets/store-assets/posters/meetinglens-poster-1440x2160.png | 1440×2160 | Optional poster art |
+| assets/store-assets/hero/meetinglens-hero-3840x2160.png | 3840×2160 | Optional hero art |
 
-Review the current Partner Center form and [Microsoft's image guidance](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/pwa/screenshots-and-images) for applicable upload fields and dimensions. Optional promotional art is separate from app screenshots. Retain demo-only labeling and avoid implying live background replacement.
+Use optional art only in the compatible field requested by Partner Center. Review [Microsoft's current image guidance](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/pwa/screenshots-and-images). Recapture after interface changes.
 
 ## Submission checklist
 
-- [ ] Complete [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), including physical camera and packaged-app checks.
-- [ ] Reserve the Store name and verify package identity.
-- [ ] Fill in the real publisher/support contact in `privacy.html` and `terms.html`.
-- [ ] Publish the app and policies at public HTTPS URLs.
-- [ ] Verify the deployed app in Microsoft Edge and review the PWABuilder report.
-- [ ] Install-test the generated Windows package.
-- [ ] Confirm the six screenshots match the submitted version.
-- [ ] Add English and, if desired, Arabic listing metadata; declare only verified interface languages.
-- [ ] Complete age ratings, privacy declarations, availability, pricing, and support fields accurately.
+- [ ] Complete RELEASE_CHECKLIST.md, including real cameras and the actual generated Windows package.
+- [ ] Reserve the Store name and match package identity.
+- [ ] Supply the real publisher/support contact in privacy.html and terms.html.
+- [ ] Publish publicly accessible HTTPS app, privacy, and support URLs.
+- [ ] Review the deployed app in Edge and the PWABuilder report.
+- [ ] Confirm all ten screenshots match the submitted version and retain sample labels.
+- [ ] Declare only verified interface languages; Arabic metadata does not establish an Arabic UI.
+- [ ] Complete age ratings, permissions/privacy declarations, availability, pricing, and support accurately.
+- [ ] Keep separate native source/Windows-only capabilities out of the PWA's promised features.
 
-## Required URLs and publisher information
+## Publisher information still required
 
-These values must be supplied by the publisher; do not submit placeholders.
-
-| Field | Value to supply |
+| Field | Publisher-supplied value |
 |---|---|
-| Privacy Policy URL | Public HTTPS URL ending in `/privacy.html` |
-| Support contact | A real support email or public support page |
+| Privacy Policy URL | Public HTTPS URL ending in /privacy.html |
+| Support contact | Working support email or public support page |
+| Publisher name | Real Store publisher name |
 | Website | Public app URL, if requested |
-| Package identity | Exact identity from Partner Center |
-| Publisher display name | Your registered publisher name |
+| Package identity | Exact values from Partner Center |
 
-Example policy address when the repository is named `meetinglens-pwa`:
-
-~~~text
-https://YOUR-GITHUB-USERNAME.github.io/meetinglens-pwa/privacy.html
-~~~
-
-Store metadata and behavior must match. Do not advertise virtual-camera output, live background removal, AI face tracking, guaranteed camera quality, or a measured readiness score in this release.
+Do not submit placeholder contacts, claims of universal results, browser NPU support, automatic gaze correction, raw driver fallback inside the PWA, or an integrated virtual camera. See FEATURE_MATRIX.md for the exact feature boundaries.

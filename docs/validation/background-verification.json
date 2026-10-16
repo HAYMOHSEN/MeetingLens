@@ -1,0 +1,64 @@
+{
+  "checkedAt": "2026-10-16T11:51:17.086Z",
+  "reports": [
+    {
+      "name": "All six photographic scenes decode and both thumbnail sets use their matching photograph",
+      "pass": true,
+      "ms": 1109
+    },
+    {
+      "name": "Scene switches visibly replace surroundings and preserve the centered portrait",
+      "pass": true,
+      "ms": 6220,
+      "minimumBackgroundDifference": 62.082320601851855,
+      "portraitDifference": [
+        {
+          "scene": "room",
+          "meanChannelDifference": 0
+        },
+        {
+          "scene": "soft",
+          "meanChannelDifference": 0.3706450094161959
+        },
+        {
+          "scene": "studio",
+          "meanChannelDifference": 1.2268126177024483
+        },
+        {
+          "scene": "night",
+          "meanChannelDifference": 1.6084824231010673
+        },
+        {
+          "scene": "dawn",
+          "meanChannelDifference": 0.05422159447583176
+        },
+        {
+          "scene": "slate",
+          "meanChannelDifference": 0.2375235404896422
+        }
+      ]
+    },
+    {
+      "name": "Background softness changes surroundings without blurring the portrait face",
+      "pass": true,
+      "ms": 3645,
+      "backgroundMeanChannelDifference": 39.58351736829998,
+      "faceMeanChannelDifference": 0.01934243565599498
+    },
+    {
+      "name": "A slow old image cannot overwrite the last selected scene after rapid clicks",
+      "pass": true,
+      "ms": 27257
+    },
+    {
+      "name": "A missing background shows a usable neutral fallback and recovers on another scene",
+      "pass": true,
+      "ms": 559
+    },
+    {
+      "name": "Scene changes leave the live camera background intact and Privacy Shield clears it",
+      "pass": true,
+      "ms": 14201
+    }
+  ]
+}
