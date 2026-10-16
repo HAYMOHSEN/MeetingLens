@@ -1,19 +1,28 @@
 # MeetingLens — Camera Studio and Photo Lab
 
-Version **3.0.0**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes a clearly labeled fictional AI sample portrait and six professional interior photographs.
+Version **3.1.0**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
 
 ## Camera studio
 
 - Select a built-in or USB camera, inspect reported capabilities, request an available resolution/frame-rate preference, and see the actual delivered resolution. Driver and browser support determine the available modes.
 - Enable **Auto Framing** to follow a detected face with a smoothed digital crop.
-- Apply **Background Blur** using local person segmentation, with adjustable softness. The six replacement scenes remain for the sample portrait only.
+- Select any of six professional scenes to replace the room behind the person in the live camera preview. Adjust the selected scene's softness, or apply **Background Blur** to the actual room using local person segmentation.
 - Add **Portrait Light** for a gentle fill-light effect and use modest, landmark-masked skin smoothing and teeth brightening. These adjustments do not reconstruct clipped highlights or guarantee removal of glare.
 - Adjust brightness, contrast, saturation, temperature, vignette, and looks. Compare original/enhanced output, mirror the preview, and refine digital zoom in 0.1% steps.
 - Choose **Basic preview** to bypass MeetingLens enhancements while troubleshooting. This is a browser preview mode; it does not switch the Windows driver to raw DirectShow.
 - Save local presets and export/import validated preset files. Download immediate or timed PNG/JPEG snapshots.
 - Stop camera and microphone capture with Privacy Shield. The default hidden-app protection stops the camera, and microphone capture always stops when hidden.
 
-Face tracking, segmentation, and landmark assistance use bundled MediaPipe models in a local worker with CPU/WebAssembly execution. Model errors fall back to the regular preview and manual controls. Detection can miss faces, hair, hands, or fast movement; inspect the result. The browser version does not select an NPU or synthesize eye contact.
+Face tracking, segmentation, and landmark assistance use bundled MediaPipe models in a local worker with CPU/WebAssembly execution. The browser must support WebGL2 for the models' texture bridge. Model errors leave the regular preview and manual controls usable, with an unavailable/retry status rather than a claim that replacement is active. Detection can miss faces, hair, hands, or fast movement; inspect the result. The browser version does not select an NPU or synthesize eye contact.
+
+### Replace your live camera background
+
+1. Choose **Start camera**, then open **Scenes** and click a scene. A scene can also be chosen before starting the camera.
+2. Allow the bundled local vision models to finish their initial load. The app keeps the real background visible while segmentation is loading or unavailable; read the background status for progress or retry guidance.
+3. The detected person is composited over the selected scene inside MeetingLens. Use the replacement switch to toggle that selection and the softness slider to soften the scene.
+4. Choose **Use real background** to turn off both replacement and room blur. **Original**, **Basic preview**, and zero enhancement intensity also bypass background processing.
+
+After installing an older version, apply the app's **Update** banner and reload the updated app before testing. If no update appears, close and reopen the app online. This feature changes MeetingLens previews and snapshots; it does not change the camera selected in Zoom or Teams.
 
 ## Photo Lab and whiteboard
 
@@ -43,7 +52,7 @@ The separate source project in [native-windows/README.md](./native-windows/READM
 
 The companion can export a local JSON report. Import it in [Windows camera tools](./native-capabilities.html) to review a **snapshot** of capabilities; this is not a live bridge to the companion. Camera/sound settings open only after the user clicks their links. Avoid applying duplicate blur or other effects in Windows, MeetingLens, and the meeting app.
 
-The native project also includes a DirectShow diagnostic preview and a pinned Microsoft virtual-camera reference with build scripts. That reference is not connected to the PWA canvas. Multi-app camera sharing depends on supported Windows settings/device behavior; no integrated MeetingLens routing is claimed. The managed Windows source passed compilation against 209 official reference assemblies and 10 KS protocol checks in a Linux harness. Full Windows publishing, native C++ builds, and physical-device testing remain to be completed using the native guide and release checklist.
+The native project also includes a DirectShow diagnostic preview and a pinned Microsoft virtual-camera reference with build scripts. That reference is not connected to the PWA canvas. Multi-app camera sharing depends on supported Windows settings/device behavior; no integrated MeetingLens routing is claimed. The managed Windows source passed compilation against 209 official reference assemblies and 12 KS protocol/report checks in a Linux harness. Full Windows publishing, native C++ builds, and physical-device testing remain to be completed using the native guide and release checklist.
 
 See [FEATURE_MATRIX.md](./FEATURE_MATRIX.md) for the exact status of every requested feature and [NATIVE_COMPANION_ROADMAP.md](./NATIVE_COMPANION_ROADMAP.md) for integration work remaining.
 
@@ -65,9 +74,14 @@ npm install
 npx playwright install chromium
 npm test
 npm run test:backgrounds
+npm run test:release
 ~~~
 
 Use the additional test commands listed in package.json for the advanced studio, Photo Lab, session tools, local vision, and native-report viewer. Set CHROMIUM_PATH if using an existing browser installation. See [VALIDATION.md](./VALIDATION.md) for completed checks and their limits.
+
+The complete photo regression suite also requires Python 3 with Pillow and the unzip command. Install Pillow with `python3 -m pip install Pillow`; use a development environment with those tools available, such as WSL on Windows.
+
+The complete regression command includes the shipping edge-case suites. See [SHIP_REVIEW.md](./SHIP_REVIEW.md) for fixed defects and the remaining publication requirements.
 
 Complete [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) on physical Windows cameras and the generated Windows package. Simulated Chromium devices do not establish driver compatibility, battery life, audio quality, NPU use, or Store certification.
 
@@ -86,7 +100,7 @@ The source ZIP is not a signed Store package. Packaging the PWA does not package
 
 ## Store materials
 
-Ten 1920×1080 app screenshots cover the studio, looks, sample backgrounds, privacy, camera options, presets, local effects, Photo Lab, whiteboard, and session tools. A 300×300 logo, PWA icons, optional 1440×2160 poster, optional 3840×2160 hero, and English/Arabic metadata are included. Keep the visible sample AI disclosure in screenshots. Arabic listing text does not imply an Arabic interface; declare only verified interface languages.
+Ten 1920×1080 app screenshots cover the studio, looks, background controls, privacy, camera options, presets, local effects, Photo Lab, whiteboard, and session tools. A 300×300 logo, PWA icons, optional 1440×2160 poster, optional 3840×2160 hero, and English/Arabic metadata are included. Keep the visible sample AI disclosure in screenshots. A screenshot using that sample is not a physical-webcam test. Arabic listing text does not imply an Arabic interface; declare only verified interface languages.
 
 ## Privacy and files
 

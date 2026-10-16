@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-10-16T20:07:04.812Z",
+  "environment": "Headless Chromium/Linux; real service worker at a repository subpath",
+  "reports": [
+    {
+      "name": "Every local HTML/CSS asset and hyperlink target exists",
+      "passed": true
+    },
+    {
+      "name": "Manifest, icons, screenshots and shortcuts remain scoped to a repository path",
+      "passed": true
+    },
+    {
+      "name": "Real service worker installs at /MeetingLens/ and preserves other app caches",
+      "passed": true
+    },
+    {
+      "name": "All workspaces have named controls and fit 320, 768, and 1366 px viewports",
+      "passed": true
+    },
+    {
+      "name": "Subpath worker update removes only this app's older release caches",
+      "passed": true
+    },
+    {
+      "name": "Every app page and query shortcut navigates offline from the repository path",
+      "passed": true
+    }
+  ],
+  "evidence": {
+    "localTargets": 52,
+    "screenshots": 10,
+    "worker": {
+      "scope": "http://127.0.0.1:42241/MeetingLens/",
+      "keys": [
+        "meetinglens-shell-http://127.0.0.1:42241/MeetingLens/-v3.1.0",
+        "meetinglens-shell-http://127.0.0.1:42241/OtherApp/-v2.0.0",
+        "meetinglens-shell-http://127.0.0.1:42241/-v2.0.0"
+      ],
+      "controller": "http://127.0.0.1:42241/MeetingLens/service-worker.js"
+    },
+    "updatedCacheKeys": [
+      "meetinglens-shell-http://127.0.0.1:42241/OtherApp/-v2.0.0",
+      "meetinglens-shell-http://127.0.0.1:42241/-v2.0.0",
+      "meetinglens-shell-http://127.0.0.1:42241/MeetingLens/-v3.1.0-shipping-check"
+    ]
+  },
+  "errors": [],
+  "failedRequests": [],
+  "unexpectedRequests": []
+}

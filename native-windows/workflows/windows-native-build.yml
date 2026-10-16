@@ -25,7 +25,7 @@ jobs:
           $process = Start-Process ./native-windows/artifacts/controls-x64/MeetingLens.Windows.exe -ArgumentList '--self-test' -PassThru -Wait
           if ($process.ExitCode -ne 0) { throw 'Native self-tests failed.' }
           $report = Get-Content ./native-self-test.json | ConvertFrom-Json
-          if (-not $report.passed -or $report.checks -ne 10) { throw 'Missing or incomplete self-test report.' }
+          if (-not $report.passed -or $report.checks -ne 12) { throw 'Missing or incomplete self-test report.' }
       - name: Enumerate DirectShow devices without starting a camera
         shell: pwsh
         run: |

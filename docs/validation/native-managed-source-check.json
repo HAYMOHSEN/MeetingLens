@@ -5,7 +5,7 @@
   "sdk": "8.0.426",
   "protocolTests": {
     "passed": true,
-    "checks": 10,
+    "checks": 12,
     "results": [
       "KSPROPERTY GUID layout",
       "Background property id",
@@ -16,7 +16,9 @@
       "Combined flags supported",
       "Truncated response rejected",
       "Oversized response rejected",
-      "Driver failure rejected"
+      "Driver failure rejected",
+      "64-bit report flags retain exact decimal values",
+      "Unavailable report flags remain null"
     ]
   },
   "windowsPackagingBuild": "not-run",

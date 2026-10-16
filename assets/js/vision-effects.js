@@ -13,7 +13,9 @@
   let availability = { face: false, segmentation: false, backend: "unavailable", eyeContact: false };
   const pending = new Map();
   let renderBuffers = new WeakMap();
+  let edgeMasks = new WeakMap();
   let cancelGeneration = 0;
+  let lastComposition = { mode: "source", reason: null };
   function freshCached() {
     return cached.timestamp && performance.now() - cached.timestamp > 1500
       ? { ...cached, face: null, faceLandmarks: null, mask: null, stale: true } : cached;
@@ -31,7 +33,10 @@
       catch (error) { clearTimeout(timer); pending.delete(id); reject(error); }
     });
   }
-  function failWorker(error) {
+  function failWorker(error, failedWorker = worker) {
+    // An event from a worker that was replaced/disposed must not tear down its
+    // replacement (an asynchronous startup may still finish after disposal).
+    if (failedWorker !== worker) return;
     for (const task of pending.values()) { clearTimeout(task.timer); task.reject(error); }
     pending.clear(); worker?.terminate(); worker = null;
     availability = { face: false, segmentation: false, backend: "unavailable", eyeContact: false };
@@ -41,8 +46,16 @@
   async function init({ onStatus } = {}) {
     if (typeof onStatus === "function") statusCallback = onStatus;
     if (initializing) return initializing;
+    if (worker && availability.face && availability.segmentation) return { ...availability };
     disposed = false;
-    initializing = (async () => {
+    reset();
+    // A failed initialization is retryable. In particular, a cached failed
+    // promise must not leave the visible Load models button permanently inert.
+    for (const task of pending.values()) { clearTimeout(task.timer); task.reject(new Error("Local models are restarting.")); }
+    pending.clear(); worker?.terminate(); worker = null;
+    availability = { face: false, segmentation: false, backend: "unavailable", eyeContact: false };
+    cached = { ...cached, face: null, faceLandmarks: null, mask: null };
+    const operation = (async () => {
       if (!window.Worker || !window.OffscreenCanvas || !window.createImageBitmap || !window.WebAssembly) {
         status("unavailable", "This browser cannot run local AI effects. Use current Microsoft Edge or Chrome.");
         return { ...availability };
@@ -57,16 +70,18 @@
           clearTimeout(task.timer); pending.delete(event.data.id);
           if (event.data.error) task.reject(new Error(event.data.error)); else task.resolve(event.data);
         };
-        worker.onerror = event => failWorker(new Error(event.message || "Local vision worker stopped."));
+        worker.onerror = event => failWorker(new Error(event.message || "Local vision worker stopped."), loadingWorker);
         const loaded = await request("init", {}, [], 90000);
         if (disposed || loadingWorker !== worker) return { ...availability };
         availability = loaded.capabilities;
         const ready = availability.face || availability.segmentation;
         status(ready ? "ready" : "unavailable", ready ? "On-device AI ready · CPU/WASM · no camera uploads" : "AI models could not load. Camera and manual controls still work.");
-      } catch (error) { if (!disposed && (!loadingWorker || loadingWorker === worker)) failWorker(error); }
+      } catch (error) { if (!disposed && (!loadingWorker || loadingWorker === worker)) failWorker(error, loadingWorker); }
       return { ...availability };
     })();
-    return initializing;
+    initializing = operation;
+    try { return await operation; }
+    finally { if (initializing === operation) initializing = null; }
   }
   async function analyze(source, timestamp = performance.now(), options = {}) {
     const now = performance.now();
@@ -144,6 +159,86 @@
     fg.globalCompositeOperation = "destination-in"; fg.filter = `blur(${Math.max(0.4, w / 1800)}px)`; fg.drawImage(mask, 0, 0, w, h); fg.filter = "none"; fg.globalCompositeOperation = "source-over";
     ctx.drawImage(b.layer, 0, 0); ctx.restore(); return target;
   }
+  function imageSize(image) {
+    if (!image || image.complete === false || (image.readyState !== undefined && image.readyState < 2)) return null;
+    const width = Number(image.naturalWidth || image.videoWidth || image.width);
+    const height = Number(image.naturalHeight || image.videoHeight || image.height);
+    return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0 ? { width, height } : null;
+  }
+  function drawCover(ctx, image, width, height, bleed = 0) {
+    const size = imageSize(image);
+    if (!size) return false;
+    const scale = Math.max((width + bleed * 2) / size.width, (height + bleed * 2) / size.height);
+    const dw = size.width * scale, dh = size.height * scale;
+    ctx.drawImage(image, (width - dw) / 2, (height - dh) / 2, dw, dh);
+    return true;
+  }
+  function cleanPersonMask(mask, version) {
+    const size = imageSize(mask);
+    if (!size || size.width * size.height > 1048576) return mask;
+    let record = edgeMasks.get(mask);
+    if (record && Number.isFinite(version) && record.version === version && record.canvas.width === size.width && record.canvas.height === size.height) return record.canvas;
+    if (!record) { record = { canvas: canvas(), version: null }; edgeMasks.set(mask, record); }
+    const c = record.canvas; c.width = size.width; c.height = size.height;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    try {
+      ctx.drawImage(mask, 0, 0);
+      const image = ctx.getImageData(0, 0, size.width, size.height), original = new Uint8ClampedArray(image.data);
+      // Pull the matte in by less than half of one model pixel. Mixing a local
+      // minimum with the measured confidence reduces room-colored fringes;
+      // unlike repeated alpha multiplication it preserves soft uniform regions
+      // and full-confidence foreground. Do not trim where a person meets the
+      // frame edge. Source RGB pixels are never recolored.
+      for (let y = 1; y < size.height - 1; y++) for (let x = 1; x < size.width - 1; x++) {
+        const i = (y * size.width + x) * 4 + 3, alpha = original[i];
+        if (!alpha) continue;
+        let minimum = alpha;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) minimum = Math.min(minimum, original[i + (dy * size.width + dx) * 4]);
+        image.data[i] = Math.round(alpha * 0.55 + minimum * 0.45);
+      }
+      ctx.putImageData(image, 0, 0); record.version = version;
+      return c;
+    } catch { return mask; }
+  }
+  function compositeBackgroundReplace(source, mask, target, backgroundImage, amount = 0, maskVersion) {
+    const w = target.width || source.width, h = target.height || source.height;
+    const b = buffers(target, w, h), ctx = target.getContext("2d");
+    const fallback = reason => {
+      lastComposition = { mode: "source", reason };
+      return compositeBackgroundBlur(source, mask, target, amount);
+    };
+    // Keep the real room visible until both inputs are usable. A slow download,
+    // an unsupported image or a missing person mask must never blank the camera.
+    if (!imageSize(backgroundImage)) return fallback("background-not-ready");
+    if (!imageSize(mask)) return fallback("person-mask-not-ready");
+    b.source.getContext("2d").drawImage(source, 0, 0, w, h);
+    const fg = b.layer.getContext("2d");
+    ctx.save(); fg.save();
+    try {
+      fg.globalCompositeOperation = "source-over"; fg.globalAlpha = 1; fg.filter = "none";
+      fg.clearRect(0, 0, w, h); fg.drawImage(b.source, 0, 0);
+      fg.globalCompositeOperation = "destination-in";
+      // The bundled segmentation mask stores person confidence in alpha. A
+      // small feather removes stair stepping without erasing foreground detail.
+      fg.filter = `blur(${Math.max(0.4, w / 1800)}px)`;
+      fg.drawImage(cleanPersonMask(mask, maskVersion), 0, 0, w, h); fg.filter = "none";
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1; ctx.filter = "none";
+      ctx.clearRect(0, 0, w, h);
+      // Opaque backing also makes transparent custom scenes predictable.
+      ctx.fillStyle = "#edf0f4"; ctx.fillRect(0, 0, w, h);
+      const radius = clamp(amount, 0, 36) * w / 1280;
+      if (radius) ctx.filter = `blur(${Math.max(0.5, radius)}px)`;
+      drawCover(ctx, backgroundImage, w, h, radius * 2);
+      ctx.filter = "none"; ctx.drawImage(b.layer, 0, 0);
+      lastComposition = { mode: "replacement", reason: null };
+    } catch {
+      // A decoded image can still become unavailable (for example a closed
+      // ImageBitmap). Restore all drawing state before the normal camera path.
+      fg.restore(); ctx.restore();
+      return fallback("background-draw-failed");
+    }
+    fg.restore(); ctx.restore(); return target;
+  }
   function portraitLight(ctx, analysis, amount, w, h, b) {
     if (!analysis.mask && !analysis.face) return;
     const face = analysis.face;
@@ -195,12 +290,15 @@
     ctx.putImageData(image, minX, minY);
   }
   function process(input, output, options = {}) {
+    lastComposition = { mode: "source", reason: null };
     const w = input.width || input.videoWidth || input.naturalWidth, h = input.height || input.videoHeight || input.naturalHeight;
     if (!w || !h) return output;
     if (output.width !== w) output.width = w; if (output.height !== h) output.height = h;
     const analysis = options.analysis || cached, b = buffers(output, w, h);
     b.source.getContext("2d").drawImage(input, 0, 0, w, h);
-    compositeBackgroundBlur(b.source, analysis.mask, output, clamp(options.backgroundBlur, 0, 36));
+    if (options.backgroundImage) compositeBackgroundReplace(b.source, analysis.mask, output, options.backgroundImage,
+      clamp(options.backgroundSoftness ?? options.backgroundBlur, 0, 36), analysis.timestamp);
+    else { lastComposition = { mode: "source", reason: null }; compositeBackgroundBlur(b.source, analysis.mask, output, clamp(options.backgroundBlur, 0, 36)); }
     if (options.portraitLight > 0) portraitLight(output.getContext("2d"), analysis, clamp(options.portraitLight), w, h, b);
     if (options.skinSmoothing > 0) smoothSkin(output, b, analysis, clamp(options.skinSmoothing), w, h);
     if (options.teethWhitening > 0) whitenTeeth(output, b, analysis, clamp(options.teethWhitening), w, h);
@@ -216,8 +314,10 @@
   }
   function reset() {
     cancelGeneration++; lastStart = -Infinity; lastFaceAt = 0; failureCount = 0;
+    lastComposition = { mode: "source", reason: null };
     captureCanvas.width = captureCanvas.height = maskCanvas.width = maskCanvas.height = 1;
     renderBuffers = new WeakMap();
+    edgeMasks = new WeakMap();
     cached = { face: null, faceLandmarks: null, mask: null, timestamp: 0, inferenceMs: 0 };
   }
   function dispose() {
@@ -225,6 +325,8 @@
     for (const task of pending.values()) { clearTimeout(task.timer); task.reject(new Error("Vision processor disposed.")); } pending.clear();
     busy = false; initializing = null; availability = { face: false, segmentation: false, backend: "unavailable", eyeContact: false };
   }
-  window.MeetingLensVision = { init, analyze, process, compositeBackgroundBlur, autoFrameCrop, reset, dispose,
+  window.MeetingLensVision = { init, analyze, process, compositeBackgroundBlur, compositeBackgroundReplace, autoFrameCrop, reset, dispose,
+    get lastComposition() { return { ...lastComposition }; },
+    get lastBackgroundApplied() { return lastComposition.mode === "replacement"; },
     get capabilities() { return { ...availability }; }, get latest() { return freshCached(); }, get busy() { return busy; } };
 })();

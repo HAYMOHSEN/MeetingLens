@@ -183,7 +183,7 @@ async function run() {
     await close(context, page);
   });
 
-  await check("Scene changes leave the live camera background intact and Privacy Shield clears it", async () => {
+  await check("Zero intensity bypasses selected live backgrounds and Privacy Shield clears the camera", async () => {
     const { context, page } = await open({ permissions: ["camera"], initializer: () => {
       window.__qaStreams = [];
       const original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
@@ -192,7 +192,9 @@ async function run() {
     await page.locator("#startCameraButton").click();
     await page.waitForFunction(() => document.querySelector("#cameraVideo").srcObject && document.querySelector("#cameraVideo").readyState >= 2);
     await page.locator('.scene-tile[data-scene="dawn"]').click();
-    assert.match(await page.locator("#effectLabel").textContent(), /Your camera background/);
+    assert.equal(await page.evaluate(() => window.MeetingLensStudio.getState().enhancement), 0);
+    assert.equal(await page.evaluate(() => window.MeetingLensStudio.getState().backgroundReplace), true);
+    assert.match(await page.locator("#effectLabel").textContent(), /Original.*bypassed/);
     assert(await page.evaluate(() => document.querySelector("#cameraVideo").srcObject.getTracks().every(track => track.readyState === "live")), "Scene change preserves the live camera stream");
     await page.locator("#shieldQuickButton").click();
     await paint(page);

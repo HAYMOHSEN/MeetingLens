@@ -1,14 +1,14 @@
 {
   "schema": "meetinglens.native.implementation.v1",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "validation": {
     "managedSourceCompilation": "passed-against-209-official-net-and-windows-metadata-references-with-warnings-as-errors",
-    "protocolTests": "10-passed-in-linux-harness",
+    "protocolTests": "12-passed-in-linux-harness",
     "managedValidationReport": "validation/managed-source-check.json",
     "windowsBuild": "full-windows-packaging-not-executed-in-linux-workspace",
     "hardware": "not-executed",
     "ciWorkflow": "workflows/windows-native-build.yml",
-    "nativeSelfTestChecks": 10
+    "nativeSelfTestChecks": 12
   },
   "windowsControlsSource": {
     "project": "MeetingLens.Windows/MeetingLens.Windows.csproj",

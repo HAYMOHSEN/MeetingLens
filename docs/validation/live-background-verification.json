@@ -1,0 +1,85 @@
+{
+  "checkedAt": "2026-10-16T20:09:42.640Z",
+  "realBundledModelInference": true,
+  "cameraInput": "Actual browser MediaStream from canvas.captureStream, not a physical webcam",
+  "physicalWindowsHardwareTested": false,
+  "reports": [
+    {
+      "name": "Choosing a background arms replacement without camera permission; Start loads real local models automatically",
+      "pass": true,
+      "ms": 7546
+    },
+    {
+      "name": "All six scenes replace an actual MediaStream room while preserving measured foreground pixels",
+      "pass": true,
+      "ms": 48258
+    },
+    {
+      "name": "Use real background restores camera pixels and turns both replacement and blur off",
+      "pass": true,
+      "ms": 16709
+    },
+    {
+      "name": "Delayed local model loading keeps the live room usable and applies only the latest selected scene",
+      "pass": true,
+      "ms": 15204
+    },
+    {
+      "name": "Missing local models preserve the real camera and expose a retryable background failure",
+      "pass": true,
+      "ms": 10234
+    },
+    {
+      "name": "Late scene image responses cannot overwrite the latest live background selection",
+      "pass": true,
+      "ms": 9265
+    },
+    {
+      "name": "Basic preview and Hold original bypass the live background compositor",
+      "pass": true,
+      "ms": 27434
+    },
+    {
+      "name": "Stalled live inference drops expired segmentation instead of freezing an old cutout",
+      "pass": true,
+      "ms": 13372
+    },
+    {
+      "name": "Privacy Shield rejects pending masks, stops real tracks and safely restores replacement after restart",
+      "pass": true,
+      "ms": 7584
+    }
+  ],
+  "sceneMeasurements": [
+    {
+      "value": "room",
+      "foregroundMAE": 0.2845795208314078,
+      "backgroundMAE": 87.67545442641197
+    },
+    {
+      "value": "soft",
+      "foregroundMAE": 0.35025724760467053,
+      "backgroundMAE": 99.86444138901847
+    },
+    {
+      "value": "studio",
+      "foregroundMAE": 0.10051141439970425,
+      "backgroundMAE": 63.983977428040625
+    },
+    {
+      "value": "night",
+      "foregroundMAE": 0.08944103843823491,
+      "backgroundMAE": 69.88966706769132
+    },
+    {
+      "value": "dawn",
+      "foregroundMAE": 0.31000133501750926,
+      "backgroundMAE": 84.94265551981799
+    },
+    {
+      "value": "slate",
+      "foregroundMAE": 0.2789929860233936,
+      "backgroundMAE": 84.21435381832765
+    }
+  ]
+}

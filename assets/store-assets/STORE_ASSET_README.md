@@ -1,4 +1,4 @@
-# MeetingLens 3.0.0 Store Upload Pack
+# MeetingLens 3.1.0 Store Upload Pack
 
 Use these files for the **PWA** listing. English/Arabic copy is in STORE_LISTING.md; the source project includes RELEASE_CHECKLIST.md and FEATURE_MATRIX.md. Native Windows source projects are separate and are not part of the PWABuilder PWA package.
 
@@ -17,7 +17,7 @@ Use these files for the **PWA** listing. English/Arabic copy is in STORE_LISTING
 |---|---|
 | screenshots/01-studio-1920x1080.png | Camera studio and clearly labeled AI sample portrait |
 | screenshots/02-looks-1920x1080.png | Local color controls and original/enhanced comparison |
-| screenshots/03-background-1920x1080.png | Six professional backgrounds for the sample portrait |
+| screenshots/03-background-1920x1080.png | Live person/scene composition using a controlled MediaStream with a disclosed AI-generated portrait |
 | screenshots/04-privacy-1920x1080.png | Privacy Shield and capture controls |
 | screenshots/05-camera-1920x1080.png | Camera and quality options |
 | screenshots/06-presets-1920x1080.png | Local preset import/export |
@@ -27,6 +27,8 @@ Use these files for the **PWA** listing. English/Arabic copy is in STORE_LISTING
 | screenshots/10-session-1920x1080.png | Microphone check, QR, and optional still backup |
 
 These are screenshots of the running app. The labeled sample person is fictional and AI-generated, not a physical webcam test. Preserve that label and recapture after visible interface changes.
+
+The capture helper also runs the first live-background regression to generate screenshot03 from an actual controlled browser MediaStream. Its visible disclosure identifies the generated portrait. This verifies the running compositor without claiming that the camera source was a physical Windows webcam.
 
 ## Asset inventory
 
@@ -45,7 +47,8 @@ Check the current Partner Center field for accepted size/format. These assets ar
 
 ## Feature boundaries for the listing
 
-- Auto Framing, live background blur, and modest landmark-assisted refinement run locally inside the PWA. Replacement interior scenes apply to the sample portrait only.
+- Auto Framing, live background replacement/blur, and modest landmark-assisted refinement run locally inside the PWA. Selecting one of six scenes loads local segmentation automatically; actual-room fallback and status feedback apply until usable analysis is ready. The labeled fictional sample also demonstrates the scenes without camera access.
+- Local vision runs through CPU/WebAssembly with a required WebGL2 texture bridge. Effects apply to MeetingLens preview and snapshots; they do not route enhanced video into Zoom or Teams.
 - Photo enhancement and small-object inpainting are local image-processing tools, not cloud/generative reconstruction.
 - Microphone noise suppression depends on browser support and does not route audio into meetings.
 - The PWA does not create a virtual camera or claim browser eye-contact correction/NPU execution.

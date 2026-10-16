@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-16T11:51:27.619Z",
+  "testedAt": "2026-10-16T20:06:15.062Z",
   "environment": "Headless Chromium; local fixture reports; no physical Windows devices",
   "checks": [
     {
@@ -12,6 +12,10 @@
     },
     {
       "name": "active system blur snapshot shows duplicate-effect guidance",
+      "passed": true
+    },
+    {
+      "name": "native decimal-string 64-bit flags remain exact and preserve the blur warning",
       "passed": true
     },
     {

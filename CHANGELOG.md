@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.1.0 — 2026-10-16
+
+- Corrected the background-selection limitation: all six professional scenes can now replace the room behind a person in the live MeetingLens camera preview and captured snapshots.
+- Made scene selection arm replacement before or after camera start, with automatic local model loading and a dedicated replacement switch.
+- Added Use real background to disable replacement and room blur together; Original, Basic preview and zero enhancement intensity bypass background processing.
+- Applied scene softness behind the segmented person, with honest loading, unavailable, retry and stale-analysis feedback instead of reporting an effect before it is ready.
+- Updated English/Arabic Store copy, policies, feature status and release guidance to distinguish live replacement from the sample and from external meeting-app routing.
+
+Existing installations should apply the app's Update banner and reload the new version. Processing remains local in the CPU/WebAssembly vision worker and requires a WebGL2 texture bridge. This release does not add a virtual camera or send enhanced video into Zoom or Teams. See VALIDATION.md for the completed checks and their limits.
+
+## 3.0.1 — 2026-10-16
+
+- Made local vision failures retryable, including partial model availability, and bounded stale live-analysis use during slow inference.
+- Stopped camera, microphone and private recording before activating an app update.
+- Preserved photo selection, edits, masks and Undo when imports fail; bounded thumbnails and included enlarged whiteboards in memory limits.
+- Prevented delayed backup enablement, queued writes and old recording callbacks from overriding newer user choices.
+- Released native camera bitmap buffers deterministically and guarded late frame/device callbacks during disposal and shutdown.
+- Preserved exact 64-bit native capability flags and rejected invalid/unreadable requested DirectShow modes.
+- Kept the installed PWA in standard standalone mode; a custom window-controls overlay is not implemented.
+- Added shipping regression tests, updated screenshots and retained reviewed results. See SHIP_REVIEW.md for publication requirements and validation limits.
+
 ## 3.0.0 — 2026-10-16
 
 - Added bundled local face-landmark/person-segmentation models in a CPU/WebAssembly worker, with failure fallback to regular preview/manual controls.
@@ -30,7 +51,7 @@ The PWA still processes its own preview/audio and does not route them into meeti
 - Added color temperature and vignette alongside brightness, contrast, saturation, and visual looks.
 - Added true original-view and split-view comparisons.
 - Added camera selection and 720p, 1080p, and efficient quality preferences.
-- Added six sample backgrounds for the AI demo portrait. Live camera background replacement remains outside this release.
+- Added six backgrounds for the AI demo portrait; live replacement was subsequently added in 3.1.0.
 - Added zoom, mirror, grid, eye-line, and manual framing controls.
 - Added immediate or timed PNG/JPEG snapshot downloads.
 - Added local preset save, load, delete, import, and export with imported-data validation.

@@ -1,6 +1,7 @@
 // KS property layouts adapted from Microsoft's MIT-licensed Windows-Camera sample.
 // Provenance and license: ../THIRD_PARTY_NOTICES.md and ../vendor/MICROSOFT-LICENSE.txt.
 using System.Buffers.Binary;
+using System.Text.Json.Serialization;
 using Windows.Media.Devices;
 
 namespace MeetingLens.Windows;
@@ -8,8 +9,12 @@ namespace MeetingLens.Windows;
 internal sealed record EffectDefinition(string Id, string Label, Guid PropertySet, uint PropertyId,
     IReadOnlyDictionary<string, ulong> Modes);
 
-internal sealed record EffectState(string Id, string Label, bool Supported, ulong? Flags,
-    ulong? Capabilities, string[] Modes, string? Error);
+// JSON numbers cannot preserve every 64-bit flag in JavaScript consumers. Keep the
+// exact unsigned values in a portable decimal-string representation in reports.
+internal sealed record EffectState(string Id, string Label, bool Supported,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString)] ulong? Flags,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString)] ulong? Capabilities,
+    string[] Modes, string? Error);
 
 internal static class KsControl
 {

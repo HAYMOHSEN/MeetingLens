@@ -10,12 +10,12 @@
 <body class="policy-page">
   <main class="policy-card">
     <a class="back-link" href="./">← Back to MeetingLens</a>
-    <p class="eyebrow">Privacy policy · Version 3.0.0 · 16 October 2026</p>
+    <p class="eyebrow">Privacy policy · Version 3.1.0 · 16 October 2026</p>
     <h1>Your camera, photos, and audio stay on your device.</h1>
     <p>MeetingLens is a local camera studio and photo editor. It has no user account, advertising service, built-in analytics, or cloud inference endpoint. The app does not upload camera frames, microphone audio, imported images, reference photos, or capability reports to its publisher.</p>
 
     <h2>Camera and local vision</h2>
-    <p>Camera access is requested when you choose to start it. Frames are processed locally to display the preview, apply adjustments, detect face landmarks for framing and modest refinement, and segment the foreground for background blur. The bundled face and segmentation models run on the device through a browser worker and WebAssembly. These tools detect image regions; they do not identify who you are or create a face-recognition account.</p>
+    <p>Camera access is requested when you choose to start it. Frames are processed locally to display the preview, apply adjustments, detect face landmarks for framing and modest refinement, and segment the foreground for room blur or replacement with a selected bundled background. Selecting a scene for a live camera starts loading the bundled local vision models. If the camera is off, model loading waits until you start it. Scene selection does not start the camera or send its frames to a server. The models run on the device through a browser worker and CPU/WebAssembly, using WebGL2 for the texture bridge. These tools detect image regions; they do not identify who you are or create a face-recognition account.</p>
     <p>You can stop capture using Stop or Privacy Shield. The default camera setting also stops capture when the app is hidden; you can change that camera preference. Camera restart requires your action. Your browser and Windows also provide camera-permission controls. Basic preview bypasses MeetingLens effects, but cannot promise removal of effects already applied by Windows or the camera driver.</p>
 
     <h2>Optional microphone check and recording</h2>
@@ -39,7 +39,7 @@
     <p>The Windows camera page opens camera or sound settings only when you click a settings link. A capability report you choose to import is validated and shown locally in that tab, without upload or persistent storage by the report viewer. The separate native companion's report contains device/capability information, a hashed device identifier, and available modes; it contains no captured video or audio. A report is a snapshot, not a live connection or automatic control of Windows.</p>
 
     <h2>Sample imagery</h2>
-    <p>The labeled sample person is fictional and AI-generated. The six bundled interior photographs are demo assets. Using the sample does not activate the camera. Replacement scenes apply to the sample portrait; live-camera background blur uses local segmentation.</p>
+    <p>The labeled sample person is fictional and AI-generated. The six bundled interior photographs can be used behind the sample or as locally composited backgrounds for the live camera preview. Using the sample or choosing a scene does not activate the camera. Live replacement and room blur use local segmentation; the app retains the actual room while analysis is loading, unavailable or too old to use.</p>
 
     <h2>Offline files and hosting</h2>
     <p>The app caches its static interface, icons, sample imagery, vision models, and QR decoder after a successful first load. These cached files are app resources, not recordings of you. The website hosting provider receives ordinary page and static-file requests and may process normal request metadata under its own privacy policy. Local camera, photo, microphone, and report contents are not included in those requests by MeetingLens.</p>

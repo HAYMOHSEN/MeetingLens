@@ -59,7 +59,7 @@
       <a class="nav-button nav-link native-link" href="./native-capabilities.html"><svg class="icon"><use href="#i-chip"/></svg><span>Windows companion</span></a>
       <div class="nav-spacer"></div>
       <div class="local-note"><svg class="icon"><use href="#i-shield"/></svg><b>A little more peace of mind.</b><p>Your camera preview is processed on your device.</p><a href="./privacy.html">Privacy policy <span aria-hidden="true">↗</span></a></div>
-      <span class="nav-version">MEETINGLENS · V3.0.0</span>
+      <span class="nav-version">MEETINGLENS · V3.1.0</span>
     </nav>
 
     <main class="main-content" id="mainContent">
@@ -90,8 +90,8 @@
           <div class="session-bar"><span><i class="session-indicator"></i><b id="sessionState">Sample mode</b></span><span id="deviceLabel">Camera not started</span><span id="fpsLabel">— fps</span></div>
         </div>
 
-        <div class="scene-strip-heading"><div><b>Find your setting</b><span>Professional sample spaces</span></div><span>06 curated spaces</span></div>
-        <div class="scene-strip" aria-label="Sample scene shortcuts">
+        <div class="scene-strip-heading"><div><b>Find your setting</b><span>Professional camera backgrounds</span></div><span>06 curated spaces</span></div>
+        <div class="scene-strip" aria-label="Camera background shortcuts">
           <button class="scene-button scene-tile active" data-scene="room" aria-pressed="true" title="Executive office — oak, stone and city daylight"><i class="scene-thumbnail room"></i><b>Executive office</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
           <button class="scene-button scene-tile" data-scene="soft" aria-pressed="false" title="Scandinavian office — airy, calm and naturally lit"><i class="scene-thumbnail soft"></i><b>Scandinavian office</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
           <button class="scene-button scene-tile" data-scene="studio" aria-pressed="false" title="Architect studio — refined materials and creative detail"><i class="scene-thumbnail studio"></i><b>Architect studio</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
@@ -99,7 +99,7 @@
           <button class="scene-button scene-tile" data-scene="dawn" aria-pressed="false" title="Warm library — thoughtful shelves and warm timber"><i class="scene-thumbnail dawn"></i><b>Warm library</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
           <button class="scene-button scene-tile" data-scene="slate" aria-pressed="false" title="Minimal gallery — clean lines and a soft neutral palette"><i class="scene-thumbnail slate"></i><b>Minimal gallery</b><span class="scene-selected"><svg class="icon"><use href="#i-check"/></svg></span></button>
         </div>
-        <p class="scene-disclaimer">Scenes style the sample portrait. Live background replacement is not included.</p>
+        <p class="scene-disclaimer">Click a scene to place it behind you. Background detection loads locally when you start your camera.</p>
 
         <div class="summary-grid"><article class="summary-card"><span class="summary-icon"><svg class="icon"><use href="#i-sun"/></svg></span><div><b>Light, your way</b><small id="lightSummary">Natural color applied</small></div></article><article class="summary-card"><span class="summary-icon"><svg class="icon"><use href="#i-frame"/></svg></span><div><b>Considered framing</b><small id="frameSummary">Conversation guide shown</small></div></article><article class="summary-card"><span class="summary-icon"><svg class="icon"><use href="#i-shield"/></svg></span><div><b>Private by design</b><small id="privacySummary">Camera stays on this device</small></div></article></div>
         <footer class="workspace-footer"><span>Hold C to compare · Alt+P privacy · Alt+S snapshot</span><a href="./terms.html">Terms</a><a href="./privacy.html">Privacy</a></footer>
@@ -155,10 +155,13 @@
           </section>
 
           <section class="control-panel" id="background-panel">
-            <p class="intro-copy">Six thoughtfully composed photographic spaces. Choose your setting, then soften the background for natural depth.</p><div class="capability-note"><svg class="icon"><use href="#i-info"/></svg><p>Sample only. These scenes do not replace your live camera background.</p></div>
+            <p class="intro-copy">Choose a professional space for your camera. Local person detection keeps you in the foreground and replaces the room behind you.</p>
+            <div class="switch-row"><div><b>Use selected background</b><small>Apply this scene behind you when your camera is on</small></div><button class="switch" id="replaceBackgroundSwitch" type="button" role="switch" aria-checked="false" aria-label="Use selected camera background"><i></i></button></div>
+            <div class="capability-note"><svg class="icon"><use href="#i-info"/></svg><p id="liveBackgroundStatus" role="status" aria-live="polite">Choose a scene, then start your camera. Background detection loads locally when needed.</p></div>
+            <div class="background-actions"><button class="control-button" id="useRealBackgroundButton" type="button">Use real background</button><button class="control-button" id="retryBackgroundButton" type="button" hidden>Retry background</button></div>
             <p class="section-label">Curated scenes <span>6 spaces</span></p>
             <div class="scene-list"><button class="scene-button active" data-scene="room" aria-pressed="true"><i class="scene-thumbnail room"></i><span><b>Executive office</b><small>Oak, stone and city daylight</small></span></button><button class="scene-button" data-scene="soft" aria-pressed="false"><i class="scene-thumbnail soft"></i><span><b>Scandinavian office</b><small>Airy, calm and naturally lit</small></span></button><button class="scene-button" data-scene="studio" aria-pressed="false"><i class="scene-thumbnail studio"></i><span><b>Architect studio</b><small>Refined materials and creative detail</small></span></button><button class="scene-button" data-scene="night" aria-pressed="false"><i class="scene-thumbnail night"></i><span><b>City lounge</b><small>Quiet skyline and evening light</small></span></button><button class="scene-button" data-scene="dawn" aria-pressed="false"><i class="scene-thumbnail dawn"></i><span><b>Warm library</b><small>Thoughtful shelves and warm timber</small></span></button><button class="scene-button" data-scene="slate" aria-pressed="false"><i class="scene-thumbnail slate"></i><span><b>Minimal gallery</b><small>Clean lines and a soft neutral palette</small></span></button></div>
-            <div class="setting-block"><label for="sceneStrengthRange"><span>Background softness</span><output id="sceneStrengthOutput" for="sceneStrengthRange">25%</output></label><input id="sceneStrengthRange" type="range" min="0" max="100" value="25"><p class="field-help">Add subtle depth to the sample space. The portrait stays sharp.</p></div>
+            <div class="setting-block"><label for="sceneStrengthRange"><span>Background softness</span><output id="sceneStrengthOutput" for="sceneStrengthRange">25%</output></label><input id="sceneStrengthRange" type="range" min="0" max="100" value="25"><p class="field-help">Soften the selected space while keeping your detected foreground in focus.</p></div>
             <p class="field-help" id="backgroundLoadStatus" role="status">Loading executive office…</p>
           </section>
 

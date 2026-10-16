@@ -41,6 +41,17 @@ internal static class ProtocolTests
             rejected = false;
             try { KsControl.Parse(payload); } catch (InvalidDataException) { rejected = true; }
             Check(rejected, "Driver failure rejected");
+            var state = new EffectState("test", "Test", true, 1UL << 63, ulong.MaxValue, ["Off"], null);
+            using var report = JsonDocument.Parse(JsonSerializer.Serialize(state,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            Check(report.RootElement.GetProperty("flags").GetString() == "9223372036854775808" &&
+                  report.RootElement.GetProperty("capabilities").GetString() == "18446744073709551615",
+                "64-bit report flags retain exact decimal values");
+            using var unavailable = JsonDocument.Parse(JsonSerializer.Serialize(state with { Flags = null, Capabilities = null },
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            Check(unavailable.RootElement.GetProperty("flags").ValueKind == JsonValueKind.Null &&
+                  unavailable.RootElement.GetProperty("capabilities").ValueKind == JsonValueKind.Null,
+                "Unavailable report flags remain null");
             File.WriteAllText("native-self-test.json", JsonSerializer.Serialize(new { passed = true, checks = checks.Count, results = checks }));
             return 0;
         }

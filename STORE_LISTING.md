@@ -1,6 +1,6 @@
 # MeetingLens — Microsoft Store Listing Pack
 
-Copy for the **3.0.0 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
+Copy for the **3.1.0 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
 
 ## Product identity
 
@@ -9,7 +9,7 @@ Copy for the **3.0.0 PWA release**. Confirm it against the deployed and generate
 | Product name | MeetingLens | MeetingLens |
 | Short title | MeetingLens | MeetingLens |
 | Suggested category | Productivity | الإنتاجية |
-| Version | 3.0.0 | 3.0.0 |
+| Version | 3.1.0 | 3.1.0 |
 
 Reserve the final name in Partner Center. Package identity, supported Windows versions, languages, and declarations must match the actual submitted package.
 
@@ -17,11 +17,11 @@ Reserve the final name in Partner Center. Package identity, supported Windows ve
 
 **English**
 
-Prepare your webcam, blur the room, refine photos, match a photo set, and straighten whiteboards with local processing.
+Replace or blur your webcam background, refine photos, match a photo set, and straighten whiteboards with local processing.
 
 **Arabic**
 
-جهّز كاميرتك، وموّه الخلفية، وحسّن الصور ووحّد ألوانها، وصحّح منظور السبورة بمعالجة محلية.
+استبدل خلفية الكاميرا أو موّهها، وحسّن الصور ووحّد ألوانها، وصحّح منظور السبورة بمعالجة محلية.
 
 ## Full description
 
@@ -29,9 +29,9 @@ Prepare your webcam, blur the room, refine photos, match a photo set, and straig
 
 Bring a clearer image to your next meeting, lesson, or presentation. MeetingLens combines a local camera studio with a practical Photo Lab and perspective whiteboard tools.
 
-Preview a built-in or USB webcam, select a supported quality preference, and see the actual delivered resolution. Local face tracking can keep the detected face centered with Auto Framing. Person segmentation blurs the live room while preserving the foreground. Add a gentle Portrait Light, refine color and contrast, adjust digital zoom precisely, and compare the original and enhanced image. Subtle landmark-assisted skin smoothing and teeth brightening are available when local face analysis succeeds.
+Preview a built-in or USB webcam, select a supported quality preference, and see the actual delivered resolution. Local face tracking can keep the detected face centered with Auto Framing. Person segmentation replaces the live room with a selected professional interior or blurs the actual room while preserving the foreground. Add a gentle Portrait Light, refine color and contrast, adjust digital zoom precisely, and compare the original and enhanced image. Subtle landmark-assisted skin smoothing and teeth brightening are available when local face analysis succeeds.
 
-Save favorite settings as local presets. Download PNG or JPEG snapshots immediately or after a countdown. Explore six professional photographic interiors with the clearly labeled, fictional AI demo portrait. These replacement scenes apply to the sample portrait; live video supports background blur.
+Start the camera and choose one of six professional photographic interiors in Scenes. The bundled local models load automatically after a scene selection; the actual room stays visible until segmentation is ready. Adjust scene softness, or choose Use real background to disable replacement and room blur. Scenes can also be tried with the clearly labeled, fictional AI sample portrait without camera access. Save favorite settings as local presets and download PNG or JPEG snapshots immediately or after a countdown.
 
 Open Photo Lab to enhance tone and color, brush over small distractions using local inpainting, apply modest skin/teeth retouching, or match the overall tone of a reference photo across a set. Work with up to eight photos and export JPEGs in a ZIP. Smart Enhance and Object Removal use local image processing; Object Removal works best on small items against simple backgrounds.
 
@@ -41,15 +41,15 @@ Session tools offer an optional microphone check with supported browser noise su
 
 Camera, photos, and audio are processed on your device without a cloud upload or account. Privacy Shield stops camera and microphone capture. Camera and microphone permissions are requested separately, and recording and backups start only when you choose.
 
-**Compatibility and scope:** Effects improve the preview inside MeetingLens. The PWA does not create a system-wide virtual camera or route processed video/audio into Zoom, Teams, Meet, or other meeting apps. Eye-contact correction and NPU acceleration are not browser features. Windows camera tools link to supported system settings and can display a locally imported capability report from the separate Windows utility; the report is a snapshot, not a live connection. Hardware, browser support, permissions, and model detection affect availability and results. The offline shell works after a successful first cache.
+**Compatibility and scope:** Effects improve the preview and snapshots inside MeetingLens. The PWA does not create a system-wide virtual camera or route processed video/audio into Zoom, Teams, Meet, or other meeting apps. Eye-contact correction and NPU acceleration are not browser features. Local vision uses CPU/WebAssembly and requires WebGL2 support for its texture bridge. Windows camera tools link to supported system settings and can display a locally imported capability report from the separate Windows utility; the report is a snapshot, not a live connection. Hardware, browser support, permissions, and model detection affect availability and results. The offline shell works after a successful first cache.
 
 ### Arabic
 
 قدّم صورة أوضح في اجتماعك أو محاضرتك أو عرضك القادم. يجمع MeetingLens بين استوديو كاميرا محلي ومختبر عملي لتحرير الصور وأدوات لتصحيح منظور السبورة.
 
-عاين كاميرا الجهاز أو كاميرا USB، واختر تفضيل جودة مدعوماً، واطّلع على الدقة الفعلية. يساعد تتبّع الوجه المحلي في إبقاء الوجه المكتشف في المنتصف باستخدام التأطير التلقائي. ويتيح فصل الشخص تمويه خلفية الفيديو المباشر مع الحفاظ على المقدمة. أضف إضاءة تعبئة لطيفة، واضبط الألوان والتباين والتكبير الرقمي بدقة، وقارن الصورة الأصلية بالمحسّنة. يتوفر تنعيم خفيف للبشرة وتفتيح للأسنان بمساعدة معالم الوجه عند نجاح التحليل المحلي.
+عاين كاميرا الجهاز أو كاميرا USB، واختر تفضيل جودة مدعوماً، واطّلع على الدقة الفعلية. يساعد تتبّع الوجه المحلي في إبقاء الوجه المكتشف في المنتصف باستخدام التأطير التلقائي. ويتيح فصل الشخص استبدال الغرفة بخلفية داخلية احترافية تختارها أو تمويه الغرفة الفعلية مع الحفاظ على المقدمة. أضف إضاءة تعبئة لطيفة، واضبط الألوان والتباين والتكبير الرقمي بدقة، وقارن الصورة الأصلية بالمحسّنة. يتوفر تنعيم خفيف للبشرة وتفتيح للأسنان بمساعدة معالم الوجه عند نجاح التحليل المحلي.
 
-احفظ إعداداتك المفضلة محلياً. نزّل لقطات PNG أو JPEG مباشرة أو بعد عدّ تنازلي. واستكشف ست خلفيات داخلية احترافية مع صورة الشخص التجريبي الخيالي المولّدة بالذكاء الاصطناعي والمعلّمة بوضوح. تُطبّق هذه الخلفيات البديلة على الصورة التجريبية فقط؛ أما الفيديو المباشر فيدعم تمويه الخلفية.
+شغّل الكاميرا واختر واحدة من ست خلفيات داخلية احترافية في قسم الخلفيات. تُحمّل النماذج المحلية المضمّنة تلقائياً بعد اختيار الخلفية، وتبقى الغرفة الفعلية ظاهرة حتى يجهز فصل الشخص. اضبط نعومة الخلفية أو اختر Use real background لاستعادة الغرفة وإيقاف الاستبدال والتمويه معاً. ويمكن تجربة الخلفيات دون تشغيل الكاميرا باستخدام صورة الشخص التجريبي الخيالي المولّدة بالذكاء الاصطناعي والمعلّمة بوضوح. احفظ إعداداتك المفضلة محلياً ونزّل لقطات PNG أو JPEG مباشرة أو بعد عدّ تنازلي.
 
 افتح مختبر الصور لتحسين الإضاءة والألوان، أو تحديد عناصر صغيرة بالفرشاة وملء مواضعها من البكسلات المجاورة، أو تنقيح البشرة والأسنان باعتدال، أو نقل الطابع اللوني العام لصورة مرجعية إلى مجموعة صور. اعمل على ما يصل إلى ثماني صور وصدّر ملفات JPEG داخل ملف ZIP. يعتمد التحسين التلقائي وإزالة العناصر على معالجة محلية للصور؛ وتناسب إزالة العناصر الأجسام الصغيرة فوق خلفيات بسيطة.
 
@@ -59,7 +59,7 @@ Camera, photos, and audio are processed on your device without a cloud upload or
 
 تُعالج الكاميرا والصور والصوت على جهازك دون رفعها إلى خدمة سحابية أو إنشاء حساب. توقف ميزة Privacy Shield الكاميرا والميكروفون. تُطلب أذونات الكاميرا والميكروفون بشكل منفصل، ولا يبدأ التسجيل أو النسخ الاحتياطي إلا باختيارك.
 
-**التوافق ونطاق العمل:** تحسّن المؤثرات المعاينة داخل MeetingLens. ولا ينشئ إصدار PWA كاميرا افتراضية على مستوى النظام، ولا يرسل الفيديو أو الصوت المعالج إلى Zoom أو Teams أو Meet أو تطبيقات الاجتماعات الأخرى. تصحيح اتجاه النظر وتسريع NPU ليسا ميزتين في المتصفح. تفتح أدوات كاميرا Windows إعدادات النظام المدعومة، ويمكنها عرض تقرير إمكانات محلي مستورد من أداة Windows المنفصلة؛ والتقرير لقطة لحالة سابقة وليس اتصالاً مباشراً. يعتمد توفر الأدوات ونتائجها على الجهاز والمتصفح والأذونات ونجاح اكتشاف النموذج. تعمل الواجهة دون اتصال بعد اكتمال التخزين الأول بنجاح.
+**التوافق ونطاق العمل:** تحسّن المؤثرات المعاينة واللقطات داخل MeetingLens. ولا ينشئ إصدار PWA كاميرا افتراضية على مستوى النظام، ولا يرسل الفيديو أو الصوت المعالج إلى Zoom أو Teams أو Meet أو تطبيقات الاجتماعات الأخرى. تصحيح اتجاه النظر وتسريع NPU ليسا ميزتين في المتصفح. تستخدم الرؤية المحلية CPU وWebAssembly وتتطلب دعم WebGL2 لنقل بيانات الصور إلى النماذج. تفتح أدوات كاميرا Windows إعدادات النظام المدعومة، ويمكنها عرض تقرير إمكانات محلي مستورد من أداة Windows المنفصلة؛ والتقرير لقطة لحالة سابقة وليس اتصالاً مباشراً. يعتمد توفر الأدوات ونتائجها على الجهاز والمتصفح والأذونات ونجاح اكتشاف النموذج. تعمل الواجهة دون اتصال بعد اكتمال التخزين الأول بنجاح.
 
 ## Product features
 
@@ -68,7 +68,7 @@ Enter each feature separately in Partner Center.
 ### English
 
 1. Local camera preview with built-in/USB camera selection and reported quality controls
-2. Face-based Auto Framing and live person Background Blur with bundled local models
+2. Face-based Auto Framing, six live background replacements, and room blur with bundled local models
 3. Portrait fill light, subtle face refinement, color controls, and original/split comparison
 4. Fine digital zoom, mirror, local presets, and timed PNG/JPEG snapshots
 5. Photo Lab with automatic tone enhancement, small-object inpainting, and skin/teeth brushes
@@ -81,7 +81,7 @@ Enter each feature separately in Partner Center.
 ### Arabic
 
 1. معاينة محلية مع اختيار كاميرا الجهاز أو USB وعرض خيارات الجودة المبلّغ عنها
-2. تأطير تلقائي بحسب الوجه وتمويه خلفية الفيديو المباشر بنماذج محلية مضمّنة
+2. تأطير تلقائي بحسب الوجه وست خلفيات بديلة للفيديو المباشر وتمويه الغرفة بنماذج محلية مضمّنة
 3. إضاءة تعبئة وتنقيح خفيف للوجه وضبط الألوان ومقارنة الأصل والعرض المقسّم
 4. تكبير رقمي دقيق وانعكاس وإعدادات محلية ولقطات PNG وJPEG بمؤقت
 5. مختبر صور لتحسين الدرجات اللونية وملء مواضع العناصر الصغيرة وفرش البشرة والأسنان
@@ -99,7 +99,7 @@ Use terms within the current Partner Center form limits.
 
 ~~~text
 webcam preview
-camera background blur
+camera backgrounds
 auto framing
 photo enhancement
 photo color match
@@ -111,7 +111,7 @@ camera snapshots
 
 ~~~text
 معاينة الكاميرا
-تمويه خلفية الكاميرا
+خلفيات الكاميرا
 تأطير تلقائي
 تحسين الصور
 مطابقة ألوان الصور
@@ -119,15 +119,15 @@ camera snapshots
 لقطات الكاميرا
 ~~~
 
-## What's new in 3.0.0
+## What's new in 3.1.0
 
 **English**
 
-Added local face-based Auto Framing, live person Background Blur, Portrait Light, subtle landmark-assisted face refinement, fine zoom and supported camera mode controls. New Photo Lab includes automatic enhancement, reference color matching, small-object inpainting, batch ZIP export, and perspective whiteboard correction. New session tools provide optional microphone checks, QR copying, and still backups. Added a local Windows capability-report viewer and clearer unsupported-feature fallbacks.
+Professional backgrounds now work with your live webcam inside MeetingLens. Choose a scene to load local person segmentation automatically, keep yourself in front of the selected interior, and adjust scene softness. Use real background restores the actual room and disables blur. Loading and unavailable states show clear feedback. Existing installations should apply the app's Update banner and reload. Includes the reliability corrections from 3.0.1 for local models, photo imports, backups and capture cleanup.
 
 **Arabic**
 
-إضافة التأطير التلقائي المحلي بحسب الوجه، وتمويه خلفية الفيديو المباشر، وإضاءة تعبئة، وتنقيح خفيف بمعالم الوجه، وتكبير دقيق وخيارات كاميرا مدعومة. يتضمن مختبر الصور الجديد تحسيناً تلقائياً ومطابقة ألوان مرجعية وملء مواضع العناصر الصغيرة وتصديراً جماعياً بصيغة ZIP وتصحيح منظور السبورة. توفر أدوات الجلسة اختبار ميكروفون اختيارياً ونسخ رموز QR ونسخاً احتياطياً للقطات. إضافة عارض محلي لتقرير إمكانات Windows ومعالجة أوضح لعدم توفر الميزات.
+تعمل الخلفيات الاحترافية الآن مع كاميرتك المباشرة داخل MeetingLens. اختر خلفية لتحميل فصل الشخص المحلي تلقائياً وإظهارك أمام الخلفية الداخلية المختارة، ثم اضبط نعومتها. يعيد Use real background الغرفة الفعلية ويوقف التمويه أيضاً. تعرض حالات التحميل وعدم التوفر رسائل واضحة. على المستخدمين الحاليين تطبيق إشعار Update وإعادة تحميل التطبيق. ويشمل الإصدار إصلاحات 3.0.1 لتحميل النماذج واستيراد الصور والنسخ الاحتياطي وإيقاف الالتقاط.
 
 ## Screenshot assets and captions
 
@@ -137,7 +137,7 @@ Ten 1920×1080 PNGs in assets/store-assets/screenshots/ show the running v3 app.
 |---|---|---|
 | 01-studio-1920x1080.png | Prepare your camera in a focused local studio. Portrait shown is the labeled AI sample. | جهّز كاميرتك في استوديو محلي واضح. الصورة المعروضة نموذج مولّد بالذكاء الاصطناعي ومعلّم بوضوح. |
 | 02-looks-1920x1080.png | Refine color and light, then compare the original and enhanced view. | اضبط الألوان والإضاءة وقارن العرض الأصلي بالمحسّن. |
-| 03-background-1920x1080.png | Explore six professional interiors with the sample portrait. Live video supports background blur. | استكشف ست خلفيات احترافية مع الصورة التجريبية. يدعم الفيديو المباشر تمويه الخلفية. |
+| 03-background-1920x1080.png | Live background replacement in a controlled camera demo with a disclosed AI-generated portrait. | استبدال الخلفية المباشر ضمن بث كاميرا تجريبي، مع الإفصاح عن استخدام صورة شخص مولّدة بالذكاء الاصطناعي. |
 | 04-privacy-1920x1080.png | Stop camera and microphone capture with Privacy Shield. | أوقف التقاط الكاميرا والميكروفون باستخدام Privacy Shield. |
 | 05-camera-1920x1080.png | Choose a webcam and supported quality preferences, with actual output feedback. | اختر كاميرا وتفضيلات جودة مدعومة واطّلع على الإخراج الفعلي. |
 | 06-presets-1920x1080.png | Keep favorite settings locally, with import and export. | احتفظ بإعداداتك المفضلة محلياً مع الاستيراد والتصدير. |

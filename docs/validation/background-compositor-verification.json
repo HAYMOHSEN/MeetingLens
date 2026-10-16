@@ -1,0 +1,78 @@
+{
+  "at": "2026-10-16T20:07:06.551Z",
+  "checks": [
+    {
+      "name": "No replacement retains existing camera rendering",
+      "pass": true,
+      "ms": 129
+    },
+    {
+      "name": "Scene replaces actual room while keeping foreground pixels intact",
+      "pass": true,
+      "ms": 147
+    },
+    {
+      "name": "Portrait scenes cover wide camera frames without borders or stretching",
+      "pass": true,
+      "ms": 43
+    },
+    {
+      "name": "Wide scenes use centered aspect-cover cropping",
+      "pass": true,
+      "ms": 42
+    },
+    {
+      "name": "Background softness blurs scene texture while leaving person sharp",
+      "pass": true,
+      "ms": 126,
+      "background": [
+        127,
+        127,
+        127,
+        255
+      ]
+    },
+    {
+      "name": "Person confidence alpha blends edges with the selected scene",
+      "pass": true,
+      "ms": 41
+    },
+    {
+      "name": "Conservative matte cleanup reduces room fringe without changing foreground core",
+      "pass": true,
+      "ms": 92,
+      "fringeReduction": 0.44999999999999996
+    },
+    {
+      "name": "Unready and malformed scenes safely retain camera output",
+      "pass": true,
+      "ms": 52
+    },
+    {
+      "name": "Missing person mask safely leaves the real camera image visible",
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "name": "Real bundled model matte replaces background and preserves detected person",
+      "pass": true,
+      "ms": 597,
+      "caps": {
+        "face": true,
+        "segmentation": true,
+        "backend": "CPU/WASM worker",
+        "eyeContact": false,
+        "errors": {}
+      },
+      "foreground": 54117,
+      "background": 162306,
+      "personError": 0.0003695696361586932,
+      "sceneError": 0
+    },
+    {
+      "name": "Compositor produces no uncaught browser errors",
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

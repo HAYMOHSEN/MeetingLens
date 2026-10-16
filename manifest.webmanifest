@@ -6,7 +6,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": ["standalone"],
   "background_color": "#f6f7fb",
   "theme_color": "#171b2e",
   "orientation": "any",
@@ -24,7 +24,7 @@
   "screenshots": [
     { "src": "./assets/store-assets/screenshots/01-studio-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "MeetingLens Studio" },
     { "src": "./assets/store-assets/screenshots/02-looks-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Natural enhancement controls" },
-    { "src": "./assets/store-assets/screenshots/03-background-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Background preview tools" },
+    { "src": "./assets/store-assets/screenshots/03-background-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Live camera background replacement with a disclosed generated-portrait demo" },
     { "src": "./assets/store-assets/screenshots/04-privacy-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Privacy Shield" },
     { "src": "./assets/store-assets/screenshots/05-camera-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Camera and snapshot settings" },
     { "src": "./assets/store-assets/screenshots/06-presets-1920x1080.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Save and share local presets" },

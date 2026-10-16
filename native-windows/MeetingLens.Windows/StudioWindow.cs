@@ -376,11 +376,16 @@ internal sealed class StudioWindow : Window
 
     private void FrameArrived(MediaFrameReader sender, MediaFrameArrivedEventArgs args)
     {
-        using var frame = sender.TryAcquireLatestFrame();
-        var bitmap = frame?.VideoMediaFrame?.SoftwareBitmap;
-        if (bitmap is null || Interlocked.Exchange(ref _rendering, 1) != 0) return;
+        if (!ReferenceEquals(sender, _reader) || Interlocked.Exchange(ref _rendering, 1) != 0) return;
         try
         {
+            // Unplugging or disposing a reader can make acquisition throw. Keep it
+            // inside this worker-thread error boundary, including resource disposal.
+            using var frame = sender.TryAcquireLatestFrame();
+            // SoftwareBitmap owns a separate native reference; disposing the frame
+            // alone does not release it. Dispose even when throttling/skipping a frame.
+            using var bitmap = frame?.VideoMediaFrame?.SoftwareBitmap;
+            if (bitmap is null) return;
             var now = Environment.TickCount64;
             if (now - _lastRender < 80) return; // Bound WPF preview work to at most 12.5 fps.
             _lastRender = now;
@@ -394,7 +399,7 @@ internal sealed class StudioWindow : Window
             using (var reader = DataReader.FromBuffer(buffer)) reader.ReadBytes(bytes);
             Dispatcher.Invoke(() =>
             {
-                if (_capture is null || _closing) return;
+                if (!ReferenceEquals(sender, _reader) || _capture is null || _closing) return;
                 if (_bitmap is null || _bitmap.PixelWidth != width || _bitmap.PixelHeight != height)
                 {
                     _bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
@@ -406,20 +411,37 @@ internal sealed class StudioWindow : Window
         }
         catch (Exception error)
         {
-            Dispatcher.BeginInvoke(new Action(() => _status.Text = "Preview frame skipped: " + error.Message));
+            PostToUi(() =>
+            {
+                if (ReferenceEquals(sender, _reader) && !_closing)
+                    _status.Text = "Preview frame skipped: " + error.Message;
+            });
         }
         finally { Interlocked.Exchange(ref _rendering, 0); }
     }
 
     private void CaptureFailed(MediaCapture sender, MediaCaptureFailedEventArgs error)
     {
-        Dispatcher.BeginInvoke(new Action(async () =>
+        PostToUi(async () =>
         {
             if (!ReferenceEquals(sender, _capture)) return;
             if (_busy) { _status.Text = $"Camera error ({error.Code}): {error.Message}"; return; }
             await DisconnectAsync();
             _status.Text = $"Camera disconnected or driver failed ({error.Code}): {error.Message}. Refresh devices and reconnect.";
-        }));
+        });
+    }
+
+    private void PostToUi(Action callback)
+    {
+        try
+        {
+            if (!Dispatcher.HasShutdownStarted && !Dispatcher.HasShutdownFinished)
+                Dispatcher.BeginInvoke(callback);
+        }
+        // Shutdown can start between the property check and enqueueing the callback.
+        // Late camera callbacks must not escape as unhandled worker-thread failures.
+        catch (InvalidOperationException) { }
+        catch (TaskCanceledException) { }
     }
 
     private void ExportReport()

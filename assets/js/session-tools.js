@@ -46,7 +46,7 @@
       this.onStatus = typeof options.onStatus === 'function' ? options.onStatus : () => {};
       this.listeners = []; this.micStream = null; this.micToken = 0; this.micPending = false; this.micMuted = false;
       this.audioContext = null; this.meterFrame = 0; this.recorder = null; this.recordingSession = 0; this.recordingTimer = 0;
-      this.clipUrl = ''; this.backupMode = 'off'; this.directory = null; this.backupUrls = []; this.backupQueue = Promise.resolve();
+      this.clipUrl = ''; this.backupMode = 'off'; this.directory = null; this.backupUrls = []; this.backupQueue = Promise.resolve(); this.backupGeneration = 0; this.backupPending = '';
       this.qrValue = ''; this.lastCopiedQR = ''; this.qrToken = 0; this.scanning = false; this.shield = false; this.destroyed = false; this.dbPromise = null;
       this.bind(); this.render();
     }
@@ -79,8 +79,8 @@
       const start = this.element('voiceStartButton'); if (start) start.textContent = this.micPending ? 'Waiting for permission…' : 'Start mic';
       const mute = this.element('voiceMuteButton'); if (mute) { mute.textContent = this.micMuted ? 'Unmute' : 'Mute'; mute.setAttribute('aria-pressed', String(this.micMuted)); }
       setDisabled('qrScanButton', this.scanning || this.shield); setDisabled('qrCopyButton', !this.qrValue || this.shield);
-      setDisabled('backupOffButton', this.backupMode === 'off');
-      const local = this.element('backupLocalSwitch'); if (local) local.checked = this.backupMode === 'browser';
+      setDisabled('backupOffButton', this.backupMode === 'off' && !this.backupPending);
+      const local = this.element('backupLocalSwitch'); if (local) local.checked = this.backupMode === 'browser' || this.backupPending === 'browser';
       const tag = this.element('backupModeTag'); if (tag) tag.textContent = this.backupMode === 'folder' ? 'FOLDER' : this.backupMode === 'browser' ? 'BROWSER' : 'OFF';
       const folder = this.element('backupFolderButton'); if (folder) { folder.disabled = !window.isSecureContext || typeof window.showDirectoryPicker !== 'function'; folder.title = folder.disabled ? 'Folder backup requires a supported browser such as Edge and a secure HTTPS connection. Browser backups are available below.' : ''; }
       if (!active) { const meter = this.element('voiceMeter'); if (meter) meter.value = 0; const level = this.element('voiceLevelLabel'); if (level) level.textContent = 'Mic off'; }
@@ -146,7 +146,7 @@
       try {
         const recorder = new MediaRecorder(this.micStream, options ? { mimeType: options } : undefined); this.recorder = recorder; this.clearClip();
         recorder.addEventListener('dataavailable', event => { if (event.data.size > 0 && session === this.recordingSession) { chunks.push(event.data); bytes += event.data.size; if (bytes > 20 * 1024 * 1024) this.stopRecording(); } });
-        recorder.addEventListener('error', () => { this.status('voiceStatus', 'The microphone recording was interrupted. Start a new test when ready.', 'error'); this.stopRecording(true); });
+        recorder.addEventListener('error', () => { if (session !== this.recordingSession || this.recorder !== recorder || this.destroyed) return; this.status('voiceStatus', 'The microphone recording was interrupted. Start a new test when ready.', 'error'); this.stopRecording(true); });
         recorder.addEventListener('stop', () => {
           if (session !== this.recordingSession || this.destroyed) return;
           clearInterval(this.recordingTimer); this.recordingTimer = 0; this.recorder = null;
@@ -210,53 +210,77 @@
       }
     }
     async chooseFolder() {
+      if (this.destroyed) return;
       if (!window.isSecureContext || typeof window.showDirectoryPicker !== 'function') { this.status('backupStatus', 'Folder backup is unavailable here. Enable browser backups instead.', 'error'); return; }
-      try { const directory = await window.showDirectoryPicker({ mode: 'readwrite', id: 'meetinglens-snapshots' }); if (this.destroyed) return; this.directory = directory; this.backupMode = 'folder'; this.status('backupStatus', `Snapshot backups will be saved to “${directory.name}” during this session.`, 'success'); this.render(); }
-      catch (error) { if (error.name !== 'AbortError') this.status('backupStatus', errorText(error, 'Backup folder'), 'error'); }
+      const generation = ++this.backupGeneration; this.backupPending = 'folder'; this.render();
+      try { const directory = await window.showDirectoryPicker({ mode: 'readwrite', id: 'meetinglens-snapshots' }); if (this.destroyed || generation !== this.backupGeneration) return; this.directory = directory; this.backupMode = 'folder'; this.status('backupStatus', `Snapshot backups will be saved to “${directory.name}” during this session.`, 'success'); }
+      catch (error) { if (generation === this.backupGeneration && !this.destroyed && error.name !== 'AbortError') this.status('backupStatus', errorText(error, 'Backup folder'), 'error'); }
+      finally { if (generation === this.backupGeneration) { this.backupPending = ''; this.render(); } }
     }
     async enableBrowserBackup(enabled) {
-      if (!enabled) { if (this.backupMode === 'browser') this.turnBackupOff(); return; }
-      try { await this.openDatabase(); if (this.destroyed) return; this.directory = null; this.backupMode = 'browser'; this.status('backupStatus', 'Browser backups on for this session. Each snapshot saves an extra copy here; the latest 50 are kept.', 'success'); await this.refreshBackups(); }
-      catch (error) { this.backupMode = 'off'; this.status('backupStatus', errorText(error, 'Browser backup'), 'error'); }
-      this.render();
+      if (this.destroyed) return;
+      if (!enabled) { this.turnBackupOff(); return; }
+      const generation = ++this.backupGeneration; this.backupPending = 'browser'; this.render();
+      try { await this.openDatabase(); if (this.destroyed || generation !== this.backupGeneration) return; this.directory = null; this.backupMode = 'browser'; this.status('backupStatus', 'Browser backups on for this session. Each snapshot saves an extra copy here; the latest 50 are kept.', 'success'); await this.refreshBackups(); }
+      catch (error) { if (generation === this.backupGeneration && !this.destroyed) { this.backupMode = 'off'; this.directory = null; this.status('backupStatus', errorText(error, 'Browser backup'), 'error'); } }
+      finally { if (generation === this.backupGeneration) { this.backupPending = ''; this.render(); } }
     }
-    turnBackupOff() { this.backupMode = 'off'; this.directory = null; this.status('backupStatus', 'Automatic snapshot backup is off. Previously saved images are kept until you delete them.'); this.render(); }
+    turnBackupOff() { ++this.backupGeneration; this.backupPending = ''; this.backupMode = 'off'; this.directory = null; this.status('backupStatus', 'Automatic snapshot backup is off. Previously saved images are kept until you delete them.'); this.render(); }
     async openDatabase() {
       if (!window.indexedDB) throw new Error('Browser image storage is unavailable.');
-      if (!this.dbPromise) this.dbPromise = new Promise((resolve, reject) => {
+      if (this.destroyed) throw new Error('This session has ended.');
+      if (!this.dbPromise) {
+        let settled = false;
+        const pending = new Promise((resolve, reject) => {
         const request = indexedDB.open('meetinglens-snapshot-backups', 1);
         request.onupgradeneeded = () => { const db = request.result; if (!db.objectStoreNames.contains('images')) db.createObjectStore('images', { keyPath: 'id' }); };
-        request.onerror = () => { this.dbPromise = null; reject(request.error); };
-        request.onblocked = () => { this.dbPromise = null; reject(new Error('Close older MeetingLens tabs to enable browser backups.')); };
-        request.onsuccess = () => { const db = request.result; db.onversionchange = () => { db.close(); this.dbPromise = null; }; resolve(db); };
-      });
+        const fail = error => { if (settled) return; settled = true; if (this.dbPromise === pending) this.dbPromise = null; reject(error); };
+        request.onerror = () => fail(request.error);
+        request.onblocked = () => fail(new Error('Close older MeetingLens tabs to enable browser backups.'));
+        request.onsuccess = () => { const db = request.result; if (settled || this.destroyed) { db.close(); if (!settled) fail(new Error('This session has ended.')); return; } settled = true; db.onversionchange = () => { db.close(); if (this.dbPromise === pending) this.dbPromise = null; }; resolve(db); };
+        });
+        this.dbPromise = pending;
+        // indexedDB.open may throw synchronously when storage permission is
+        // temporarily denied; clear that rejected promise so Retry can reopen.
+        pending.catch(() => { if (this.dbPromise === pending) this.dbPromise = null; });
+      }
       return this.dbPromise;
     }
     backupSnapshot(blob, filename) {
       if (!(blob instanceof Blob) || !blob.size || this.backupMode === 'off' || this.destroyed) return Promise.resolve({ saved: false, reason: 'off' });
       if (blob.size > MAX_BACKUP_BYTES) { this.status('backupStatus', 'This image is too large for automatic backup (50 MB maximum). The normal snapshot download is unaffected.', 'error'); return Promise.resolve({ saved: false, reason: 'size' }); }
-      const mode = this.backupMode; const directory = this.directory;
+      const mode = this.backupMode; const directory = this.directory; const generation = this.backupGeneration;
+      const changed = () => this.destroyed || generation !== this.backupGeneration || mode !== this.backupMode || directory !== this.directory;
       const job = this.backupQueue.catch(() => {}).then(async () => {
-        if (this.destroyed || mode !== this.backupMode || directory !== this.directory) return { saved: false, reason: 'changed' };
+        if (changed()) return { saved: false, reason: 'changed' };
         try {
           const name = safeName(filename);
           if (mode === 'folder' && directory) {
             if (typeof directory.queryPermission === 'function' && await directory.queryPermission({ mode: 'readwrite' }) !== 'granted') throw new DOMException('Choose the backup folder again to renew permission.', 'NotAllowedError');
+            if (changed()) return { saved: false, reason: 'changed' };
             let unique = name;
             try { await directory.getFileHandle(name); const point = name.lastIndexOf('.'); unique = point > 0 ? `${name.slice(0, point)}-${Date.now()}-${Math.random().toString(36).slice(2, 5)}${name.slice(point)}` : `${name}-${Date.now()}`; } catch (error) { if (error.name !== 'NotFoundError') throw error; }
+            if (changed()) return { saved: false, reason: 'changed' };
             const handle = await directory.getFileHandle(unique, { create: true }); const writer = await handle.createWritable();
-            try { await writer.write(blob); await writer.close(); } catch (error) { await writer.abort().catch(() => {}); throw error; }
-            this.status('backupStatus', `Backup saved to “${directory.name}”: ${unique}`, 'success'); return { saved: true, mode, filename: unique };
+            try { if (changed()) { await writer.abort(); return { saved: false, reason: 'changed' }; } await writer.write(blob); if (changed()) { await writer.abort(); return { saved: false, reason: 'changed' }; } await writer.close(); } catch (error) { await writer.abort().catch(() => {}); throw error; }
+            if (!changed()) this.status('backupStatus', `Backup saved to “${directory.name}”: ${unique}`, 'success'); return { saved: true, mode, filename: unique };
           }
           if (mode === 'browser') {
-            const db = await this.openDatabase(); const transaction = db.transaction('images', 'readwrite'); const done = transactionDone(transaction); const store = transaction.objectStore('images');
+            const db = await this.openDatabase(); if (changed()) return { saved: false, reason: 'changed' }; const transaction = db.transaction('images', 'readwrite'); const done = transactionDone(transaction); const store = transaction.objectStore('images');
             const id = `${Date.now()}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}`;
-            store.put({ id, filename: name, created: Date.now(), blob });
-            const request = store.getAllKeys(); request.onsuccess = () => { const keys = request.result; for (const key of keys.slice(0, Math.max(0, keys.length - MAX_BACKUPS))) store.delete(key); };
-            await done; this.status('backupStatus', `Browser backup saved: ${name}`, 'success'); await this.refreshBackups(); return { saved: true, mode, filename: name };
+            // Allocate a monotonic save order inside this read/write transaction.
+            // Random ID ordering can otherwise immediately evict the newest copy
+            // when several captures share a timestamp or the system clock moves.
+            const request = store.getAll(); request.onsuccess = () => {
+              const images = request.result.sort((a, b) => (a.order ?? a.created ?? 0) - (b.order ?? b.created ?? 0));
+              const order = Math.max(0, ...images.map(image => image.order ?? image.created ?? 0)) + 1;
+              store.put({ id, filename: name, created: Date.now(), order, blob });
+              for (const image of images.slice(0, Math.max(0, images.length + 1 - MAX_BACKUPS))) store.delete(image.id);
+            };
+            await done; if (!changed()) this.status('backupStatus', `Browser backup saved: ${name}`, 'success'); await this.refreshBackups(); return { saved: true, mode, filename: name };
           }
           return { saved: false, reason: 'off' };
-        } catch (error) { if (mode === 'folder') { this.backupMode = 'off'; this.directory = null; this.render(); } this.status('backupStatus', `${errorText(error, 'Snapshot backup')} The normal snapshot download is unaffected.`, 'error', true); return { saved: false, error: error.message }; }
+        } catch (error) { if (!changed()) { if (mode === 'folder' || error.name === 'QuotaExceededError') { ++this.backupGeneration; this.backupMode = 'off'; this.backupPending = ''; this.directory = null; this.render(); } this.status('backupStatus', `${errorText(error, 'Snapshot backup')} The normal snapshot download is unaffected.`, 'error', true); } return { saved: false, error: error.message }; }
       }); this.backupQueue = job; return job;
     }
     async refreshBackups() {
@@ -265,7 +289,7 @@
         const db = await this.openDatabase(); const images = await requestResult(db.transaction('images', 'readonly').objectStore('images').getAll());
         if (this.destroyed) return;
         this.backupUrls.forEach(url => URL.revokeObjectURL(url)); this.backupUrls = []; list.replaceChildren();
-        images.sort((a, b) => b.created - a.created).forEach(image => {
+        images.sort((a, b) => (b.order ?? b.created ?? 0) - (a.order ?? a.created ?? 0)).forEach(image => {
           const li = document.createElement('li'); li.className = 'session-backup-item'; const thumbnail = document.createElement('img'); const url = URL.createObjectURL(image.blob); this.backupUrls.push(url); thumbnail.src = url; thumbnail.alt = ''; thumbnail.loading = 'lazy';
           const name = document.createElement('b'); name.textContent = image.filename; name.title = new Date(image.created).toLocaleString();
           const actions = document.createElement('div'); const save = document.createElement('button'); save.type = 'button'; save.className = 'session-text-link'; save.textContent = 'Download'; save.addEventListener('click', () => download(image.blob, image.filename));
@@ -279,9 +303,16 @@
     async clearBackups() {
       const button = this.element('backupClearButton');
       if (button && button.dataset.confirm !== 'yes') { button.dataset.confirm = 'yes'; button.textContent = 'Confirm: delete all browser backups'; setTimeout(() => { if (button.isConnected) { delete button.dataset.confirm; button.textContent = 'Delete all browser backups'; } }, 7000); return; }
-      try { const db = await this.openDatabase(); const transaction = db.transaction('images', 'readwrite'); const done = transactionDone(transaction); transaction.objectStore('images').clear(); await done; this.status('backupStatus', 'All browser backups deleted. Folder copies are unchanged.'); await this.refreshBackups(); }
-      catch (error) { this.status('backupStatus', errorText(error, 'Delete backups'), 'error'); }
-      if (button) { delete button.dataset.confirm; button.textContent = 'Delete all browser backups'; }
+      // Invalidate queued captures before waiting for the current write, so deleted
+      // images cannot reappear when a previously captured snapshot reaches the queue.
+      ++this.backupGeneration; this.backupPending = '';
+      const job = this.backupQueue.catch(() => {}).then(async () => {
+        try { const db = await this.openDatabase(); const transaction = db.transaction('images', 'readwrite'); const done = transactionDone(transaction); transaction.objectStore('images').clear(); await done; this.status('backupStatus', 'All browser backups deleted. Folder copies are unchanged.'); await this.refreshBackups(); }
+        catch (error) { if (!this.destroyed) this.status('backupStatus', errorText(error, 'Delete backups'), 'error'); }
+        if (button) { delete button.dataset.confirm; button.textContent = 'Delete all browser backups'; }
+        this.render();
+      });
+      this.backupQueue = job; return job;
     }
     stopPrivateResources(reason = 'Microphone and recording stopped for privacy.') {
       this.stopRecording(true); this.stopMic(reason); ++this.qrToken; this.scanning = false; this.qrValue = ''; this.lastCopiedQR = '';
@@ -289,7 +320,7 @@
     }
     setPrivacyShield(active) { this.shield = !!active; if (this.shield) this.stopPrivateResources('Privacy Shield is on. Microphone and recording are off.'); this.render(); }
     getState() { return { micActive: !!this.micStream?.getAudioTracks().some(track => track.readyState === 'live'), micPending: this.micPending, micMuted: this.micMuted, recording: this.recorder?.state === 'recording', backupMode: this.backupMode, backupFolder: this.directory?.name || '', qrScanning: this.scanning, privacyShield: this.shield }; }
-    destroy() { this.destroyed = true; this.stopPrivateResources(); this.listeners.forEach(([target, event, listener]) => target.removeEventListener(event, listener)); this.listeners = []; this.backupUrls.forEach(url => URL.revokeObjectURL(url)); this.backupUrls = []; this.directory = null; this.dbPromise?.then(db => db.close()).catch(() => {}); }
+    destroy() { this.destroyed = true; ++this.backupGeneration; this.backupPending = ''; this.stopPrivateResources(); this.listeners.forEach(([target, event, listener]) => target.removeEventListener(event, listener)); this.listeners = []; this.backupUrls.forEach(url => URL.revokeObjectURL(url)); this.backupUrls = []; this.directory = null; this.dbPromise?.then(db => db.close()).catch(() => {}); }
   }
   let activeInstance;
   window.MeetingLensSessionTools = { init(options) { activeInstance?.destroy(); activeInstance = new SessionTools(options); return activeInstance; } };

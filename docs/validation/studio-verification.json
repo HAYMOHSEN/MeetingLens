@@ -1,70 +1,70 @@
 {
-  "checkedAt": "2026-10-16T11:44:55.174Z",
+  "checkedAt": "2026-10-16T20:04:21.161Z",
   "reports": [
     {
       "name": "Professional demo loads and every desktop panel is reachable",
       "pass": true,
-      "ms": 1311
+      "ms": 1236
     },
     {
       "name": "390px mobile layout has no overflow and all controls stay reachable",
       "pass": true,
-      "ms": 5230
+      "ms": 5234
     },
     {
       "name": "Light and look controls change pixels; enhancement zero matches original",
       "pass": true,
-      "ms": 1848
+      "ms": 1796
     },
     {
       "name": "Side-by-side comparison preserves original left and enhanced right",
       "pass": true,
-      "ms": 1561
+      "ms": 1597
     },
     {
       "name": "Presets save, restore, export and reject invalid imports safely",
       "pass": true,
-      "ms": 1977
+      "ms": 2147
     },
     {
       "name": "Corrupt, hostile and blocked browser storage do not break startup",
       "pass": true,
-      "ms": 4182
+      "ms": 4329
     },
     {
       "name": "Snapshots download real PNG/JPEG and Privacy Shield cancels timer",
       "pass": true,
-      "ms": 4374
+      "ms": 4723
     },
     {
       "name": "Fake camera starts, stops all tracks and Privacy Shield releases camera",
       "pass": true,
-      "ms": 1314
+      "ms": 1415
     },
     {
       "name": "Camera quality changes render size, restart cleanly and never request audio",
       "pass": true,
-      "ms": 1161
+      "ms": 1077
     },
     {
       "name": "Stop and Privacy Shield cancel a delayed camera permission response",
       "pass": true,
-      "ms": 4971
+      "ms": 5087
     },
     {
       "name": "Hidden tab stops camera, stays stopped on return and allows explicit restart",
       "pass": true,
-      "ms": 1066
+      "ms": 1078
     },
     {
       "name": "Camera disconnect clears preview, reports the problem and allows retry",
       "pass": true,
-      "ms": 950
+      "ms": 987
     },
     {
       "name": "Denied camera gives useful feedback and can recover on retry",
       "pass": true,
-      "ms": 901
+      "ms": 905
     }
   ]
 }

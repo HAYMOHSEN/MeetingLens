@@ -5,6 +5,9 @@
   font-family: "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text); background: var(--bg); font-synthesis: none;
 }
+.background-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 18px; }
+.background-actions .control-button { min-height: 36px; padding: 8px 10px; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 6px; }
+#liveBackgroundStatus[data-level="error"] { color: #97413f; }
 * { box-sizing: border-box; }
 html, body { min-width: 320px; margin: 0; }
 button, input, select { font: inherit; }

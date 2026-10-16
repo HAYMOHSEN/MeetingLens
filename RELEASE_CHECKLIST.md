@@ -1,4 +1,4 @@
-# MeetingLens 3.0.0 release checklist
+# MeetingLens 3.1.0 release checklist
 
 Record results for the exact deployed source and generated Windows package being submitted. Unchecked items remain pending. Automated simulations do not establish hardware reliability, native binary compatibility, or Store certification.
 
@@ -19,6 +19,7 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Install development dependencies and run the full test command plus every relevant dedicated suite in package.json.
 - [ ] Review vision, advanced-studio, Photo Lab, session, native-report, background, and offline results; retain actual output.
 - [ ] Verify syntax, manifest paths, licensed bundled dependencies/models, required files, and archives.
+- [ ] Build archives into temporary files and replace the deliverables only after successful close and full extraction/CRC verification. Download the saved archives again and verify their full extraction before sharing.
 - [ ] Run at the deployed repository subpath, not only localhost root.
 - [ ] Review all ten Store screenshots at full size; confirm they show the shipped UI and preserve AI sample labels.
 
@@ -41,11 +42,17 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Confirm local models load from bundled paths with no inference upload.
 - [ ] Move a face across the frame: Auto Framing follows smoothly and falls back sensibly when no face is detected.
 - [ ] Inspect person-blur edges around hair, hands, movement, and difficult backgrounds.
+- [ ] Start a built-in/USB camera and select each of the six scenes; verify the webcam subject, not the fictional sample, appears over the selected interior.
+- [ ] Select a scene before camera start; confirm it activates after camera start and local segmentation becomes ready.
+- [ ] Confirm scene selection loads local models automatically, displays progress, and offers truthful unavailable/retry feedback when the model or WebGL2 bridge is unavailable.
+- [ ] Change scenes and softness during live capture; inspect segmentation, hair/hands, scene framing and sustained responsiveness.
+- [ ] Stall/stop analysis; the actual room returns with status feedback instead of reusing an old mask indefinitely.
+- [ ] Use real background disables both replacement and room blur. Original, Basic preview and zero intensity bypass background processing; test snapshots and original/split comparison as well as the preview.
 - [ ] Compare Portrait Light and skin/teeth refinement at modest strength; check visible artifacts.
 - [ ] Simulate missing model/worker failure: ordinary preview/manual controls remain usable.
 - [ ] Verify no browser UI promises gaze synthesis, NPU selection, or perfect glare removal.
 - [ ] With Windows Studio Effects already active, inspect the result and disable duplicate local effects.
-- [ ] All six sample backgrounds and softness work without blurring the sample foreground.
+- [ ] All six scenes and softness also work with the clearly labeled fictional sample without starting a camera.
 - [ ] Original/split comparison, mirror, guides, presets, imports, PNG/JPEG capture, timers, and cancellation work as labeled.
 
 ## Photo Lab and whiteboard
@@ -91,6 +98,7 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Edge installation and standalone launch work; repeat camera, microphone, privacy, and local-file checks in the generated PWABuilder package.
 - [ ] After initial cache, all three workspaces and bundled models/decoders open offline; test cold reload and cache eviction behavior.
 - [ ] Explicit update activates the next version safely, preserves unrelated caches, and upgrades saved presets.
+- [ ] Upgrade an existing 3.0.1 installation through the Update banner, then test a selected scene with a live camera in 3.1.0.
 - [ ] Keyboard focus, labeled controls, reduced motion, narrow layout, 200% zoom, and readable status messages work.
 - [ ] Partner Center identity, supported Windows versions, permissions, privacy/age declarations, languages, pricing, availability, and support match the actual app.
 - [ ] Store copy and ten screenshots match FEATURE_MATRIX.md; native-only or unfinished integration is not advertised as a PWA feature.

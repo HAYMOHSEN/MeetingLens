@@ -8,7 +8,7 @@ The PWA and native Windows source have different capabilities. Review `native-wi
 - Explicit links to Windows camera and sound settings for system-managed Voice Focus, Multi-App Camera and Basic camera options where available.
 - A DirectShow C++ diagnostic application with webcam enumeration, advertised-mode inspection/selection and real preview; this is an alternative capture path, not a guarantee of raw pixels.
 - Complete Microsoft MIT-licensed virtual-camera provider, installer, manager and tests pinned to a specific upstream commit, plus a script that builds the actual provider DLL and installer console.
-- A Windows build workflow and ten hardware-independent tests for KS binary layout, supported-mode filtering and malformed responses.
+- A Windows build workflow and twelve hardware-independent tests for KS binary layout, supported-mode filtering, malformed responses and exact report serialization.
 - A locally exported capability/status JSON contract so the PWA can explain actual Windows support without pretending to have a live system-control bridge.
 
 ## Native hardware/OS dependencies
@@ -26,4 +26,4 @@ Studio effects are supplied by Windows and the camera driver. NPU support, insta
 
 ## Current validation limit
 
-The managed Windows UI source compiled against 209 official .NET/Windows reference assemblies with warnings treated as errors, and all ten KS protocol tests passed in a Linux harness. Full Windows packaging, the DirectShow/upstream provider C++ builds and physical-device tests have not run in this authoring workspace. The included Windows CI workflow is ready after upload. Browser tests of the PWA are separate evidence and do not certify Windows NPU behavior, virtual-camera routing, microphone Voice Focus or meeting-app compatibility.
+The managed Windows UI source compiled against 209 official .NET/Windows reference assemblies with warnings treated as errors, and all twelve KS protocol/report tests passed in a Linux harness. Full Windows packaging, the DirectShow/upstream provider C++ builds and physical-device tests have not run in this authoring workspace. The included Windows CI workflow is ready after upload. Browser tests of the PWA are separate evidence and do not certify Windows NPU behavior, virtual-camera routing, microphone Voice Focus or meeting-app compatibility.

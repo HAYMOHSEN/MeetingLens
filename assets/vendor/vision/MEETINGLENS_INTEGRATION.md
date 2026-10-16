@@ -11,12 +11,14 @@ const capabilities = await vision.init({
 // Requests are serialized and limited to at most eight starts per second.
 vision.analyze(rawCanvas, performance.now(), {
   face: autoFraming || skinRefinement || teethRefinement,
-  segmentation: backgroundBlur > 0 || portraitLight > 0,
+  segmentation: !!backgroundImage || backgroundBlur > 0 || portraitLight > 0,
   enabled: effectsEnabled
 });
 const analysis = vision.latest;
 vision.process(rawCanvas, processedCanvas, {
   analysis,
+  backgroundImage, // optional decoded HTMLImageElement/canvas for room replacement
+  backgroundSoftness: 3, // selected-scene blur, range 0..36
   backgroundBlur: 12, // CSS-pixel equivalent at 1280px wide, range 0..36
   portraitLight: 0.3, // 0..1, soft local fill light on measured person
   skinSmoothing: 0.2, // 0..1, face oval excluding eyes and lips
@@ -33,6 +35,8 @@ const crop = vision.autoFrameCrop(analysis, rawCanvas.width, rawCanvas.height, 1
 `analyze(source, timestamp, options)` accepts a decoded video, image or canvas and resolves `{face, faceLandmarks, mask, timestamp, inferenceMs}`. `face` is a normalized `{x,y,width,height,eyes:[{x,y},{x,y}],mouth:{x,y}}`; the box has temporal smoothing while individual landmark positions retain measured values. `faceLandmarks` is an array of 478 normalized `{x,y,z}` points. `mask` is a stable HTMLCanvasElement, white RGB with alpha equal to the soft person confidence. For the pinned single-channel SelfieSegmenter, confidence channel 0 is the person mask, as documented in its model card. `mask` is owned/reused by the engine; copy it if a permanent still is needed. Frames are reduced to a maximum dimension of 640 for inference. Disabled/hidden/busy/throttled calls resolve cached results immediately. Set `{force:true}` for a still image. Results older than 1.5 seconds lose their face and mask rather than apply stale tracking indefinitely.
 
 `process(inputCanvas, outputCanvas, options)` is synchronous and returns the output canvas. Both canvases retain input dimensions. `analysis` may be a still-image result. Refinement is restrained image processing guided by actual facial landmarks, rather than a generative face reconstruction. It cannot repair reflections, restore clipped highlights or guarantee correct teeth classification. Background blur uses the actual segmented person matte and preserves a sharp foreground. Segment boundaries can miss fine hair, fingers or fast movement. `compositeBackgroundBlur(source, mask, target, amount)` is also exposed independently.
+
+When `backgroundImage` is ready and a person mask is available, the renderer cover-crops the scene without stretching, applies `backgroundSoftness` only to that scene, and composites the camera foreground using a feathered matte with conservative edge cleanup. Missing or unusable images/masks retain the camera rendering. Read `lastBackgroundApplied` or `lastComposition` after processing to report whether replacement actually succeeded. The studio rejects live analysis older than 1.5 seconds before calling the renderer and resets analysis on camera/privacy changes.
 
 Call `reset()` on camera switch, source change or privacy activation. It discards the cached face/mask, clears captured image canvases, invalidates pending results and releases render-buffer references. Call `dispose()` when the page/app is closed or the engine is explicitly unloaded; this terminates the worker and releases its models. Never label eye contact as available: the engine deliberately reports `eyeContact:false`; true gaze correction belongs to a separately implemented Windows native integration.
 

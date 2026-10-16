@@ -6,6 +6,8 @@
 import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("playwright");
 import { spawn } from "node:child_process";
+import { once } from "node:events";
+import { copyFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -90,6 +92,14 @@ try {
   }
   await browser.close();
   if (errors.length) throw new Error(errors.join("\n"));
+  // Capture the live renderer with a controlled MediaStream and a visible
+  // fictional-person disclosure. This never opens the author's real webcam.
+  const proof = spawn(process.execPath, [resolve(root, "scripts/verify-live-backgrounds.cjs")], {
+    cwd: root, env: { ...process.env, LIVE_BACKGROUND_CHECK: "Choosing a background arms" }, stdio: "inherit"
+  });
+  const [proofExitCode] = await once(proof, "close");
+  if (proofExitCode !== 0) throw new Error("Live background screenshot capture failed.");
+  await copyFile(resolve(root, ".qa/live-background-proof.png"), resolve(root, "assets/store-assets/screenshots/03-background-1920x1080.png"));
   console.log("Captured ten 1920 x 1080 screenshots from the running MeetingLens app.");
 } finally {
   server.kill("SIGTERM");

@@ -59,12 +59,12 @@ std::vector<ComPtr<IMoniker>> Cameras() {
 void PrintFormat(int index, const AM_MEDIA_TYPE* type) {
     LONG width = 0, height = 0;
     REFERENCE_TIME interval = 0;
-    if (type->formattype == FORMAT_VideoInfo && type->cbFormat >= sizeof(VIDEOINFOHEADER)) {
+    if (type->pbFormat && type->formattype == FORMAT_VideoInfo && type->cbFormat >= sizeof(VIDEOINFOHEADER)) {
         const auto header = reinterpret_cast<const VIDEOINFOHEADER*>(type->pbFormat);
         width = header->bmiHeader.biWidth;
         height = header->bmiHeader.biHeight;
         interval = header->AvgTimePerFrame;
-    } else if (type->formattype == FORMAT_VideoInfo2 && type->cbFormat >= sizeof(VIDEOINFOHEADER2)) {
+    } else if (type->pbFormat && type->formattype == FORMAT_VideoInfo2 && type->cbFormat >= sizeof(VIDEOINFOHEADER2)) {
         const auto header = reinterpret_cast<const VIDEOINFOHEADER2*>(type->pbFormat);
         width = header->bmiHeader.biWidth;
         height = header->bmiHeader.biHeight;
@@ -86,8 +86,14 @@ int wmain(int argc, wchar_t** argv) {
         bool interactive = false;
         for (int i = 1; i < argc; ++i) {
             const std::wstring argument = argv[i];
-            if (argument == L"--camera" && i + 1 < argc) deviceIndex = std::stoi(argv[++i]);
-            else if (argument == L"--mode" && i + 1 < argc) modeIndex = std::stoi(argv[++i]);
+            if (argument == L"--camera" && i + 1 < argc) {
+                deviceIndex = std::stoi(argv[++i]);
+                if (deviceIndex < 0) throw std::runtime_error("Camera index must be nonnegative.");
+            }
+            else if (argument == L"--mode" && i + 1 < argc) {
+                modeIndex = std::stoi(argv[++i]);
+                if (modeIndex < 0) throw std::runtime_error("Video mode index must be nonnegative.");
+            }
             else if (argument == L"--preview") preview = true;
             else if (argument == L"--list") list = true;
             else if (argument == L"--interactive") interactive = true;
@@ -119,15 +125,20 @@ int wmain(int argc, wchar_t** argv) {
             Require(configuration->GetNumberOfCapabilities(&count, &size), "Read video-mode count");
             if (size <= 0 || size > 1024 * 1024 || count < 0 || count > 10000) throw std::runtime_error("Invalid driver capability size/count.");
             std::vector<BYTE> capabilityBytes(static_cast<size_t>(size));
+            bool modeApplied = modeIndex < 0;
             for (int i = 0; i < count; ++i) {
                 AM_MEDIA_TYPE* raw = nullptr;
                 const auto read = configuration->GetStreamCaps(i, &raw, capabilityBytes.data());
                 MediaType type(raw);
                 if (FAILED(read) || !type) continue;
                 PrintFormat(i, type.get());
-                if (i == modeIndex) Require(configuration->SetFormat(type.get()), "Apply advertised camera mode");
+                if (i == modeIndex) {
+                    Require(configuration->SetFormat(type.get()), "Apply advertised camera mode");
+                    modeApplied = true;
+                }
             }
             if (modeIndex >= count) throw std::runtime_error("Video mode index out of range.");
+            if (!modeApplied) throw std::runtime_error("The selected video mode could not be read; preview was not started.");
         } else if (modeIndex >= 0) throw std::runtime_error("This camera does not expose DirectShow mode control.");
         if (!preview) return 0;
         std::wcout << L"Basic DirectShow preview. Hardware, driver and system effects may still be present.\n"

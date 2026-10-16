@@ -1,4 +1,4 @@
-# MeetingLens 3.0.0 feature status
+# MeetingLens 3.1.0 feature status
 
 This table describes the implemented source, not certification or proof of compatibility with every device. The installable PWA and the separate native Windows source projects have different capabilities. See VALIDATION.md and RELEASE_CHECKLIST.md for testing.
 
@@ -6,7 +6,7 @@ This table describes the implemented source, not certification or proof of compa
 |---|---|---|
 | Auto Framing | Local MediaPipe face detection drives a smoothed digital crop to follow the detected face. | Native utility exposes the Windows automatic-framing camera control when reported as supported. Neither approach guarantees detection in every pose. |
 | Background Blur | Local person segmentation composites a softer background behind the foreground person. | Native utility can select supported standard/portrait Windows blur modes through KS. Check system effects before adding duplicate local blur. |
-| Professional background replacement | Six interior scenes work with the labeled AI sample portrait. | Live replacement with those scenes is not implemented; live segmentation is used for blur. |
+| Professional background replacement | Selecting a scene enables local person segmentation and composites the webcam subject over one of six interior scenes. Selection can be made before camera start; models load automatically. The scene has adjustable softness. Use real background turns off replacement and blur; Original, Basic preview, and zero intensity bypass processing. Loading, unavailable and stale-analysis states retain the real preview with status feedback. | CPU/WebAssembly models require a WebGL2 texture bridge. Segmentation quality depends on lighting, movement, framing and device performance. The effect applies to MeetingLens preview/snapshots, not another meeting app's camera. |
 | Eye Contact | No browser gaze alteration or simulated eye-contact toggle. | Native utility reads/changes the supported Windows eye-contact modes. Hardware/driver support is required. |
 | Portrait Light | Local fill-light adjustment lifts the foreground; modest highlight handling is not glare reconstruction. | Native utility exposes the supported Windows portrait-light effect through KS. Availability depends on the device. |
 | Voice Focus | Opt-in microphone check requests browser noise suppression, echo cancellation, and automatic gain control, with reported support/status, a meter, and a local test clip up to 60 seconds. | Windows Voice Focus is opened through Sound settings. No proprietary AI voice engine or audio output route to meeting apps is included. |
@@ -25,6 +25,10 @@ This table describes the implemented source, not certification or proof of compa
 | Perspective Whiteboard Mode | Bright-board corner suggestion plus four editable corners; homography rectification, ink cleanup, JPEG export. Import a photo or take a studio snapshot first. | Detection is a heuristic for a bright board outline, not guaranteed semantic board detection. Correct corners manually for unusual lighting or boundaries. |
 | Privacy and error recovery | No capture without user permission; Privacy Shield stops camera/mic, cancels pending work, and clears the temporary audio test; hidden-app stops, stale-request cancellation, recoverable model/device errors. | Physical Windows devices and generated packages still require manual testing. |
 | Offline use | Bundled interface, sample scenes, vision models, and QR decoder are cached after a successful initial load. | Browser storage eviction or a missing first cache requires reconnecting. Browser/device feature support is unchanged offline. |
+
+## Updating an existing installation
+
+Apply the app's Update banner and reload the updated version before testing live replacement. Start the camera, select a scene in Scenes, and allow the bundled local model load to finish. If analysis is unavailable, use the displayed retry guidance; selecting a scene does not establish that segmentation has succeeded. Use real background restores the actual room and disables room blur. A scene chosen for the fictional demo remains a demo until a real camera is started.
 
 ## Native report boundary
 

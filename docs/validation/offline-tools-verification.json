@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-16T11:54:08.314Z",
+  "checkedAt": "2026-10-16T20:06:22.494Z",
   "environment": "Headless Chromium/Linux, SwiftShader WebGL2",
   "offlineAfterSuccessfulFirstInstall": true,
   "physicalWindowsHardwareTested": false,
@@ -7,27 +7,27 @@
     {
       "name": "Real service worker installs every v3 tool and all eight local AI runtime files",
       "passed": true,
-      "ms": 409
+      "ms": 353
     },
     {
       "name": "Offline Photo Lab loads its real whiteboard sample and suggests physical board corners",
       "passed": true,
-      "ms": 3539
+      "ms": 3066
     },
     {
       "name": "Offline Windows capability viewer imports a local report without probing hardware",
       "passed": true,
-      "ms": 554
+      "ms": 555
     },
     {
       "name": "Cached jsQR decoder loads offline and decodes a real QR fixture",
       "passed": true,
-      "ms": 972
+      "ms": 804
     },
     {
       "name": "Offline studio initializes actual cached AI models and detects face and person matte",
       "passed": true,
-      "ms": 2162
+      "ms": 2189
     }
   ],
   "evidence": {
@@ -45,7 +45,7 @@
       {
         "file": "assets/js/photo-workbench.js",
         "cached": true,
-        "bytes": 43987
+        "bytes": 44370
       },
       {
         "file": "assets/js/native-capabilities.js",
@@ -55,12 +55,12 @@
       {
         "file": "assets/js/session-tools.js",
         "cached": true,
-        "bytes": 29105
+        "bytes": 32233
       },
       {
         "file": "assets/js/vision-effects.js",
         "cached": true,
-        "bytes": 15545
+        "bytes": 21935
       },
       {
         "file": "assets/vendor/jsqr/jsQR.js",
@@ -161,23 +161,23 @@
         "errors": {}
       },
       "face": {
-        "x": 0.4237760603427887,
-        "y": 0.2026805430650711,
-        "width": 0.14317938685417175,
-        "height": 0.30393730103969574,
+        "x": 0.42377910017967224,
+        "y": 0.20269106328487396,
+        "width": 0.14317354559898376,
+        "height": 0.3039179593324661,
         "eyes": [
           {
-            "x": 0.4631965160369873,
-            "y": 0.3056587725877762
+            "x": 0.46319781243801117,
+            "y": 0.3056623637676239
           },
           {
-            "x": 0.5233370959758759,
-            "y": 0.29610148072242737
+            "x": 0.5233401954174042,
+            "y": 0.29610371589660645
           }
         ],
         "mouth": {
-          "x": 0.49905145168304443,
-          "y": 0.41505075991153717
+          "x": 0.49905169010162354,
+          "y": 0.41504769027233124
         }
       },
       "landmarks": 478,
@@ -187,7 +187,7 @@
         "foreground": 65270,
         "background": 163138
       },
-      "inferenceMs": 199.59999999962747
+      "inferenceMs": 214.20000000298023
     }
   },
   "errors": []
