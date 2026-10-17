@@ -60,7 +60,7 @@
   <Import Project="packages\Microsoft.Windows.CppWinRT.3.0.260520.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('packages\Microsoft.Windows.CppWinRT.3.0.260520.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
   <Import Project="packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
   <Target Name="RequireRestoredNativeDependencies" BeforeTargets="PrepareForBuild">
-    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.3.0.260520.1\include\winrt\base.h')" Text="Restore VirtualCameraProvider/packages.config to VirtualCameraProvider/packages with NuGet first." />
+    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.3.0.260520.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="Restore VirtualCameraProvider/packages.config to VirtualCameraProvider/packages with NuGet first." />
     <Error Condition="!Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\include\wil\result.h')" Text="Restore VirtualCameraProvider/packages.config to VirtualCameraProvider/packages with NuGet first." />
   </Target>
 </Project>
