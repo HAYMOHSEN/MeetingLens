@@ -1,13 +1,13 @@
 // Adapted from Microsoft Windows-Camera VirtualCamera sample; see LICENSE-Microsoft.txt.
 #include "pch.h"
 BOOL APIENTRY DllMain(HMODULE, DWORD, LPVOID) { return TRUE; }
-HRESULT __stdcall DllCanUnloadNow() noexcept
+HRESULT __stdcall DllCanUnloadNow() 
 {
     if (winrt::get_module_lock()) return S_FALSE;
     winrt::clear_factory_cache();
     return S_OK;
 }
-HRESULT __stdcall DllGetClassObject(REFCLSID clsid, REFIID iid, void** result) noexcept try
+HRESULT __stdcall DllGetClassObject(REFCLSID clsid, REFIID iid, void** result)  try
 {
     RETURN_HR_IF_NULL(E_POINTER, result);
     *result = nullptr;
