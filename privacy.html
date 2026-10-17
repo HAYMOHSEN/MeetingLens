@@ -10,7 +10,7 @@
 <body class="policy-page">
   <main class="policy-card">
     <a class="back-link" href="./">← Back to MeetingLens</a>
-    <p class="eyebrow">Privacy policy · Version 3.2.1 · 17 October 2026</p>
+    <p class="eyebrow">Privacy policy · Version 3.3.0 · 17 October 2026</p>
     <h1>Your camera, photos, and audio stay on your device.</h1>
     <p>MeetingLens is a local camera studio and photo editor. It has no user account, advertising service, built-in analytics, or cloud inference endpoint. The app does not upload camera frames, microphone audio, imported images, reference photos, or capability reports to its publisher.</p>
 
@@ -45,11 +45,10 @@
     <p>The app caches its static interface, icons, sample imagery, vision models, and QR decoder after a successful first load. These cached files are app resources, not recordings of you. The website hosting provider receives ordinary page and static-file requests and may process normal request metadata under its own privacy policy. Local camera, photo, microphone, and report contents are not included in those requests by MeetingLens.</p>
 
     <h2>Meeting-app scope</h2>
-    <p>The standalone PWA processes its own preview and local test audio. The separate Windows MeetingLens Camera application embeds the bundled studio and, after you start meeting output, transfers processed video through local shared memory and a local named pipe to its virtual camera. Meeting applications receive that video when you select the MeetingLens camera in their camera settings. MeetingLens does not upload those frame buffers, save them as recordings, or provide a virtual microphone. Privacy Shield and stopped input clear output; a stalled connection expires its last frame. Meeting applications handle the video they receive under their own privacy policies. The Windows component has separate installation requirements and is not installed by the PWABuilder package.</p>
+    <p>The standalone PWA processes its own preview and local test audio. The separate Windows MeetingLens Camera application embeds the bundled studio and, only after you enable the virtual camera and start meeting output, transfers processed video through local shared memory and a local named pipe to its virtual camera. The virtual camera is created for your current Windows session and is removed when the desktop application closes. Meeting applications receive that video when you select the MeetingLens camera in their camera settings. MeetingLens does not upload those frame buffers, save them as recordings, or provide a virtual microphone. Privacy Shield and stopped input clear output; a stalled connection expires its last frame. Meeting applications handle the video they receive under their own privacy policies. The Windows component has separate installation requirements and is not installed by the PWABuilder package.</p>
 
     <h2>Contact</h2>
-    <p><strong>Required before publication:</strong> replace this paragraph with the real publisher name and a working support email or public support page.</p>
-    <p class="policy-note">Publisher contact is not yet supplied. Complete and review this policy against the shipped app before public release or Store submission.</p>
+    <p>MeetingLens is published by <strong>Jotech</strong>. For support or privacy questions, contact <a href="mailto:haymohsen@gmail.com">haymohsen@gmail.com</a>.</p>
   </main>
 </body>
 </html>
