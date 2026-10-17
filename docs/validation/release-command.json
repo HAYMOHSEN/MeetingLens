@@ -1,83 +1,114 @@
 {
-  "checkedAt": "2026-10-16T21:31:33.087844+00:00",
-  "version": "3.1.1",
+  "checkedAt": "2026-10-16T22:50:54.867142+00:00",
+  "version": "3.2.0",
   "command": "node scripts/verify-release.cjs (npm run test:release)",
   "exitCode": 0,
-  "browserScenarioSuites": 14,
-  "browserScenariosPassed": 140,
+  "browserScenarioSuites": 15,
+  "browserScenariosPassed": 145,
+  "nodeWorkerProtocolSuites": 1,
+  "nodeWorkerProtocolChecksPassed": 5,
+  "totalScenarioChecksPassed": 150,
   "suites": [
     {
       "record": "studio-verification.json",
       "passed": 13,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "background-verification.json",
       "passed": 6,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "advanced-verification.json",
       "passed": 9,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "photo-lab-verification.json",
       "passed": 18,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "session-checks.json",
       "passed": 13,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "native-report-verification.json",
       "passed": 9,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "offline-tools-verification.json",
       "passed": 5,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "shipping-camera-verification.json",
       "passed": 11,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "shipping-photo-verification.json",
       "passed": 7,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "shipping-session-checks.json",
       "passed": 16,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "shipping-shell-verification.json",
       "passed": 6,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "background-compositor-verification.json",
       "passed": 15,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     },
     {
       "record": "live-background-verification.json",
       "passed": 9,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
+    },
+    {
+      "record": "frame-pairing-verification.json",
+      "passed": 5,
+      "failed": 0,
+      "environment": "Headless Chromium"
+    },
+    {
+      "record": "person-worker-verification.json",
+      "passed": 5,
+      "failed": 0,
+      "environment": "Node VM protocol doubles"
     },
     {
       "record": "offline-verification.json",
       "passed": 3,
-      "failed": 0
+      "failed": 0,
+      "environment": "Headless Chromium"
     }
   ],
   "separateVisionModuleVerification": "passed",
+  "productionCameraStillScenesPassed": 6,
+  "productionCameraStillRecord": "production-camera-validation.json",
   "nativeManagedSourceCompilation": "previously passed against 209 official metadata references; native source unchanged",
   "nativeProtocolChecksPassed": 12,
   "physicalWindowsHardwareTested": false,

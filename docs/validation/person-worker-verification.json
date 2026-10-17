@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-10-16T22:47:28.436Z",
+  "fixture": "Deterministic worker protocol doubles; no user image",
+  "checks": [
+    {
+      "name": "Complete person union preserves hair, both skin classes, clothes and accessories",
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "name": "Hardware GPU failure retries the same quality model on CPU and face failure leaves person effects usable",
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "name": "Software or private renderer information stays on CPU while a known hardware renderer enables GPU",
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "name": "Malformed class layouts and nonfinite confidence values fail without publishing a partial person mask",
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "name": "Dispose during initialization cancels the old tasks and allows a clean new model initialization",
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

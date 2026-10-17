@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T22:36:08.832Z",
+  "scenario": "Private real camera still streamed through the actual production camera path",
+  "physicalWindowsHardwareTested": false,
+  "model": "SelfieMulticlass 256\u00d7256",
+  "backend": "CPU/WASM worker",
+  "segmentationDelegate": "CPU",
+  "scenesTested": 6,
+  "foregroundRegionsPerScene": 8,
+  "backgroundRegionsPerScene": 2,
+  "minimumForegroundAlpha": 1,
+  "maximumForegroundRgbDifference": 0,
+  "maximumBackgroundAlpha": 0,
+  "maximumBackgroundSceneRgbDifference": 0,
+  "freshFramePairConditionSatisfiedBeforeEveryMeasurement": true,
+  "framePairMetadataNote": "Canvas readback and encoding delayed metadata collection; one later pair query expired while pixel comparisons remained exact. The app freshness condition was verified before each scene measurement.",
+  "snapshotComparison": {
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "maxRgbDifference": 0,
+    "meanRgbDifference": 0
+  },
+  "uncaughtErrors": 0,
+  "sameOriginOnly": true
+}

@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.0 — 2026-10-17
+
+- Replaced the older square SelfieSegmenter with the bundled SelfieMulticlass 256×256 person model. The foreground combines all non-background classes, including body skin, hair, clothing and accessories, to improve shoulder and arm coverage.
+- Paired each live person mask with the captured camera frame used for analysis. Replacement, room blur, person lighting, split comparison and snapshots use the completed pair rather than applying an older silhouette to a newer pose.
+- Enabled GPU person segmentation for recognized hardware renderers, with the same model on CPU/WebAssembly for software/unknown renderers or failed GPU initialization. Face analysis remains on CPU.
+- Kept bounded frame buffers, stale-analysis fallback and privacy cleanup. Matching-frame output adds processing delay and can lower motion cadence on CPU; the FPS label now counts completed person-effect frame updates as effects and labels ordinary rendering as preview refresh.
+- Updated model attribution, update guidance and English/Arabic Store copy. Fine hair, fingers, lighting and fast motion remain segmentation limitations; no global output-FPS or perfect-outline guarantee is made.
+
+Apply the app's Update banner and reload to cache the replacement model. See VALIDATION.md for the completed checks and their scope. External meeting-app routing and separate native source remain unchanged.
+
 ## 3.1.1 — 2026-10-17
 
 - Reduced the foggy outline around the person during live background replacement with a tighter transition at the person boundary.

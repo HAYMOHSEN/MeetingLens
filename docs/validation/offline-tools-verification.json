@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-16T21:25:49.608Z",
+  "checkedAt": "2026-10-16T22:46:46.725Z",
   "environment": "Headless Chromium/Linux, SwiftShader WebGL2",
   "offlineAfterSuccessfulFirstInstall": true,
   "physicalWindowsHardwareTested": false,
@@ -7,27 +7,27 @@
     {
       "name": "Real service worker installs every v3 tool and all eight local AI runtime files",
       "passed": true,
-      "ms": 356
+      "ms": 391
     },
     {
       "name": "Offline Photo Lab loads its real whiteboard sample and suggests physical board corners",
       "passed": true,
-      "ms": 2838
+      "ms": 2093
     },
     {
       "name": "Offline Windows capability viewer imports a local report without probing hardware",
       "passed": true,
-      "ms": 585
+      "ms": 551
     },
     {
       "name": "Cached jsQR decoder loads offline and decodes a real QR fixture",
       "passed": true,
-      "ms": 1237
+      "ms": 589
     },
     {
       "name": "Offline studio initializes actual cached AI models and detects face and person matte",
       "passed": true,
-      "ms": 2238
+      "ms": 2171
     }
   ],
   "evidence": {
@@ -60,7 +60,7 @@
       {
         "file": "assets/js/vision-effects.js",
         "cached": true,
-        "bytes": 27113
+        "bytes": 27250
       },
       {
         "file": "assets/vendor/jsqr/jsQR.js",
@@ -75,7 +75,7 @@
       {
         "file": "assets/vendor/vision/meetinglens-worker.js",
         "cached": true,
-        "bytes": 4691
+        "bytes": 8600
       },
       {
         "file": "assets/vendor/vision/vision_bundle.js",
@@ -108,13 +108,13 @@
         "bytes": 3758596
       },
       {
-        "file": "assets/models/selfie_segmenter.tflite",
+        "file": "assets/models/person_segmenter_multiclass.tflite",
         "cached": true,
-        "bytes": 249537
+        "bytes": 16371837
       }
     ],
-    "modelBytes": 23581805,
-    "serverRequestsBeforeOffline": 53,
+    "modelBytes": 39708014,
+    "serverRequestsBeforeOffline": 54,
     "httpServerClosed": true,
     "board": {
       "photos": 2,
@@ -157,37 +157,40 @@
         "face": true,
         "segmentation": true,
         "backend": "CPU/WASM worker",
+        "segmentationDelegate": "CPU",
+        "analysisIntervalMs": 125,
+        "personModel": "SelfieMulticlass 256×256",
         "eyeContact": false,
         "errors": {}
       },
       "face": {
-        "x": 0.42378076910972595,
-        "y": 0.20269690454006195,
-        "width": 0.14317038655281067,
-        "height": 0.30390729010105133,
+        "x": 0.4237862229347229,
+        "y": 0.202716663479805,
+        "width": 0.1431599259376526,
+        "height": 0.3038712590932846,
         "eyes": [
           {
-            "x": 0.46319854259490967,
-            "y": 0.3056642860174179
+            "x": 0.46320079267024994,
+            "y": 0.30567046999931335
           },
           {
-            "x": 0.5233418941497803,
-            "y": 0.29610490798950195
+            "x": 0.5233474373817444,
+            "y": 0.2961087077856064
           }
         ],
         "mouth": {
-          "x": 0.4990518391132355,
-          "y": 0.4150460511445999
+          "x": 0.4990522414445877,
+          "y": 0.4150408208370209
         }
       },
       "landmarks": 478,
       "mask": {
         "width": 640,
         "height": 360,
-        "foreground": 65270,
-        "background": 163138
+        "foreground": 64896,
+        "background": 163039
       },
-      "inferenceMs": 189.5
+      "inferenceMs": 400.3999999985099
     }
   },
   "errors": []

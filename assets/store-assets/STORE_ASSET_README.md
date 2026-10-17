@@ -1,4 +1,4 @@
-# MeetingLens 3.1.1 Store Upload Pack
+# MeetingLens 3.2.0 Store Upload Pack
 
 Use these files for the **PWA** listing. English/Arabic copy is in STORE_LISTING.md; the source project includes RELEASE_CHECKLIST.md and FEATURE_MATRIX.md. Native Windows source projects are separate and are not part of the PWABuilder PWA package.
 
@@ -48,8 +48,8 @@ Check the current Partner Center field for accepted size/format. These assets ar
 ## Feature boundaries for the listing
 
 - Auto Framing, live background replacement/blur, and modest landmark-assisted refinement run locally inside the PWA. Selecting one of six scenes loads local segmentation automatically; actual-room fallback and status feedback apply until usable analysis is ready. The labeled fictional sample also demonstrates the scenes without camera access.
-- Version 3.1.1 reduces the foggy person boundary during replacement. Scene softness stays behind the person. Avoid claims of perfect hair/finger separation or guaranteed results under all lighting and motion conditions.
-- Local vision runs through CPU/WebAssembly with a required WebGL2 texture bridge. Effects apply to MeetingLens preview and snapshots; they do not route enhanced video into Zoom or Teams.
+- Version 3.2.0 uses a six-class person model and matching analyzed frames to improve body coverage during replacement. Scene softness stays behind the person. Avoid claims of perfect hair/finger separation or guaranteed results under all lighting and motion conditions.
+- Person segmentation can use recognized hardware GPUs, with the same model on CPU/WebAssembly for software/unknown renderers or GPU initialization failure. Face tracking uses CPU; WebGL2 remains required. Processed motion may be less fluid on CPU. The FPS label distinguishes completed effect updates from ordinary preview refresh; it does not promise a camera capture rate. Effects apply to MeetingLens preview and snapshots; they do not route enhanced video into Zoom or Teams.
 - Photo enhancement and small-object inpainting are local image-processing tools, not cloud/generative reconstruction.
 - Microphone noise suppression depends on browser support and does not route audio into meetings.
 - The PWA does not create a virtual camera or claim browser eye-contact correction/NPU execution.

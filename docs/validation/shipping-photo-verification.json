@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-16T21:26:10.052Z",
+  "checkedAt": "2026-10-16T22:47:07.050Z",
   "checks": [
     {
       "name": "A rejected import retains the edited sample, original and Undo",

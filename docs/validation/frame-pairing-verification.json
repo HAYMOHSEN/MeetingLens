@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-10-16T22:47:40.023Z",
+  "fixture": "Moving synthetic rectangle in real canvas MediaStream; controlled inference timing",
+  "checks": [
+    {
+      "name": "Delayed person masks cut out their own captured pose while the actual camera has moved",
+      "pass": true,
+      "ms": 1249
+    },
+    {
+      "name": "Cached or failed inference cannot attach an old mask to a new pose; the next success recovers",
+      "pass": true,
+      "ms": 1652
+    },
+    {
+      "name": "Hold original and Basic preview show the current camera without waiting for a person mask",
+      "pass": true,
+      "ms": 2376
+    },
+    {
+      "name": "Split comparison and downloaded PNG use the same captured pose as the completed mask",
+      "pass": true,
+      "ms": 1495
+    },
+    {
+      "name": "Shield, stop, camera mute and a hidden tab clear retained pairs and reject late inference",
+      "pass": true,
+      "ms": 4455
+    }
+  ]
+}

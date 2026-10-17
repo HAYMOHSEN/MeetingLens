@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-16T21:26:32.224Z",
+  "checkedAt": "2026-10-16T22:47:28.358Z",
   "environment": "Headless Chromium/Linux; real service worker at a repository subpath",
   "reports": [
     {
@@ -31,18 +31,18 @@
     "localTargets": 52,
     "screenshots": 10,
     "worker": {
-      "scope": "http://127.0.0.1:40493/MeetingLens/",
+      "scope": "http://127.0.0.1:42367/MeetingLens/",
       "keys": [
-        "meetinglens-shell-http://127.0.0.1:40493/MeetingLens/-v3.1.1",
-        "meetinglens-shell-http://127.0.0.1:40493/OtherApp/-v2.0.0",
-        "meetinglens-shell-http://127.0.0.1:40493/-v2.0.0"
+        "meetinglens-shell-http://127.0.0.1:42367/MeetingLens/-v3.2.0",
+        "meetinglens-shell-http://127.0.0.1:42367/OtherApp/-v2.0.0",
+        "meetinglens-shell-http://127.0.0.1:42367/-v2.0.0"
       ],
-      "controller": "http://127.0.0.1:40493/MeetingLens/service-worker.js"
+      "controller": "http://127.0.0.1:42367/MeetingLens/service-worker.js"
     },
     "updatedCacheKeys": [
-      "meetinglens-shell-http://127.0.0.1:40493/OtherApp/-v2.0.0",
-      "meetinglens-shell-http://127.0.0.1:40493/-v2.0.0",
-      "meetinglens-shell-http://127.0.0.1:40493/MeetingLens/-v3.1.1-shipping-check"
+      "meetinglens-shell-http://127.0.0.1:42367/OtherApp/-v2.0.0",
+      "meetinglens-shell-http://127.0.0.1:42367/-v2.0.0",
+      "meetinglens-shell-http://127.0.0.1:42367/MeetingLens/-v3.2.0-shipping-check"
     ]
   },
   "errors": [],

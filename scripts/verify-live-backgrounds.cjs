@@ -46,6 +46,7 @@ async function open({ missingModels = false, delayModels = false } = {}) {
     let painting = false;
     function paint() {
       ctx.fillStyle = window.__liveQA.background; ctx.fillRect(0, 0, 640, 360);
+      if (window.__liveQA.roomImage) ctx.drawImage(window.__liveQA.roomImage, 0, 0, 640, 360);
       const height = 360 * .985, width = portrait.naturalWidth * height / portrait.naturalHeight;
       ctx.drawImage(portrait, (640 - width) / 2, 360 - height, width, height);
       requestAnimationFrame(paint);
@@ -144,9 +145,13 @@ async function run() {
     assert(await page.locator("#liveBackgroundStatus").isVisible(), "Live background status is visible");
     await start(page); await waitMask(page);
     assert(await page.evaluate(() => window.MeetingLensVision.lastBackgroundApplied), "Starting the camera automatically enables real model-based replacement");
-    // A neutral room is appropriate for the shareable proof image. The six-
-    // scene pixel test below deliberately keeps its vivid green discriminator.
-    const changed = await page.evaluate(() => { window.__liveQA.background = "#72777b"; return performance.now(); });
+    // Use an actual photographic room behind the fictional camera portrait in
+    // the shareable proof. The six-scene pixel test below keeps its green
+    // discriminator. The screenshot is still captured from real model output.
+    const changed = await page.evaluate(async () => {
+      const room = new Image(); room.src = "/assets/demo/backgrounds/scandinavian-office.webp";
+      await room.decode(); window.__liveQA.roomImage = room; return performance.now();
+    });
     await page.waitForFunction(timestamp => window.MeetingLensStudio.getAnalysis()?.timestamp > timestamp + 150, changed);
     await settleFrame(page);
     await page.waitForFunction(() => {
@@ -258,17 +263,25 @@ async function run() {
 
   await check("Basic preview and Hold original bypass the live background compositor", async () => {
     const { page, context } = await open(); await start(page);
+    const waitForReplacement = () => page.waitForFunction(() => {
+      const studio = window.MeetingLensStudio, paired = studio.getFramePair();
+      return paired && studio.getAnalysis()?.timestamp === paired.timestamp &&
+        !studio.getState().browserBasic && document.querySelector("#holdOriginalButton").getAttribute("aria-pressed") === "false" &&
+        window.MeetingLensVision.lastBackgroundApplied && /^Live background:/.test(document.querySelector("#liveBackgroundStatus").textContent);
+    }, null, { timeout: 100000 });
     const raw = await pixels(page); await scene(page, "soft"); await waitMask(page);
     assert(difference(raw, await pixels(page)) > 5);
     await page.keyboard.down("c");
-    await page.waitForTimeout(120); assert(difference(raw, await pixels(page)) < .1, "Holding original reveals the actual camera room");
+    await settleFrame(page); assert(difference(raw, await pixels(page)) < .1, "Holding original reveals the actual camera room");
     await page.keyboard.up("c");
-    await page.waitForTimeout(150); assert(difference(raw, await pixels(page)) > 5, "Releasing original restores replacement");
+    // A larger quality model can take longer than 150 ms to resume. Wait for
+    // an actual rendered composition with a fresh matching frame/mask pair.
+    await waitForReplacement(); assert(difference(raw, await pixels(page)) > 5, "Releasing original restores replacement");
     await panel(page, "device"); await page.locator("#browserBasicSwitch").click();
     await settleFrame(page);
     const basicDelta = difference(raw, await pixels(page)); assert(basicDelta < .1, `Basic preview reveals the raw app input (MAE ${basicDelta.toFixed(3)})`);
     assert.equal(await page.evaluate(() => window.MeetingLensStudio.getState().backgroundReplace), true, "Basic mode retains the saved preference");
-    await page.locator("#browserBasicSwitch").click(); await waitMask(page);
+    await page.locator("#browserBasicSwitch").click(); await waitForReplacement();
     assert(difference(raw, await pixels(page)) > 5, "Exiting Basic restores replacement");
     await close(context, page);
   });

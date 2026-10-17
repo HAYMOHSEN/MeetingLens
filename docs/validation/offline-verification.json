@@ -1,8 +1,7 @@
 {
-  "checkedAt": "2026-10-16T21:31:33.087844+00:00",
-  "version": "3.1.1",
+  "checkedAt": "2026-10-16T22:50:54.867142+00:00",
   "command": "node scripts/verify-offline.cjs",
-  "environment": "Headless Chromium/Linux, real service worker",
+  "environment": "Headless Chromium with real service worker",
   "checks": [
     {
       "name": "offline shell, query shortcut and portrait",
@@ -16,6 +15,5 @@
       "name": "user-applied update, old release cleanup and unrelated cache preservation",
       "pass": true
     }
-  ],
-  "notes": "Reviewed successful output from the complete release command. Physical Windows hardware was not tested."
+  ]
 }

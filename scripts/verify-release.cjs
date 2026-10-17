@@ -10,6 +10,7 @@ const suites = [
   "verify-native-report.cjs", "verify-offline-tools.cjs",
   "verify-shipping-camera.cjs", "verify-shipping-photo.cjs",
   "verify-shipping-session.cjs", "verify-shipping-shell.cjs",
+  "verify-person-worker.cjs", "verify-frame-pairing.cjs",
   "verify-background-compositor.cjs", "verify-live-backgrounds.cjs",
   "../assets/vendor/vision/verify-vision.cjs"
 ];

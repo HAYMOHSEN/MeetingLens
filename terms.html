@@ -10,7 +10,7 @@
 <body class="policy-page">
   <main class="policy-card">
     <a class="back-link" href="./">← Back to MeetingLens</a>
-    <p class="eyebrow">Terms of use · Version 3.1.1 · 17 October 2026</p>
+    <p class="eyebrow">Terms of use · Version 3.2.0 · 17 October 2026</p>
     <h1>MeetingLens terms of use</h1>
     <p>MeetingLens provides a local camera preview, photo editing, whiteboard correction, and optional microphone-check tools. Use the app and exported files responsibly, with permission to capture or edit the material involved.</p>
 
@@ -22,7 +22,7 @@
     <p>The sample person is fictional, AI-generated, and labeled. The six interior scenes can replace the room in the live MeetingLens preview using local person segmentation, or appear behind the sample. Live replacement and room blur require successfully loaded models and usable current analysis; the actual room remains visible while analysis is loading, unavailable or stale. Use real background disables replacement and blur. Original, Basic preview and zero enhancement intensity bypass this app's processing; they do not force raw sensor output or remove Windows/driver effects.</p>
 
     <h2>Meeting apps and Windows features</h2>
-    <p>The PWA does not register a system virtual camera or microphone and does not route processed media into third-party meeting apps. Browser microphone processing is distinct from Windows AI Voice Focus. Eye-contact correction and Windows Studio Effects require compatible Windows hardware and are handled by the separate native utility or Windows settings. The browser models use CPU/WebAssembly with a required WebGL2 texture bridge, not an app-selected NPU.</p>
+    <p>The PWA does not register a system virtual camera or microphone and does not route processed media into third-party meeting apps. Browser microphone processing is distinct from Windows AI Voice Focus. Eye-contact correction and Windows Studio Effects require compatible Windows hardware and are handled by the separate native utility or Windows settings. Browser person detection can use a supported GPU with CPU/WebAssembly fallback; WebGL2 remains required. The browser app does not select an NPU. Background processing renders matching frames and masks at inference throughput, which can be slower than the camera input rate.</p>
     <p>Imported native capability reports are read-only snapshots and can become stale. Separate native source projects and virtual-camera reference sources require their own build, hardware validation, packaging, and integration. They are not part of the PWABuilder PWA package.</p>
 
     <h2>Compatibility</h2>

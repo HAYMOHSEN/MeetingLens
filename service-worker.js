@@ -1,7 +1,7 @@
 "use strict";
 const BASE = self.registration.scope;
 const CACHE_PREFIX = `meetinglens-shell-${BASE}-`;
-const CACHE_NAME = `${CACHE_PREFIX}v3.1.1`;
+const CACHE_NAME = `${CACHE_PREFIX}v3.2.0`;
 const url = path => new URL(path, BASE).href;
 const APP_SHELL = [
   "./",
@@ -39,7 +39,7 @@ const MODEL_FILES = [
   "./assets/vendor/vision/meetinglens-worker.js", "./assets/vendor/vision/vision_bundle.js",
   "./assets/vendor/vision/wasm/vision_wasm_internal.js", "./assets/vendor/vision/wasm/vision_wasm_internal.wasm",
   "./assets/vendor/vision/wasm/vision_wasm_nosimd_internal.js", "./assets/vendor/vision/wasm/vision_wasm_nosimd_internal.wasm",
-  "./assets/models/face_landmarker.task", "./assets/models/selfie_segmenter.tflite"
+  "./assets/models/face_landmarker.task", "./assets/models/person_segmenter_multiclass.tflite"
 ].map(url);
 
 self.addEventListener("install", event => {

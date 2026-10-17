@@ -61,6 +61,11 @@
   const sceneFiles = { room: "executive-office", soft: "scandinavian-office", studio: "architect-studio", night: "city-lounge", dawn: "warm-library", slate: "minimal-gallery" };
   const sceneImages = new Map();
   const rawEffectCanvas = document.createElement("canvas"), processedEffectCanvas = document.createElement("canvas");
+  // Keep only the completed frame and one frame being analyzed. A person mask
+  // must cut out the same pixels that produced it, rather than a newer pose.
+  const liveAnalysisFrames = [document.createElement("canvas"), document.createElement("canvas")];
+  let pairedVisionFrame = null, pendingVisionFrame = null, pairedVisionTimestamp = 0, comparisonSource = null;
+  let effectSampleStart = 0, effectSampleFrames = 0, lastEffectFrameAt = 0, measuredEffectFps = null;
   let visionReady = false, visionLoading = false, visionCapabilities = {}, analysis = null, visionPending = false, visionGeneration = 0;
   let lastVisionAt = -Infinity, demoRevision = 0, analyzedDemoRevision = -1, trackingCenter = null, visionRetryTimer = null, replacementRendered = false;
   let sessionTools = null;
@@ -72,8 +77,45 @@
 
   function resetVision() {
     visionGeneration++; analysis = null; trackingCenter = null; lastVisionAt = -Infinity; analyzedDemoRevision = -1; replacementRendered = false;
+    pairedVisionFrame = pendingVisionFrame = comparisonSource = null; pairedVisionTimestamp = 0;
+    resetEffectFrameRate();
+    for (const frame of [...liveAnalysisFrames, rawEffectCanvas, processedEffectCanvas]) clearAnalysisFrame(frame);
     clearTimeout(visionRetryTimer); visionRetryTimer = null;
     window.MeetingLensVision?.reset();
+  }
+  function clearAnalysisFrame(frame) { if (frame) { frame.width = 1; frame.height = 1; } }
+  function resetEffectFrameRate() { effectSampleStart = effectSampleFrames = lastEffectFrameAt = 0; measuredEffectFps = null; }
+  function recordEffectFrame() {
+    const now = performance.now();
+    if (!effectSampleStart || now - lastEffectFrameAt > LIVE_ANALYSIS_MAX_AGE) {
+      effectSampleStart = now; effectSampleFrames = 0; measuredEffectFps = null;
+    } else {
+      effectSampleFrames++;
+      if (now - effectSampleStart >= 1200) {
+        measuredEffectFps = Math.round(effectSampleFrames * 1000 / (now - effectSampleStart));
+        effectSampleStart = now; effectSampleFrames = 0;
+      }
+    }
+    lastEffectFrameAt = now; updateFrameRateLabel();
+  }
+  function updateFrameRateLabel() {
+    if (phase !== "live") { text("fpsLabel", "Sample · still image"); return; }
+    if (cameraMuted) { text("fpsLabel", "Signal paused"); return; }
+    const personEffects = effectsActive() && (state.backgroundBlur || state.portraitLight ||
+      (state.backgroundReplace && sceneImages.get(state.scene)?.status === "ready"));
+    if (personEffects) {
+      const paired = pairedVisionFrame && currentAnalysis()?.timestamp === pairedVisionTimestamp;
+      text("fpsLabel", !paired || measuredEffectFps === null ? "Processing background…" : `${measuredEffectFps} fps · effects`);
+    } else text("fpsLabel", measuredFps === null ? "Measuring preview refresh…" : `${measuredFps} fps · preview refresh`);
+  }
+  function freezeAnalysisFrame(source) {
+    const frame = liveAnalysisFrames.find(candidate => candidate !== pairedVisionFrame && candidate !== pendingVisionFrame);
+    const sw = source?.videoWidth || source?.naturalWidth || source?.width || 0, sh = source?.videoHeight || source?.naturalHeight || source?.height || 0;
+    if (!frame || !sw || !sh) return null;
+    const scale = Math.min(1, (state.quality === "efficient" ? 640 : 1280) / Math.max(sw, sh));
+    frame.width = Math.max(1, Math.round(sw * scale)); frame.height = Math.max(1, Math.round(sh * scale));
+    try { frame.getContext("2d", { alpha: false }).drawImage(source, 0, 0, frame.width, frame.height); return frame; }
+    catch { clearAnalysisFrame(frame); return null; }
   }
   function effectsActive() { return visionReady && !state.browserBasic && !state.originalHeld && state.enhancement > 0 && (state.autoFrame || state.backgroundBlur || state.portraitLight || state.refinement || state.teeth || (state.backgroundReplace && phase === "live")); }
   function currentAnalysis() {
@@ -97,33 +139,57 @@
     finally { visionLoading = false; updateControls(); }
   }
   function scheduleAnalysis(source) {
-    if (!effectsActive() || visionPending || disposed || state.privacy || document.hidden) return;
+    if (!effectsActive() || visionPending || disposed || state.privacy || document.hidden || cameraMuted) return;
     const now = performance.now();
-    if (phase === "live" ? now - lastVisionAt < 200 : analyzedDemoRevision === demoRevision) return;
+    const live = phase === "live", face = state.autoFrame || state.refinement || state.teeth;
+    const segmentation = state.backgroundBlur || state.portraitLight || (state.backgroundReplace && live);
+    const interval = segmentation ? Math.max(face ? 125 : 33, Number(visionCapabilities.analysisIntervalMs) || 125) : 200;
+    if (live ? now - lastVisionAt < interval : analyzedDemoRevision === demoRevision) return;
+    const requestFrame = live && segmentation ? freezeAnalysisFrame(source) : null;
+    if (live && segmentation && !requestFrame) return;
+    pendingVisionFrame = requestFrame;
     lastVisionAt = now; analyzedDemoRevision = demoRevision; visionPending = true;
     const generation = visionGeneration;
-    window.MeetingLensVision.analyze(source, now, { face: state.autoFrame || state.refinement || state.teeth, segmentation: state.backgroundBlur || state.portraitLight || (state.backgroundReplace && phase === "live") }).then(result => {
-      if (generation !== visionGeneration || disposed || state.privacy) return;
+    window.MeetingLensVision.analyze(requestFrame || source, now, { face, segmentation }).then(result => {
+      if (generation !== visionGeneration || disposed || state.privacy || cameraMuted) return;
       if (document.hidden) { analyzedDemoRevision = -1; return; }
       // analyze() can return its previous cache after a recoverable frame error.
-      // A still source needs an explicit retry; it has no next video frame.
-      if (phase !== "live" && (!Number.isFinite(result.timestamp) || result.timestamp < now)) {
-        analyzedDemoRevision = -1;
-        clearTimeout(visionRetryTimer); visionRetryTimer = setTimeout(requestRender, 250);
+      // Never associate those old mask pixels with this request's new frame.
+      if (!Number.isFinite(result?.timestamp) || result.timestamp < now) {
+        if (!live) { analyzedDemoRevision = -1; clearTimeout(visionRetryTimer); visionRetryTimer = setTimeout(requestRender, 250); }
         return;
       }
+      if (requestFrame) {
+        const previous = pairedVisionFrame;
+        pairedVisionFrame = result.mask ? requestFrame : null; pairedVisionTimestamp = result.mask ? result.timestamp : 0;
+        if (previous && previous !== pairedVisionFrame) clearAnalysisFrame(previous);
+      }
       analysis = result;
+      if (requestFrame) { if (result.mask && !state.originalHeld) recordEffectFrame(); else resetEffectFrameRate(); }
       text("trackingStatus", result.face ? "Face located · local tracking active" : state.autoFrame ? "No face located · using the wider frame" : "Local person effects active");
       requestRender();
-    }).catch(() => text("trackingStatus", "Frame analysis paused. Manual preview remains available.")).finally(() => { visionPending = false; if (generation !== visionGeneration) requestRender(); });
+    }).catch(() => { if (generation === visionGeneration && !state.privacy && !document.hidden && !disposed) text("trackingStatus", "Frame analysis paused. Manual preview remains available."); }).finally(() => {
+      if (requestFrame && requestFrame !== pairedVisionFrame) clearAnalysisFrame(requestFrame);
+      if (pendingVisionFrame === requestFrame) pendingVisionFrame = null;
+      visionPending = false; if (generation !== visionGeneration) requestRender();
+    });
   }
   function prepareEffects(source) {
-    replacementRendered = false;
+    replacementRendered = false; comparisonSource = source;
     scheduleAnalysis(source);
     const freshAnalysis = currentAnalysis();
     if (!effectsActive() || !freshAnalysis) {
       if (effectsActive() && analysis && phase === "live") { trackingCenter = null; text("trackingStatus", "Live analysis delayed · using the wider frame and manual preview"); }
       return source;
+    }
+    const scene = sceneImages.get(state.scene);
+    const backgroundImage = phase === "live" && state.backgroundReplace && scene?.status === "ready" ? scene.image : null;
+    if (phase === "live" && (backgroundImage || state.backgroundBlur || state.portraitLight)) {
+      if (!freshAnalysis.mask || !pairedVisionFrame || pairedVisionTimestamp !== freshAnalysis.timestamp) return source;
+      // Hold this complete frame until the next matching result arrives. This
+      // adds inference latency, but cannot erase a newly moved arm with an old
+      // silhouette. Original/Basic paths bypass effects and stay current.
+      source = comparisonSource = pairedVisionFrame;
     }
     const sw = source === video ? video.videoWidth : source.width, sh = source === video ? video.videoHeight : source.height;
     const scale = Math.min(1, (state.quality === "efficient" ? 640 : 1280) / Math.max(sw, sh));
@@ -132,8 +198,6 @@
     rawEffectCanvas.getContext("2d", { alpha: false }).drawImage(source, 0, 0, w, h);
     try {
       const strength = state.enhancement / 100;
-      const scene = sceneImages.get(state.scene);
-      const backgroundImage = phase === "live" && state.backgroundReplace && scene?.status === "ready" ? scene.image : null;
       window.MeetingLensVision.process(rawEffectCanvas, processedEffectCanvas, { analysis: freshAnalysis,
         backgroundImage, backgroundSoftness: backgroundImage ? state.sceneStrength / 100 * 8 * strength : 0,
         backgroundBlur: state.backgroundBlur ? state.blurAmount * strength : 0,
@@ -237,8 +301,9 @@
     for (const id of ["privacyButton", "shieldQuickButton"]) { const el = document.getElementById(id); if (el) { el.setAttribute("aria-pressed", String(state.privacy)); el.classList.toggle("active", state.privacy); } }
     text("privacyButton", state.privacy ? "Deactivate Privacy Shield" : "Activate Privacy Shield");
     $("#shieldQuickButton")?.setAttribute("aria-label", state.privacy ? "Deactivate Privacy Shield" : "Activate Privacy Shield");
-    if (!live) { text("resolutionLabel", `${canvas.width} × ${canvas.height} sample`); text("deviceLabel", "Camera is off"); text("fpsLabel", "Sample · still image"); }
-    else { const track = activeStream?.getVideoTracks()[0]; text("deviceLabel", track?.label || "Connected camera"); text("resolutionLabel", `${canvas.width} × ${canvas.height} output`); text("cameraSetupState", `${video.videoWidth || track?.getSettings?.().width || "—"} × ${video.videoHeight || track?.getSettings?.().height || "—"} input · camera stream is video only`); text("fpsLabel", cameraMuted ? "Signal paused" : measuredFps === null ? "Measuring frames…" : `${measuredFps} fps · preview`); }
+    if (!live) { text("resolutionLabel", `${canvas.width} × ${canvas.height} sample`); text("deviceLabel", "Camera is off"); }
+    else { const track = activeStream?.getVideoTracks()[0]; text("deviceLabel", track?.label || "Connected camera"); text("resolutionLabel", `${canvas.width} × ${canvas.height} output`); text("cameraSetupState", `${video.videoWidth || track?.getSettings?.().width || "—"} × ${video.videoHeight || track?.getSettings?.().height || "—"} input · camera stream is video only`); }
+    updateFrameRateLabel();
     updateBackgroundNotice();
   }
   function clearCameraError() { hide("cameraError", true); text("cameraErrorText", ""); }
@@ -367,11 +432,11 @@
     if (state.privacy || document.hidden || disposed) return;
     if (phase === "starting" || cameraMuted) { replacementRendered = false; clearPreview(); updateLiveBackgroundStatus(); return; }
     let source; if (phase === "live") { if (video.readyState < 2) return; source = video; } else { drawDemoSource(); source = demoCanvas; }
-    const originalSource = source;
     source = prepareEffects(source);
     updateLiveBackgroundStatus();
+    updateFrameRateLabel();
     ctx.save(); ctx.filter = "none"; ctx.fillStyle = "#101825"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore(); drawView(source, state.originalHeld);
-    if (state.split && !state.originalHeld) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, canvas.width / 2, canvas.height); ctx.clip(); drawView(originalSource, true); ctx.restore(); }
+    if (state.split && !state.originalHeld) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, canvas.width / 2, canvas.height); ctx.clip(); drawView(comparisonSource, true); ctx.restore(); }
   }
   function requestRender() { dirty = true; if (!rafId && !document.hidden && !state.privacy && !disposed) rafId = requestAnimationFrame(render); }
   function render(time) {
@@ -418,7 +483,7 @@
       const track = acquired.getVideoTracks()[0]; if (!track || track.readyState === "ended") throw new Error("No active video track");
       activeStream = acquired; video.srcObject = acquired;
       track.addEventListener("ended", () => { if (activeStream !== acquired) return; stopCamera(false, "error"); cameraError("The camera disconnected or stopped. Reconnect it and select Retry."); refreshDevices(); });
-      track.addEventListener("mute", () => { if (activeStream !== acquired || phase !== "live") return; cameraMuted = true; cancelCapture(); clearPreview(); updateCameraUI(); requestRender(); });
+      track.addEventListener("mute", () => { if (activeStream !== acquired || phase !== "live") return; cameraMuted = true; cancelCapture(); resetVision(); clearPreview(); updateCameraUI(); requestRender(); });
       track.addEventListener("unmute", () => { if (activeStream === acquired) { cameraMuted = false; updateCameraUI(); requestRender(); } });
       let playTimeout;
       try {
@@ -521,7 +586,7 @@
       presets.push(...imported.map(item => ({ ...item, id: makeId() }))); writeStorage(PRESETS_KEY, presets); renderPresets(); showToast(`${imported.length} setup${imported.length === 1 ? "" : "s"} imported.`);
     } catch (error) { showToast(error instanceof SyntaxError ? "This file is not valid JSON. Choose an exported MeetingLens setup file." : error.message || "The setup file could not be read."); } finally { input.value = ""; }
   }
-  function setOriginal(held) { if (state.originalHeld === held || state.privacy) return; state.originalHeld = held; updateControls(); requestRender(); }
+  function setOriginal(held) { if (state.originalHeld === held || state.privacy) return; state.originalHeld = held; resetEffectFrameRate(); updateControls(); requestRender(); }
   function isEditing(event) { return Boolean(event.target?.closest?.("input,select,textarea,[contenteditable='true']")); }
   function updateConnection() { text("offlineLabel", navigator.onLine ? "On-device processing" : "Offline · cached studio"); $("#offlineLabel")?.classList.toggle("offline", !navigator.onLine); hide("offlineLabel", navigator.onLine); }
   function registerEvents() {
@@ -559,7 +624,7 @@
     document.addEventListener("keydown", event => { if (isEditing(event) || event.repeat) return; if (event.altKey && event.key.toLowerCase() === "p") { event.preventDefault(); activatePrivacyShield(); } else if (event.altKey && event.key.toLowerCase() === "s") { event.preventDefault(); captureSnapshot(); } else if (!event.ctrlKey && !event.altKey && !event.metaKey && event.key.toLowerCase() === "c") { event.preventDefault(); setOriginal(true); } });
     document.addEventListener("keyup", event => { if (event.key.toLowerCase() === "c") setOriginal(false); }); window.addEventListener("blur", () => setOriginal(false)); on("cameraVideo", "loadedmetadata", updateCameraUI);
     navigator.mediaDevices?.addEventListener?.("devicechange", () => { clearTimeout(deviceRefreshTimer); deviceRefreshTimer = setTimeout(handleDeviceChange, 250); });
-    document.addEventListener("visibilitychange", () => { setOriginal(false); cancelCapture(); if (document.hidden) { if (phase === "starting" || (phase === "live" && state.autoPause)) stopCamera(false, "paused"); else { if (rafId) cancelAnimationFrame(rafId); rafId = 0; sampleStart = 0; sampleFrames = 0; measuredFps = null; } } else { updateCameraUI(); requestRender(); } });
+    document.addEventListener("visibilitychange", () => { setOriginal(false); cancelCapture(); if (document.hidden) { if (phase === "starting" || (phase === "live" && state.autoPause)) stopCamera(false, "paused"); else { resetVision(); clearPreview(); if (rafId) cancelAnimationFrame(rafId); rafId = 0; sampleStart = 0; sampleFrames = 0; measuredFps = null; } } else { updateCameraUI(); requestRender(); } });
     window.addEventListener("pagehide", () => { sessionTools?.stopPrivateResources("App closed"); stopCamera(false); disposed = true; clearTimeout(deviceRefreshTimer); for (const url of objectUrls) URL.revokeObjectURL(url); objectUrls.clear(); });
     window.addEventListener("pageshow", event => { if (event.persisted) { disposed = false; phase = "demo"; updateControls(); requestRender(); } });
     window.addEventListener("beforeinstallprompt", event => { event.preventDefault(); deferredInstallPrompt = event; hide("installButton", false); });
@@ -582,7 +647,9 @@
   portrait.src = "./assets/demo/professional-portrait.webp";
   sessionTools = window.MeetingLensSessionTools?.init({ getCanvas: () => canvas, onStatus: (message, level) => { if (level === "error") showToast(message); } }) || null;
   resizeOutput(); registerEvents(); updateControls(); renderPresets(); storageNotice(); updateConnection(); refreshDevices(); registerServiceWorker(); requestRender();
-  window.MeetingLensStudio = { getState: () => ({ ...sanitize(state), phase, privacy: state.privacy, visionReady, visionPending }), getAnalysis: () => analysis, loadAI: enableVision, stop: () => { sessionTools?.stopPrivateResources("Session stopped"); stopCamera(false); } };
+  window.MeetingLensStudio = { getState: () => ({ ...sanitize(state), phase, privacy: state.privacy, visionReady, visionPending }), getAnalysis: () => analysis,
+    getFramePair: () => pairedVisionFrame && currentAnalysis()?.timestamp === pairedVisionTimestamp ? { timestamp: pairedVisionTimestamp, width: pairedVisionFrame.width, height: pairedVisionFrame.height } : null,
+    loadAI: enableVision, stop: () => { sessionTools?.stopPrivateResources("Session stopped"); stopCamera(false); } };
   const params = new URLSearchParams(location.search); if (Object.prototype.hasOwnProperty.call(panelText, params.get("screen"))) setPanel(params.get("screen"));
   if (params.get("action") === "camera") showToast("Select Start camera when you are ready to grant permission.");
 })();

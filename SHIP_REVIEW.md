@@ -1,6 +1,16 @@
-# MeetingLens 3.1.1 shipping review
+# MeetingLens 3.2.0 shipping review
 
 Reviewed on 17 October 2026. This review covers the supplied source and local browser tests. A deployed public URL or signed Windows package was not supplied for installed-package testing.
+
+## 3.2.0 person detection and frame alignment
+
+Further review showed that sharpening the older model's boundary could not restore shoulders or arms that the detector had classified as background. Separately, applying a completed mask to a newer moving camera frame could cut off a body part that had changed position during inference.
+
+Version 3.2.0 replaces that model with SelfieMulticlass 256×256 and combines every non-background class into the foreground. Live replacement, room blur and person lighting now use a completed analysis with its matching captured camera frame. Split comparison and snapshots use that same pair. The pair is retained while the next analysis runs and expires after 1.5 seconds from capture, returning to the current ordinary preview. Stop, Shield, camera changes and other privacy resets clear the bounded frame buffers and invalidate pending results.
+
+Person segmentation chooses GPU only when browser renderer information identifies supported hardware. Software or unknown renderers use CPU/WebAssembly, and GPU initialization failure retries the same model on CPU. Face tracking remains on CPU. This is not NPU execution or a hardware performance guarantee. Holding matching frames introduces inference delay and can make processed motion less fluid on CPU. The FPS label counts newly completed matching frames as fps · effects while person effects are active, with Processing background… until measurement is available. Ordinary rendering, including Basic preview and Hold original, is labeled fps · preview refresh and uses current video directly. Preview refresh does not measure the camera's physical capture rate.
+
+The model and frame-pairing changes improve a demonstrated failure; they do not guarantee perfect hair, hands, movement or body coverage in every room. Complete physical Windows camera and sustained-performance checks before publication. See the current validation records for measured automated results; private test images are not part of the source or Store pack.
 
 ## 3.1.1 person-boundary correction
 
@@ -26,7 +36,7 @@ Do not release the separate native companion as a tested finished product yet. I
 
 ## Historical 3.0.1 review — completed corrections
 
-The earlier shipping review corrected the defects below in 3.0.1. Those fixes are retained in 3.1.1; they do not establish that later background changes have passed a particular test. Review the current validation records separately.
+The earlier shipping review corrected the defects below in 3.0.1. Those fixes are retained in 3.2.0; they do not establish that later background changes have passed a particular test. Review the current validation records separately.
 
 | Severity | Area | Before | Correction |
 |---|---|---|---|

@@ -1,6 +1,6 @@
 # MeetingLens — Camera Studio and Photo Lab
 
-Version **3.1.1**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
+Version **3.2.0**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
 
 ## Camera studio
 
@@ -13,7 +13,7 @@ Version **3.1.1**. MeetingLens is a Windows-friendly, installable PWA for prepar
 - Save local presets and export/import validated preset files. Download immediate or timed PNG/JPEG snapshots.
 - Stop camera and microphone capture with Privacy Shield. The default hidden-app protection stops the camera, and microphone capture always stops when hidden.
 
-Face tracking, segmentation, and landmark assistance use bundled MediaPipe models in a local worker with CPU/WebAssembly execution. The browser must support WebGL2 for the models' texture bridge. Model errors leave the regular preview and manual controls usable, with an unavailable/retry status rather than a claim that replacement is active. Detection can miss faces, hair, hands, or fast movement; inspect the result. The browser version does not select an NPU or synthesize eye contact.
+Face tracking, segmentation, and landmark assistance use bundled MediaPipe models in a local worker. Version 3.2.0 replaces the older person model with a six-class model that includes hair, exposed skin, clothing and accessories in the foreground. Person segmentation uses the GPU when the browser reports recognized hardware; software or unknown renderers, and GPU initialization failures, use the same model on CPU/WebAssembly. Face tracking remains on CPU. The browser must support WebGL2 even for the CPU model's texture bridge. Model errors leave the regular preview and manual controls usable, with an unavailable/retry status rather than a claim that replacement is active. Detection can still miss faces, hair, hands, or fast movement; inspect the result. The browser version does not select an NPU or synthesize eye contact.
 
 ### Replace your live camera background
 
@@ -23,6 +23,8 @@ Face tracking, segmentation, and landmark assistance use bundled MediaPipe model
 4. Choose **Use real background** to turn off both replacement and room blur. **Original**, **Basic preview**, and zero enhancement intensity also bypass background processing.
 
 After installing an older version, apply the app's **Update** banner and reload the updated app before testing. If no update appears, close and reopen the app online. This feature changes MeetingLens previews and snapshots; it does not change the camera selected in Zoom or Teams.
+
+Live person effects apply each completed mask to the same captured camera frame that produced it. This avoids cutting a newly moved shoulder or arm with an older silhouette. The previous completed frame stays visible while the next analysis runs, so processing introduces delay and can reduce the displayed motion cadence, especially on CPU. With person effects active, the FPS label counts newly completed matching frames as **fps · effects**; it shows **Processing background…** until a measurement is available. Ordinary, Basic and Hold original modes label their rendering cadence **fps · preview refresh**. Neither measurement promises a camera capture rate. If a completed analysis becomes older than 1.5 seconds, the app returns to the current ordinary camera preview. Basic preview and Hold original use the current camera image directly.
 
 ## Photo Lab and whiteboard
 

@@ -10,7 +10,7 @@ const http = require("node:http");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, ".."), reports = [], errors = [], evidence = {};
 const mime = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".wasm": "application/wasm", ".webmanifest": "application/manifest+json", ".webp": "image/webp", ".png": "image/png", ".svg": "image/svg+xml" };
-const modelFiles = ["assets/vendor/vision/meetinglens-worker.js", "assets/vendor/vision/vision_bundle.js", "assets/vendor/vision/wasm/vision_wasm_internal.js", "assets/vendor/vision/wasm/vision_wasm_internal.wasm", "assets/vendor/vision/wasm/vision_wasm_nosimd_internal.js", "assets/vendor/vision/wasm/vision_wasm_nosimd_internal.wasm", "assets/models/face_landmarker.task", "assets/models/selfie_segmenter.tflite"];
+const modelFiles = ["assets/vendor/vision/meetinglens-worker.js", "assets/vendor/vision/vision_bundle.js", "assets/vendor/vision/wasm/vision_wasm_internal.js", "assets/vendor/vision/wasm/vision_wasm_internal.wasm", "assets/vendor/vision/wasm/vision_wasm_nosimd_internal.js", "assets/vendor/vision/wasm/vision_wasm_nosimd_internal.wasm", "assets/models/face_landmarker.task", "assets/models/person_segmenter_multiclass.tflite"];
 // A deterministic 37-module QR fixture for https://meetinglens.example/qr-test.
 // Keeping modules as data avoids runtime QR generation dependencies.
 const qrRows = `0000000000000000000000000000000000000

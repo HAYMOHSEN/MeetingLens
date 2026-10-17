@@ -26,15 +26,16 @@ Both WASM builds are included so the upstream FilesetResolver can select SIMD wh
 - License stated by Google model cards: Apache License 2.0.
 - Additional bundled model cards linked by the official overview: https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker
 
-## Selfie Segmentation model
+## Multiclass person segmentation model
 
-- File: `assets/models/selfie_segmenter.tflite` (249,537 bytes).
-- Google MediaPipe SelfieSegmenter square float16 model, immutable version path **1**, input 256×256.
-- Source: https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite
-- SHA-256: `191ac9529ae506ee0beefa6b2c945a172dab9d07d1e802a290a4e4038226658b`
-- Authors: Tingbo Hou, Siargey Pisarchyk and Karthik Raveendran, Google.
-- Model card: https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MediaPipe%20Selfie%20Segmentation.pdf
+- File: `assets/models/person_segmenter_multiclass.tflite` (16,371,837 bytes).
+- Google MediaPipe SelfieMulticlass 256×256 float32 model, immutable version path **1**. Replaces the earlier single-channel SelfieSegmenter in MeetingLens 3.2.0.
+- Source: https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/1/selfie_multiclass_256x256.tflite
+- SHA-256: `c6748b1253a99067ef71f7e26ca71096cd449baefa8f101900ea23016507e0e0`
+- Author listed by the model card: Adel Ahmadyan, Google. Model date: 10 May 2023.
+- Model card: https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Multiclass%20Segmentation.pdf
 - License stated by model card: Apache License 2.0.
-- Limitations: matte boundaries are estimates; fine features, distance, low light, occlusion and fast movement can reduce quality. Multiple similarly sized people may all be included in the matte. This model is used for local visual effects and is not an identity or surveillance system.
+- Output classes in zero-based API order: background, hair, body-skin, face-skin, clothes, and others/accessories. MeetingLens forms foreground confidence from `1 - backgroundConfidence`, combines all non-background classes, and calibrates that confidence into alpha for compositing.
+- Limitations: boundaries are estimates and are not pixel-perfect masks. Low or back lighting, noise, occlusion and fast motion can reduce quality. More than one person can be included. MeetingLens uses this model only for local visual effects, without identity recognition or surveillance.
 
-Model and runtime download/checksum verification was performed on 2026-10-16. Preserve these notices and the Apache license when redistributing the app.
+Runtime and face-model provenance was recorded on 2026-10-16; replacement person-model provenance was recorded on 2026-10-17. Verify the shipped model bytes against the checksum as part of release packaging. Preserve these notices and the Apache license when redistributing the app.

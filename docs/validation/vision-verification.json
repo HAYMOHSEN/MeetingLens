@@ -1,9 +1,12 @@
 {
-  "testedAt": "2026-10-16T21:29:16.953Z",
+  "testedAt": "2026-10-16T22:50:48.039Z",
   "capabilities": {
     "face": true,
     "segmentation": true,
     "backend": "CPU/WASM worker",
+    "segmentationDelegate": "CPU",
+    "analysisIntervalMs": 125,
+    "personModel": "SelfieMulticlass 256×256",
     "eyeContact": false,
     "errors": {}
   },
@@ -29,20 +32,20 @@
   },
   "landmarks": 478,
   "maskStats": {
-    "opaque": 95774,
-    "transparent": 175323,
-    "partial": 2183,
+    "opaque": 95097,
+    "transparent": 176324,
+    "partial": 1859,
     "total": 273280,
     "center": 255,
     "corner": 0,
-    "silhouetteIoU": 0.9872926007810402
+    "silhouetteIoU": 0.9931862393242414
   },
-  "difference": 6.127265076112412,
+  "difference": 6.117122853239657,
   "blurEvidence": {
     "foregroundMAE": 0,
     "backgroundMAE": 47.29088541666667
   },
-  "inferenceMs": 240.69999999552965,
+  "inferenceMs": 484.30000000447035,
   "concurrent": 6,
   "framing": {
     "x": 54.18079579462773,
@@ -63,11 +66,14 @@
     },
     {
       "state": "ready",
-      "message": "On-device AI ready · CPU/WASM · no camera uploads",
+      "message": "On-device AI ready · CPU/WASM worker · no camera uploads",
       "capabilities": {
         "face": true,
         "segmentation": true,
         "backend": "CPU/WASM worker",
+        "segmentationDelegate": "CPU",
+        "analysisIntervalMs": 125,
+        "personModel": "SelfieMulticlass 256×256",
         "eyeContact": false,
         "errors": {}
       }
@@ -85,7 +91,7 @@
     "/assets/models/face_landmarker.task",
     "/assets/vendor/vision/wasm/vision_wasm_internal.js",
     "/assets/vendor/vision/wasm/vision_wasm_internal.wasm",
-    "/assets/models/selfie_segmenter.tflite",
+    "/assets/models/person_segmenter_multiclass.tflite",
     "/assets/demo/professional-portrait.webp"
   ],
   "errors": []

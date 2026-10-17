@@ -1,6 +1,6 @@
 # MeetingLens — Microsoft Store Listing Pack
 
-Copy for the **3.1.1 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
+Copy for the **3.2.0 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
 
 ## Product identity
 
@@ -9,7 +9,7 @@ Copy for the **3.1.1 PWA release**. Confirm it against the deployed and generate
 | Product name | MeetingLens | MeetingLens |
 | Short title | MeetingLens | MeetingLens |
 | Suggested category | Productivity | الإنتاجية |
-| Version | 3.1.1 | 3.1.1 |
+| Version | 3.2.0 | 3.2.0 |
 
 Reserve the final name in Partner Center. Package identity, supported Windows versions, languages, and declarations must match the actual submitted package.
 
@@ -41,7 +41,7 @@ Session tools offer an optional microphone check with supported browser noise su
 
 Camera, photos, and audio are processed on your device without a cloud upload or account. Privacy Shield stops camera and microphone capture. Camera and microphone permissions are requested separately, and recording and backups start only when you choose.
 
-**Compatibility and scope:** Effects improve the preview and snapshots inside MeetingLens. The PWA does not create a system-wide virtual camera or route processed video/audio into Zoom, Teams, Meet, or other meeting apps. Eye-contact correction and NPU acceleration are not browser features. Local vision uses CPU/WebAssembly and requires WebGL2 support for its texture bridge. Windows camera tools link to supported system settings and can display a locally imported capability report from the separate Windows utility; the report is a snapshot, not a live connection. Hardware, browser support, permissions, and model detection affect availability and results. The offline shell works after a successful first cache.
+**Compatibility and scope:** Effects improve the preview and snapshots inside MeetingLens. The PWA does not create a system-wide virtual camera or route processed video/audio into Zoom, Teams, Meet, or other meeting apps. Eye-contact correction and NPU acceleration are not browser features. Person segmentation uses recognized hardware GPUs when available, with the same model on CPU/WebAssembly when GPU initialization fails or the renderer is software/unknown; face tracking uses CPU. WebGL2 is required. Live person effects display matching analyzed frames, which adds delay and can lower motion cadence, especially on CPU. The FPS label distinguishes completed effect updates from ordinary preview refresh. Windows camera tools link to supported system settings and can display a locally imported capability report from the separate Windows utility; the report is a snapshot, not a live connection. Hardware, browser support, permissions, and model detection affect availability and results. The offline shell works after a successful first cache.
 
 ### Arabic
 
@@ -59,7 +59,7 @@ Camera, photos, and audio are processed on your device without a cloud upload or
 
 تُعالج الكاميرا والصور والصوت على جهازك دون رفعها إلى خدمة سحابية أو إنشاء حساب. توقف ميزة Privacy Shield الكاميرا والميكروفون. تُطلب أذونات الكاميرا والميكروفون بشكل منفصل، ولا يبدأ التسجيل أو النسخ الاحتياطي إلا باختيارك.
 
-**التوافق ونطاق العمل:** تحسّن المؤثرات المعاينة واللقطات داخل MeetingLens. ولا ينشئ إصدار PWA كاميرا افتراضية على مستوى النظام، ولا يرسل الفيديو أو الصوت المعالج إلى Zoom أو Teams أو Meet أو تطبيقات الاجتماعات الأخرى. تصحيح اتجاه النظر وتسريع NPU ليسا ميزتين في المتصفح. تستخدم الرؤية المحلية CPU وWebAssembly وتتطلب دعم WebGL2 لنقل بيانات الصور إلى النماذج. تفتح أدوات كاميرا Windows إعدادات النظام المدعومة، ويمكنها عرض تقرير إمكانات محلي مستورد من أداة Windows المنفصلة؛ والتقرير لقطة لحالة سابقة وليس اتصالاً مباشراً. يعتمد توفر الأدوات ونتائجها على الجهاز والمتصفح والأذونات ونجاح اكتشاف النموذج. تعمل الواجهة دون اتصال بعد اكتمال التخزين الأول بنجاح.
+**التوافق ونطاق العمل:** تحسّن المؤثرات المعاينة واللقطات داخل MeetingLens. ولا ينشئ إصدار PWA كاميرا افتراضية على مستوى النظام، ولا يرسل الفيديو أو الصوت المعالج إلى Zoom أو Teams أو Meet أو تطبيقات الاجتماعات الأخرى. تصحيح اتجاه النظر وتسريع NPU ليسا ميزتين في المتصفح. يستخدم فصل الشخص معالج الرسومات عند التعرّف على عتاد مدعوم؛ ويستخدم النموذج نفسه عبر CPU وWebAssembly عند فشل تهيئة معالج الرسومات أو عند وجود عارض برمجي أو غير معروف. يبقى تتبّع الوجه على المعالج المركزي، ويظل دعم WebGL2 مطلوباً. تعرض مؤثرات الشخص الإطارات المطابقة للتحليل، مما يضيف تأخيراً وقد يخفض سلاسة الحركة، خصوصاً على المعالج المركزي. يميّز مؤشر الإطارات بين تحديثات المؤثرات المكتملة وتحديث المعاينة العادية. تفتح أدوات كاميرا Windows إعدادات النظام المدعومة، ويمكنها عرض تقرير إمكانات محلي مستورد من أداة Windows المنفصلة؛ والتقرير لقطة لحالة سابقة وليس اتصالاً مباشراً. يعتمد توفر الأدوات ونتائجها على الجهاز والمتصفح والأذونات ونجاح اكتشاف النموذج. تعمل الواجهة دون اتصال بعد اكتمال التخزين الأول بنجاح.
 
 ## Product features
 
@@ -119,15 +119,15 @@ camera snapshots
 لقطات الكاميرا
 ~~~
 
-## What's new in 3.1.1
+## What's new in 3.2.0
 
 **English**
 
-Reduced the foggy outline around the person when replacing the camera background. A tighter transition keeps the subject clearer, while scene softness stays behind the person. Fine hair, fingers and fast motion still depend on model detection and camera conditions. All six live backgrounds, automatic local model loading and safe real-room fallback are retained. Existing installations should apply the app's Update banner and reload.
+Upgraded person detection to better retain shoulders, arms, hair and clothing during background replacement. Each mask now renders with the camera frame that produced it, reducing cut-off body parts caused by mismatched frames. Recognized hardware can use GPU person segmentation, with the same-quality model available on CPU. Processed motion may be slower on CPU; the FPS label now distinguishes completed effect updates from preview refresh. All six scenes, local processing and safe real-room fallback remain. Fine details and motion still depend on camera conditions. Apply the app's Update banner and reload an existing installation.
 
 **Arabic**
 
-تقليل الهالة الضبابية حول الشخص عند استبدال خلفية الكاميرا، مع انتقال أدق عند الحواف للحفاظ على وضوح الشخص. تظل نعومة الخلفية مطبّقة خلف الشخص. وتعتمد دقة فصل الشعر الرفيع والأصابع والحركة السريعة على النموذج وظروف التصوير. يحتفظ الإصدار بالخلفيات الست المباشرة والتحميل التلقائي للنماذج المحلية والعودة الآمنة إلى الغرفة الفعلية عند تعذّر التحليل. على المستخدمين الحاليين تطبيق إشعار Update وإعادة تحميل التطبيق.
+ترقية نموذج فصل الشخص للحفاظ بصورة أفضل على الكتفين والذراعين والشعر والملابس عند استبدال الخلفية. يُطبّق قناع الفصل الآن على إطار الكاميرا نفسه الذي أُخذ للتحليل، لتقليل اختفاء أجزاء من الجسم بسبب اختلاف الإطارات. يمكن استخدام معالج الرسومات عند التعرّف على عتاد مدعوم، مع الاحتفاظ بالنموذج نفسه عند المعالجة بالمعالج المركزي. قد تصبح الحركة المعالجة أبطأ على المعالج المركزي؛ ويميّز مؤشر الإطارات الآن بين تحديثات المؤثرات المكتملة وتحديث المعاينة. يحتفظ الإصدار بالخلفيات الست والمعالجة المحلية والعودة الآمنة إلى الغرفة الفعلية. تظل التفاصيل الدقيقة والحركة متأثرة بظروف التصوير. طبّق إشعار Update وأعد تحميل التطبيق لتحديث نسخة سابقة.
 
 ## Screenshot assets and captions
 

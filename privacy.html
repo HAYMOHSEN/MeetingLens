@@ -10,12 +10,12 @@
 <body class="policy-page">
   <main class="policy-card">
     <a class="back-link" href="./">← Back to MeetingLens</a>
-    <p class="eyebrow">Privacy policy · Version 3.1.1 · 17 October 2026</p>
+    <p class="eyebrow">Privacy policy · Version 3.2.0 · 17 October 2026</p>
     <h1>Your camera, photos, and audio stay on your device.</h1>
     <p>MeetingLens is a local camera studio and photo editor. It has no user account, advertising service, built-in analytics, or cloud inference endpoint. The app does not upload camera frames, microphone audio, imported images, reference photos, or capability reports to its publisher.</p>
 
     <h2>Camera and local vision</h2>
-    <p>Camera access is requested when you choose to start it. Frames are processed locally to display the preview, apply adjustments, detect face landmarks for framing and modest refinement, and segment the foreground for room blur or replacement with a selected bundled background. Selecting a scene for a live camera starts loading the bundled local vision models. If the camera is off, model loading waits until you start it. Scene selection does not start the camera or send its frames to a server. The models run on the device through a browser worker and CPU/WebAssembly, using WebGL2 for the texture bridge. These tools detect image regions; they do not identify who you are or create a face-recognition account.</p>
+    <p>Camera access is requested when you choose to start it. Frames are processed locally to display the preview, apply adjustments, detect face landmarks for framing and modest refinement, and segment the foreground for room blur or replacement with a selected bundled background. Selecting a scene for a live camera starts loading the bundled local vision models. If the camera is off, model loading waits until you start it. Scene selection does not start the camera or send its frames to a server. Models run in a browser worker, using GPU acceleration for person detection on supported hardware and CPU/WebAssembly fallback. WebGL2 support and renderer availability are checked locally; renderer details are not saved or uploaded. A bounded pair of camera frames is held temporarily in memory so each mask is applied to its matching frame; those buffers are cleared on reset, stop, hiding the app, or Privacy Shield. These tools detect image regions; they do not identify who you are or create a face-recognition account.</p>
     <p>You can stop capture using Stop or Privacy Shield. The default camera setting also stops capture when the app is hidden; you can change that camera preference. Camera restart requires your action. Your browser and Windows also provide camera-permission controls. Basic preview bypasses MeetingLens effects, but cannot promise removal of effects already applied by Windows or the camera driver.</p>
 
     <h2>Optional microphone check and recording</h2>

@@ -75,7 +75,7 @@
         if (disposed || loadingWorker !== worker) return { ...availability };
         availability = loaded.capabilities;
         const ready = availability.face || availability.segmentation;
-        status(ready ? "ready" : "unavailable", ready ? "On-device AI ready · CPU/WASM · no camera uploads" : "AI models could not load. Camera and manual controls still work.");
+        status(ready ? "ready" : "unavailable", ready ? `On-device AI ready · ${availability.backend} · no camera uploads` : "AI models could not load. Camera and manual controls still work.");
       } catch (error) { if (!disposed && (!loadingWorker || loadingWorker === worker)) failWorker(error, loadingWorker); }
       return { ...availability };
     })();
@@ -86,7 +86,8 @@
   async function analyze(source, timestamp = performance.now(), options = {}) {
     const now = performance.now();
     if (disposed || options.enabled === false || document.hidden || busy || !worker || (!availability.face && !availability.segmentation)) return freshCached();
-    if (!options.force && now - lastStart < 125) return freshCached();
+    const minimumInterval = availability.segmentationDelegate === "GPU" && options.face === false ? 33 : 125;
+    if (!options.force && now - lastStart < minimumInterval) return freshCached();
     const w = source?.videoWidth || source?.naturalWidth || source?.width || 0;
     const h = source?.videoHeight || source?.naturalHeight || source?.height || 0;
     if (!w || !h || (source.readyState !== undefined && source.readyState < 2)) return cached;
