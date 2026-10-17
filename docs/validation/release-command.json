@@ -1,101 +1,101 @@
 {
-  "checkedAt": "2026-10-16T22:50:54.867142+00:00",
-  "version": "3.2.0",
+  "checkedAt": "2026-10-17T05:52:54.269794+00:00",
+  "version": "3.2.1",
   "command": "node scripts/verify-release.cjs (npm run test:release)",
   "exitCode": 0,
   "browserScenarioSuites": 15,
-  "browserScenariosPassed": 145,
+  "browserScenariosPassed": 147,
   "nodeWorkerProtocolSuites": 1,
-  "nodeWorkerProtocolChecksPassed": 5,
-  "totalScenarioChecksPassed": 150,
+  "nodeWorkerProtocolChecksPassed": 8,
+  "totalScenarioChecksPassed": 155,
   "suites": [
     {
       "record": "studio-verification.json",
       "passed": 13,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "background-verification.json",
       "passed": 6,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "advanced-verification.json",
       "passed": 9,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "photo-lab-verification.json",
       "passed": 18,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "session-checks.json",
       "passed": 13,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "native-report-verification.json",
       "passed": 9,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "offline-tools-verification.json",
       "passed": 5,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "shipping-camera-verification.json",
       "passed": 11,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "shipping-photo-verification.json",
       "passed": 7,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "shipping-session-checks.json",
       "passed": 16,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "shipping-shell-verification.json",
       "passed": 6,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "background-compositor-verification.json",
       "passed": 15,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "live-background-verification.json",
-      "passed": 9,
+      "passed": 10,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "frame-pairing-verification.json",
-      "passed": 5,
+      "passed": 6,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     },
     {
       "record": "person-worker-verification.json",
-      "passed": 5,
+      "passed": 8,
       "failed": 0,
       "environment": "Node VM protocol doubles"
     },
@@ -103,12 +103,18 @@
       "record": "offline-verification.json",
       "passed": 3,
       "failed": 0,
-      "environment": "Headless Chromium"
+      "environment": "Headless Chromium 153/Linux"
     }
   ],
   "separateVisionModuleVerification": "passed",
-  "productionCameraStillScenesPassed": 6,
-  "productionCameraStillRecord": "production-camera-validation.json",
+  "slowRealModelResponseDelayMs": 2200,
+  "runtimeGpuRecovery": "protocol doubles; physical GPU untested",
+  "priorSuppliedCameraPhotoRecord": {
+    "versionTested": "3.2.0",
+    "record": "production-camera-validation.json",
+    "unchangedDetectorAndCalibration": true,
+    "rerunForThisVersion": false
+  },
   "nativeManagedSourceCompilation": "previously passed against 209 official metadata references; native source unchanged",
   "nativeProtocolChecksPassed": 12,
   "physicalWindowsHardwareTested": false,

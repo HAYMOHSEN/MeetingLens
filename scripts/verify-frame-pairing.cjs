@@ -15,10 +15,10 @@ async function check(name, fn) {
   catch (error) { reports.push({ name, pass: false, error: error.stack }); console.error(`FAIL ${name}\n${error.stack}`); }
   finally { for (const context of contexts) { await context.close().catch(() => {}); contexts.delete(context); } }
 }
-async function open() {
+async function open({ realBridge = false } = {}) {
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, serviceWorkers: "block", permissions: ["camera"], acceptDownloads: true });
   contexts.add(context);
-  await context.addInitScript(() => {
+  await context.addInitScript(({ realBridge }) => {
     localStorage.setItem("meetinglens-settings", JSON.stringify({ look: "natural", brightness: 50, contrast: 50, saturation: 50,
       enhancement: 100, softness: false, temperature: 0, vignette: 0, scene: "room", sceneStrength: 0,
       zoom: 100, mirror: false, split: false, autoFrame: false, backgroundReplace: false, backgroundBlur: false,
@@ -38,12 +38,46 @@ async function open() {
     let hidden = false;
     Object.defineProperty(document, "hidden", { configurable: true, get: () => hidden });
     window.__pairQA.setHidden = value => { hidden = value; document.dispatchEvent(new Event("visibilitychange")); };
-  });
+    // Exercise the actual vision bridge separately from the direct API double.
+    // Only worker inference is replaced; capture, mask conversion, result age,
+    // paired rendering, comparison and export remain production code.
+    if (realBridge) window.Worker = class {
+      constructor() { this.closed = false; }
+      postMessage(message) {
+        if (message.type === "init") {
+          queueMicrotask(() => this.onmessage?.({ data: { id: message.id, capabilities: {
+            face: true, segmentation: true, backend: "controlled CPU worker", eyeContact: false,
+            segmentationDelegate: "CPU", analysisIntervalMs: 125 } } }));
+          return;
+        }
+        if (message.type !== "analyze") return;
+        const input = document.createElement("canvas"); input.width = message.bitmap.width; input.height = message.bitmap.height;
+        const ctx = input.getContext("2d"); ctx.drawImage(message.bitmap, 0, 0); message.bitmap.close();
+        const row = ctx.getImageData(0, Math.round(input.height / 2), input.width, 1).data;
+        let left = input.width, right = 0;
+        for (let x = 0; x < input.width; x++) if (row[x * 4] > 150 && row[x * 4 + 1] < 130) { left = Math.min(left, x); right = x + 1; }
+        const mask = document.createElement("canvas"); mask.width = input.width; mask.height = input.height;
+        mask.getContext("2d").fillRect(left, Math.round(80 * input.height / 360), right - left, Math.round(240 * input.height / 360));
+        const result = { timestamp: message.timestamp, face: null, faceLandmarks: null,
+          mask: { width: mask.width, height: mask.height, pixels: mask.getContext("2d").getImageData(0, 0, mask.width, mask.height).data } };
+        window.__pairQA.calls.push({ timestamp: message.timestamp, left: left / input.width * 640, right: right / input.width * 640,
+          inputWasVideo: false, release: (mode = "success") => {
+            if (this.closed) return;
+            if (mode === "error") return this.onmessage?.({ data: { id: message.id, error: "Deliberate worker inference error" } });
+            if (mode === "cache") return this.onmessage?.({ data: { id: message.id, result: window.__pairQA.saved } });
+            result.inferenceMs = performance.now() - message.timestamp;
+            window.__pairQA.saved = result;
+            this.onmessage?.({ data: { id: message.id, result } });
+          } });
+      }
+      terminate() { this.closed = true; }
+    };
+  }, { realBridge });
   const page = await context.newPage(); page.setDefaultTimeout(10000); page.__errors = [];
   page.on("pageerror", error => page.__errors.push(error.message));
   await page.goto(base, { waitUntil: "networkidle" });
   await page.waitForFunction(() => !!window.MeetingLensStudio?.getFramePair);
-  await page.evaluate(() => {
+  if (!realBridge) await page.evaluate(() => {
     window.MeetingLensVision.init = async () => ({ face: true, segmentation: true, backend: "controlled protocol", eyeContact: false });
     window.MeetingLensVision.analyze = (source, timestamp) => {
       const frozen = document.createElement("canvas"); frozen.width = source.videoWidth || source.width; frozen.height = source.videoHeight || source.height;
@@ -123,6 +157,42 @@ async function run() {
     assert.deepEqual(Object.keys(meta).sort(), ["height", "timestamp", "width"]);
     assert.equal(meta.width, 640); assert.equal(meta.height, 360);
     assert.equal(await page.evaluate(() => window.__pairQA.calls[0].inputWasVideo), false, "The inference input is a frozen frame");
+    await close(context, page);
+  });
+
+  await check("Slow successful worker results apply their matching frame and expire from completion rather than capture time", async () => {
+    const { page, context } = await open({ realBridge: true }); await arm(page);
+    await pose(page, 430);
+    await page.waitForFunction(() => performance.now() - window.__pairQA.calls[0].timestamp > 1800);
+    const firstTimestamp = await release(page, 0);
+    await page.waitForFunction(t => window.MeetingLensStudio.getFramePair()?.timestamp === t, firstTimestamp);
+    const first = await page.evaluate(() => ({
+      age: performance.now() - window.MeetingLensStudio.getAnalysis().timestamp,
+      completedAt: window.MeetingLensStudio.getAnalysis().completedAt,
+      bridgeHasMask: Boolean(window.MeetingLensVision.latest.mask),
+      completedAge: performance.now() - window.MeetingLensStudio.getAnalysis().completedAt
+    }));
+    assert(first.age > 1800, "A successful inference older than the old capture-age cutoff is deliberately tested");
+    assert(first.bridgeHasMask, "The real vision bridge keeps a newly completed slow mask");
+    assert(Number.isFinite(first.completedAt) && first.completedAge < 500, "Completion freshness is recorded after inference finishes");
+    let pixels = await preview(page);
+    assert(redAt(pixels, 120) && !redAt(pixels, 480), "The late mask uses its own older pose, without erasing the current pose");
+    await waitNext(page, 1);
+    await page.waitForFunction(t => performance.now() - t > 1700, first.completedAt);
+    assert.equal((await pair(page))?.timestamp, firstTimestamp, "A healthy slow result remains visible while the next comparable inference is pending");
+    await page.waitForFunction(t => performance.now() - t > 5200, first.completedAt);
+    await settle(page);
+    assert.equal(await pair(page), null, "A subsequent stalled worker expires the displayed completed pair");
+    assert.equal(await page.evaluate(() => Boolean(window.MeetingLensVision.latest.mask)), false, "The real bridge also expires an idle completed mask");
+    pixels = await preview(page); assert(redAt(pixels, 480) && !redAt(pixels, 120), "A genuine stall returns to the current camera pixels");
+    const secondTimestamp = await release(page, 1);
+    await page.waitForFunction(t => window.MeetingLensStudio.getFramePair()?.timestamp === t, secondTimestamp);
+    pixels = await preview(page); assert(redAt(pixels, 480) && !redAt(pixels, 120), "The next slow success recovers a new matching pair");
+    assert.match(await page.locator("#fpsLabel").innerText(), /fps · effects$/, "Slow successful effects report their measured rate after another completed result");
+    const completedAt = await page.evaluate(() => window.MeetingLensStudio.getAnalysis().completedAt);
+    await waitNext(page, 2); await release(page, 2, "cache");
+    assert.equal((await pair(page)).timestamp, secondTimestamp, "A cached old result cannot attach to a newer requested frame");
+    assert.equal(await page.evaluate(() => window.MeetingLensVision.latest.completedAt), completedAt, "A cached response cannot renew the old mask's completion time");
     await close(context, page);
   });
 

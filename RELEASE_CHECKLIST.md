@@ -1,4 +1,4 @@
-# MeetingLens 3.2.0 release checklist
+# MeetingLens 3.2.1 release checklist
 
 Record results for the exact deployed source and generated Windows package being submitted. Unchecked items remain pending. Automated simulations do not establish hardware reliability, native binary compatibility, or Store certification.
 
@@ -41,7 +41,7 @@ Record results for the exact deployed source and generated Windows package being
 
 - [ ] Confirm local models load from bundled paths with no inference upload.
 - [ ] Verify the bundled six-class person model and SHA-256 against its attribution; the foreground must include all non-background classes, not only skin or clothing.
-- [ ] Verify reported person-segmentation delegate on recognized hardware; test CPU use for software/unknown renderers and fallback when GPU initialization fails. Confirm both paths use the same model.
+- [ ] Verify reported person-segmentation delegate on recognized hardware; test CPU use for software/unknown renderers and fallback when GPU initialization or execution fails. Confirm both paths use the same model, that execution recovery retries the exact retained frame, and that capabilities/backend reflect the actual CPU delegate after recovery.
 - [ ] Move a face across the frame: Auto Framing follows smoothly and falls back sensibly when no face is detected.
 - [ ] Inspect person-blur edges around hair, hands, movement, and difficult backgrounds.
 - [ ] Start a built-in/USB camera and select each of the six scenes; verify the webcam subject, not the fictional sample, appears over the selected interior.
@@ -49,7 +49,10 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Confirm scene selection loads local models automatically, displays progress, and offers truthful unavailable/retry feedback when the model or WebGL2 bridge is unavailable.
 - [ ] Change scenes and softness during live capture; inspect segmentation, hair/hands, scene framing and sustained responsiveness.
 - [ ] Move shoulders and arms while replacement, room blur and Portrait Light are active. Verify each mask uses its matching camera frame, including split comparison and exported snapshots.
-- [ ] Simulate slow analysis and verify fps · effects counts new completed matching-frame pairs, while ordinary/Original/Basic rendering uses fps · preview refresh. Confirm Processing background… appears before sufficient effect measurements; preview refresh must not be described as camera-input FPS. Check that no stale silhouette is applied to a newer pose, and that the current ordinary preview returns when the completed pair expires.
+- [ ] Complete successful person analysis taking longer than 1.5 seconds; verify replacement and room blur activate with the matching captured frame instead of discarding the result immediately.
+- [ ] Verify completion-age expiry stays within 1.5–5 seconds according to actual request duration, with the normal 1.5-second stall limit for fast processing. Cached/error/repeated results must not refresh completion time or overwrite the accepted frame. Face-only tracking must retain capture-age expiry.
+- [ ] Simulate slow analysis and verify fps · effects counts new completed matching-frame pairs and retains decimal rates below 10, while ordinary/Original/Basic rendering uses fps · preview refresh. Processing background… appears with no usable pair and Measuring effects… while the available pair's rate is sampled; preview refresh must not be described as camera-input FPS. Confirm the current ordinary preview returns when the completed pair expires.
+- [ ] Simulate malformed confidence output and failed CPU recovery; do not report a working replacement or retain a false GPU capability. Ordinary preview/manual controls must remain usable.
 - [ ] Shield, stop, switch camera and hide the app during pending analysis; late results must not restore cleared frame buffers or private pixels.
 - [ ] Stall/stop analysis; the actual room returns with status feedback instead of reusing an old mask indefinitely.
 - [ ] Use real background disables both replacement and room blur. Original, Basic preview and zero intensity bypass background processing; test snapshots and original/split comparison as well as the preview.
@@ -103,7 +106,7 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Edge installation and standalone launch work; repeat camera, microphone, privacy, and local-file checks in the generated PWABuilder package.
 - [ ] After initial cache, all three workspaces and bundled models/decoders open offline; test cold reload and cache eviction behavior.
 - [ ] Explicit update activates the next version safely, preserves unrelated caches, and upgrades saved presets.
-- [ ] Upgrade an existing 3.0.1, 3.1.0 or 3.1.1 installation through the Update banner, then verify the replacement model is cached and test a selected scene with a live camera in 3.2.0.
+- [ ] Upgrade an existing 3.0.1, 3.1.0, 3.1.1 or 3.2.0 installation through the Update banner, then verify model caching and test a selected scene with a live camera in 3.2.1, including successful slow analysis and GPU-to-CPU execution recovery.
 - [ ] Inspect shoulders, arms, hair and fingers against both dark and light scenes. Confirm the body boundary is clear without a broad translucent halo, excessive trimming or jagged edges. Check while still and moving; repeat with built-in and USB webcams.
 - [ ] Keyboard focus, labeled controls, reduced motion, narrow layout, 200% zoom, and readable status messages work.
 - [ ] Partner Center identity, supported Windows versions, permissions, privacy/age declarations, languages, pricing, availability, and support match the actual app.

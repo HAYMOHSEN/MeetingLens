@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-10-16T22:50:54.867142+00:00",
+  "checkedAt": "2026-10-17T05:52:54.269794+00:00",
   "command": "node scripts/verify-offline.cjs",
-  "environment": "Headless Chromium with real service worker",
+  "environment": "Headless Chromium 153 with real service worker",
   "checks": [
     {
       "name": "offline shell, query shortcut and portrait",

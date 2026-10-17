@@ -66,7 +66,7 @@
   const liveAnalysisFrames = [document.createElement("canvas"), document.createElement("canvas")];
   let pairedVisionFrame = null, pendingVisionFrame = null, pairedVisionTimestamp = 0, comparisonSource = null;
   let effectSampleStart = 0, effectSampleFrames = 0, lastEffectFrameAt = 0, measuredEffectFps = null;
-  let visionReady = false, visionLoading = false, visionCapabilities = {}, analysis = null, visionPending = false, visionGeneration = 0;
+  let visionReady = false, visionLoading = false, visionCapabilities = {}, analysis = null, analysisCompletedAt = 0, analysisValidForMs = 1500, visionPending = false, visionGeneration = 0;
   let lastVisionAt = -Infinity, demoRevision = 0, analyzedDemoRevision = -1, trackingCenter = null, visionRetryTimer = null, replacementRendered = false;
   let sessionTools = null;
   const LIVE_ANALYSIS_MAX_AGE = 1500;
@@ -76,7 +76,7 @@
     effects: ["Live effects", "LOCAL CAMERA INTELLIGENCE"], session: ["Voice, QR & backup", "SESSION TOOLS"] };
 
   function resetVision() {
-    visionGeneration++; analysis = null; trackingCenter = null; lastVisionAt = -Infinity; analyzedDemoRevision = -1; replacementRendered = false;
+    visionGeneration++; analysis = null; analysisCompletedAt = 0; analysisValidForMs = LIVE_ANALYSIS_MAX_AGE; trackingCenter = null; lastVisionAt = -Infinity; analyzedDemoRevision = -1; replacementRendered = false;
     pairedVisionFrame = pendingVisionFrame = comparisonSource = null; pairedVisionTimestamp = 0;
     resetEffectFrameRate();
     for (const frame of [...liveAnalysisFrames, rawEffectCanvas, processedEffectCanvas]) clearAnalysisFrame(frame);
@@ -87,12 +87,12 @@
   function resetEffectFrameRate() { effectSampleStart = effectSampleFrames = lastEffectFrameAt = 0; measuredEffectFps = null; }
   function recordEffectFrame() {
     const now = performance.now();
-    if (!effectSampleStart || now - lastEffectFrameAt > LIVE_ANALYSIS_MAX_AGE) {
+    if (!effectSampleStart) {
       effectSampleStart = now; effectSampleFrames = 0; measuredEffectFps = null;
     } else {
       effectSampleFrames++;
       if (now - effectSampleStart >= 1200) {
-        measuredEffectFps = Math.round(effectSampleFrames * 1000 / (now - effectSampleStart));
+        measuredEffectFps = Math.round(effectSampleFrames * 10000 / (now - effectSampleStart)) / 10;
         effectSampleStart = now; effectSampleFrames = 0;
       }
     }
@@ -105,7 +105,8 @@
       (state.backgroundReplace && sceneImages.get(state.scene)?.status === "ready"));
     if (personEffects) {
       const paired = pairedVisionFrame && currentAnalysis()?.timestamp === pairedVisionTimestamp;
-      text("fpsLabel", !paired || measuredEffectFps === null ? "Processing background…" : `${measuredEffectFps} fps · effects`);
+      const rate = measuredEffectFps === null ? null : measuredEffectFps < 10 ? measuredEffectFps.toFixed(1) : Math.round(measuredEffectFps);
+      text("fpsLabel", !paired ? "Processing background…" : rate === null ? "Measuring effects…" : `${rate} fps · effects`);
     } else text("fpsLabel", measuredFps === null ? "Measuring preview refresh…" : `${measuredFps} fps · preview refresh`);
   }
   function freezeAnalysisFrame(source) {
@@ -119,9 +120,13 @@
   }
   function effectsActive() { return visionReady && !state.browserBasic && !state.originalHeld && state.enhancement > 0 && (state.autoFrame || state.backgroundBlur || state.portraitLight || state.refinement || state.teeth || (state.backgroundReplace && phase === "live")); }
   function currentAnalysis() {
-    // A slow or stalled worker must not pin a moving camera to an old face or
-    // person mask. Still samples deliberately keep their completed analysis.
-    if (phase === "live" && analysis && (!Number.isFinite(analysis.timestamp) || performance.now() - analysis.timestamp > LIVE_ANALYSIS_MAX_AGE)) return null;
+    // A completed person mask uses its retained camera frame, so its lifetime
+    // starts on completion. Face-only tracking still follows capture age.
+    // Both paths expire if the worker stops returning fresh results.
+    const paired = analysis?.mask && pairedVisionFrame && pairedVisionTimestamp === analysis.timestamp;
+    const freshnessAt = paired ? analysisCompletedAt : analysis?.timestamp;
+    const validForMs = paired ? analysisValidForMs : LIVE_ANALYSIS_MAX_AGE;
+    if (phase === "live" && analysis && (!Number.isFinite(freshnessAt) || performance.now() - freshnessAt > validForMs)) return null;
     return analysis;
   }
   async function enableVision() {
@@ -131,6 +136,11 @@
     try {
       visionCapabilities = await window.MeetingLensVision.init({ onStatus: status => {
         text("visionStatus", status.message || "Checking local models…");
+        if (status.capabilities && status.state === "ready") {
+          visionCapabilities = { ...status.capabilities };
+          visionReady = Boolean(visionCapabilities.face || visionCapabilities.segmentation);
+          updateControls();
+        }
         if (status.state === "error" || status.state === "unavailable") { visionReady = false; updateControls(); }
       } });
       visionReady = Boolean(visionCapabilities.face || visionCapabilities.segmentation);
@@ -164,9 +174,11 @@
         pairedVisionFrame = result.mask ? requestFrame : null; pairedVisionTimestamp = result.mask ? result.timestamp : 0;
         if (previous && previous !== pairedVisionFrame) clearAnalysisFrame(previous);
       }
-      analysis = result;
+      analysis = result; analysisCompletedAt = performance.now();
+      analysisValidForMs = Math.max(LIVE_ANALYSIS_MAX_AGE, Math.min(5000, (analysisCompletedAt - result.timestamp) * 2.5));
       if (requestFrame) { if (result.mask && !state.originalHeld) recordEffectFrame(); else resetEffectFrameRate(); }
-      text("trackingStatus", result.face ? "Face located · local tracking active" : state.autoFrame ? "No face located · using the wider frame" : "Local person effects active");
+      const slow = result.mask && analysisCompletedAt - result.timestamp > LIVE_ANALYSIS_MAX_AGE;
+      text("trackingStatus", (result.face ? "Face located · local tracking active" : state.autoFrame ? "No face located · using the wider frame" : "Local person effects active") + (slow ? " · slower processing on this device" : ""));
       requestRender();
     }).catch(() => { if (generation === visionGeneration && !state.privacy && !document.hidden && !disposed) text("trackingStatus", "Frame analysis paused. Manual preview remains available."); }).finally(() => {
       if (requestFrame && requestFrame !== pairedVisionFrame) clearAnalysisFrame(requestFrame);

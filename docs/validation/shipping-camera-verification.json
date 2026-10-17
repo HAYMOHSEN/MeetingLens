@@ -1,60 +1,60 @@
 {
-  "generatedAt": "2026-10-16T22:47:02.014Z",
+  "generatedAt": "2026-10-17T05:47:07.002Z",
   "checks": [
     {
       "name": "Local vision retries a transient initialization error without reloading",
       "pass": true,
-      "ms": 1016
+      "ms": 1072
     },
     {
       "name": "A model response with no usable capabilities can be retried",
       "pass": true,
-      "ms": 630
+      "ms": 659
     },
     {
       "name": "A stale event from a replaced worker cannot disable its replacement",
       "pass": true,
-      "ms": 630
+      "ms": 658
     },
     {
       "name": "A partial model load keeps supported effects usable and offers recovery",
       "pass": true,
-      "ms": 955
+      "ms": 1083
     },
     {
       "name": "Retrying a partial model load safely settles old in-flight analysis",
       "pass": true,
-      "ms": 645
+      "ms": 668
     },
     {
       "name": "Live preview drops stale masks and face crops while inference is stalled",
       "pass": true,
-      "ms": 3389
+      "ms": 3420
     },
     {
       "name": "Still sample effects remain available after the live freshness limit",
       "pass": true,
-      "ms": 2800
+      "ms": 2879
     },
     {
       "name": "Still sample retries an inference result discarded while the tab was hidden",
       "pass": true,
-      "ms": 1046
+      "ms": 1062
     },
     {
       "name": "Still sample recovers from a transient empty-cache inference result",
       "pass": true,
-      "ms": 1250
+      "ms": 1306
     },
     {
       "name": "Explicit update restart immediately stops camera, mic and private recording",
       "pass": true,
-      "ms": 1340
+      "ms": 1360
     },
     {
       "name": "Camera device copy accurately scopes video-only input while microphone is active",
       "pass": true,
-      "ms": 1216
+      "ms": 1262
     }
   ]
 }

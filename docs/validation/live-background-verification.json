@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-16T22:50:45.833Z",
+  "checkedAt": "2026-10-17T05:52:45.977Z",
   "realBundledModelInference": true,
   "cameraInput": "Actual browser MediaStream from canvas.captureStream, not a physical webcam",
   "physicalWindowsHardwareTested": false,
@@ -7,79 +7,84 @@
     {
       "name": "Choosing a background arms replacement without camera permission; Start loads real local models automatically",
       "pass": true,
-      "ms": 10801
+      "ms": 13988
+    },
+    {
+      "name": "A successful real-model frame still applies after a slow inference response",
+      "pass": true,
+      "ms": 26867
     },
     {
       "name": "All six scenes replace an actual MediaStream room while preserving measured foreground pixels",
       "pass": true,
-      "ms": 50594
+      "ms": 73435
     },
     {
       "name": "Use real background restores camera pixels and turns both replacement and blur off",
       "pass": true,
-      "ms": 20825
+      "ms": 32063
     },
     {
       "name": "Delayed local model loading keeps the live room usable and applies only the latest selected scene",
       "pass": true,
-      "ms": 16558
+      "ms": 23140
     },
     {
       "name": "Missing local models preserve the real camera and expose a retryable background failure",
       "pass": true,
-      "ms": 10379
+      "ms": 14673
     },
     {
       "name": "Late scene image responses cannot overwrite the latest live background selection",
       "pass": true,
-      "ms": 11598
+      "ms": 16503
     },
     {
       "name": "Basic preview and Hold original bypass the live background compositor",
       "pass": true,
-      "ms": 32483
+      "ms": 46056
     },
     {
       "name": "Stalled live inference drops expired segmentation instead of freezing an old cutout",
       "pass": true,
-      "ms": 17425
+      "ms": 20978
     },
     {
       "name": "Privacy Shield rejects pending masks, stops real tracks and safely restores replacement after restart",
       "pass": true,
-      "ms": 11093
+      "ms": 19049
     }
   ],
   "sceneMeasurements": [
     {
       "value": "room",
-      "foregroundMAE": 0.00792731577999125,
-      "backgroundMAE": 87.65999387254902
+      "foregroundMAE": 0.007923522571749041,
+      "backgroundMAE": 87.6606792665588
     },
     {
       "value": "soft",
-      "foregroundMAE": 0.010212853576300415,
-      "backgroundMAE": 99.87146446078431
+      "foregroundMAE": 0.010207966741785778,
+      "backgroundMAE": 99.87037105129839
     },
     {
       "value": "studio",
-      "foregroundMAE": 0.0027127892312047977,
-      "backgroundMAE": 63.96407475490196
+      "foregroundMAE": 0.002891571224235689,
+      "backgroundMAE": 63.969744325145854
     },
     {
       "value": "night",
-      "foregroundMAE": 0.0031606310966978096,
-      "backgroundMAE": 69.88303513071895
+      "foregroundMAE": 0.003334053653567129,
+      "backgroundMAE": 69.88811263094246
     },
     {
       "value": "dawn",
-      "foregroundMAE": 0.008992870563405657,
-      "backgroundMAE": 84.95201388888889
+      "foregroundMAE": 0.008967986910752323,
+      "backgroundMAE": 84.95105897926166
     },
     {
       "value": "slate",
-      "foregroundMAE": 0.007680230612822691,
-      "backgroundMAE": 84.20464052287582
+      "foregroundMAE": 0.007733152224245979,
+      "backgroundMAE": 84.20534474023958
     }
   ]
 }

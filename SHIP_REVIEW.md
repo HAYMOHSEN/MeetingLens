@@ -1,12 +1,22 @@
-# MeetingLens 3.2.0 shipping review
+# MeetingLens 3.2.1 shipping review
 
 Reviewed on 17 October 2026. This review covers the supplied source and local browser tests. A deployed public URL or signed Windows package was not supplied for installed-package testing.
+
+## 3.2.1 background activation and runtime recovery
+
+A successful analysis taking more than 1.5 seconds could arrive already expired: both the vision cache and studio compared the result's capture timestamp with the current time. The background could therefore remain inactive even while the model repeatedly completed valid person masks.
+
+Version 3.2.1 records genuine completion time separately. A person mask remains paired with the exact frame that produced it, and its lifetime is measured from completion with a bounded 1.5–5-second allowance based on the observed successful request duration. Fast processing keeps the normal 1.5-second stall limit. Cached, repeated, mismatched or failed responses cannot renew this allowance, and face-only tracking retains its capture-age limit. Privacy resets still clear retained frames and reject pending results. This trades bounded delayed-frame display for a usable effect on slower devices; it is not a motion-performance guarantee.
+
+GPU model creation could also succeed while later execution failed. The worker now releases that GPU task, creates the same person model on CPU and retries the exact retained bitmap/timestamp. A successful retry updates backend and capability status. Invalid confidence output remains an explicit error rather than being hidden by delegate fallback; a failed CPU retry leaves segmentation unavailable with ordinary preview/manual tools usable.
+
+Effect-rate measurement retains slower decimal rates rather than resetting solely because one inference took more than 1.5 seconds. Processing background… means no usable pair; Measuring effects… means a pair is available while its update rate is sampled. Final verification results are recorded separately in VALIDATION.md. Physical Windows camera, GPU and generated-package behavior remain unverified until the release checklist is completed.
 
 ## 3.2.0 person detection and frame alignment
 
 Further review showed that sharpening the older model's boundary could not restore shoulders or arms that the detector had classified as background. Separately, applying a completed mask to a newer moving camera frame could cut off a body part that had changed position during inference.
 
-Version 3.2.0 replaces that model with SelfieMulticlass 256×256 and combines every non-background class into the foreground. Live replacement, room blur and person lighting now use a completed analysis with its matching captured camera frame. Split comparison and snapshots use that same pair. The pair is retained while the next analysis runs and expires after 1.5 seconds from capture, returning to the current ordinary preview. Stop, Shield, camera changes and other privacy resets clear the bounded frame buffers and invalidate pending results.
+Version 3.2.0 replaced that model with SelfieMulticlass 256×256 and combined every non-background class into the foreground. Live replacement, room blur and person lighting use a completed analysis with its matching captured camera frame. Split comparison and snapshots use that same pair. The initial 1.5-second capture-age expiry was subsequently corrected in 3.2.1 as described above. Stop, Shield, camera changes and other privacy resets clear the bounded frame buffers and invalidate pending results.
 
 Person segmentation chooses GPU only when browser renderer information identifies supported hardware. Software or unknown renderers use CPU/WebAssembly, and GPU initialization failure retries the same model on CPU. Face tracking remains on CPU. This is not NPU execution or a hardware performance guarantee. Holding matching frames introduces inference delay and can make processed motion less fluid on CPU. The FPS label counts newly completed matching frames as fps · effects while person effects are active, with Processing background… until measurement is available. Ordinary rendering, including Basic preview and Hold original, is labeled fps · preview refresh and uses current video directly. Preview refresh does not measure the camera's physical capture rate.
 
@@ -36,7 +46,7 @@ Do not release the separate native companion as a tested finished product yet. I
 
 ## Historical 3.0.1 review — completed corrections
 
-The earlier shipping review corrected the defects below in 3.0.1. Those fixes are retained in 3.2.0; they do not establish that later background changes have passed a particular test. Review the current validation records separately.
+The earlier shipping review corrected the defects below in 3.0.1. Those fixes are retained in 3.2.1; they do not establish that later background changes have passed a particular test. Review the current validation records separately.
 
 | Severity | Area | Before | Correction |
 |---|---|---|---|

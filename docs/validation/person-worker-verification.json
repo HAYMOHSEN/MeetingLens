@@ -1,16 +1,26 @@
 {
-  "generatedAt": "2026-10-16T22:47:28.436Z",
+  "generatedAt": "2026-10-17T05:47:33.749Z",
   "fixture": "Deterministic worker protocol doubles; no user image",
   "checks": [
     {
       "name": "Complete person union preserves hair, both skin classes, clothes and accessories",
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "name": "Hardware GPU failure retries the same quality model on CPU and face failure leaves person effects usable",
       "pass": true,
       "ms": 1
+    },
+    {
+      "name": "A GPU execution failure retries the same frame and model on CPU and keeps CPU for later frames",
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "name": "Failed CPU recovery releases both person tasks and reports unavailable segmentation while keeping face tracking",
+      "pass": true,
+      "ms": 2
     },
     {
       "name": "Software or private renderer information stays on CPU while a known hardware renderer enables GPU",
@@ -20,10 +30,15 @@
     {
       "name": "Malformed class layouts and nonfinite confidence values fail without publishing a partial person mask",
       "pass": true,
-      "ms": 3
+      "ms": 5
     },
     {
       "name": "Dispose during initialization cancels the old tasks and allows a clean new model initialization",
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "name": "Dispose during GPU recovery closes the obsolete CPU task without publishing old pixels or capabilities",
       "pass": true,
       "ms": 1
     }

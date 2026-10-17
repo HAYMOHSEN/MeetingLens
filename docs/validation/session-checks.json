@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-16T22:46:39.739Z",
+  "testedAt": "2026-10-17T05:46:40.251Z",
   "environment": "Headless Chromium with synthetic microphone; simulated folder API; real IndexedDB and jsQR fixture decoding",
   "checks": [
     {

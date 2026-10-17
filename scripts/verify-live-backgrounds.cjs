@@ -170,6 +170,35 @@ async function run() {
     await close(context, page);
   });
 
+  await check("A successful real-model frame still applies after a slow inference response", async () => {
+    const { page, context } = await open();
+    await page.evaluate(() => {
+      const LocalWorker = window.Worker;
+      window.Worker = class extends LocalWorker {
+        constructor(...args) {
+          super(...args);
+          this.addEventListener("message", event => {
+            const deliver = () => this.frameHandler?.call(this, event);
+            if (event.data?.result) setTimeout(deliver, 2200); else deliver();
+          });
+        }
+        set onmessage(handler) { this.frameHandler = handler; }
+        get onmessage() { return this.frameHandler || null; }
+      };
+    });
+    await start(page); const raw = await pixels(page);
+    await scene(page, "studio");
+    await page.waitForFunction(() => {
+      const studio = window.MeetingLensStudio, result = studio.getAnalysis();
+      return result?.mask && result.completedAt - result.timestamp > 2000 && studio.getFramePair() &&
+        window.MeetingLensVision.lastBackgroundApplied && /^Live background:/.test(document.querySelector("#liveBackgroundStatus").textContent);
+    }, null, { timeout: 100000 });
+    const frame = await pixels(page), mask = await alpha(page);
+    assert(difference(raw, frame, i => mask[i] < 10) > 8, "A newly completed slow mask replaces the actual camera room");
+    assert(difference(raw, frame, i => mask[i] > 248) < 4, "A slow mask preserves pixels from its matching camera frame");
+    await close(context, page);
+  });
+
   await check("All six scenes replace an actual MediaStream room while preserving measured foreground pixels", async () => {
     const { page, context } = await open(); await start(page);
     const raw = await pixels(page), scenePixels = [];

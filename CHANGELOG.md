@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.1 — 2026-10-17
+
+- Fixed live backgrounds remaining inactive when successful person analysis took longer than 1.5 seconds. Genuine new results now record completion time, and matching captured-frame masks have a bounded 1.5–5-second lifetime measured from completion according to actual analysis duration. Fast results retain the normal 1.5-second stall limit; face tracking still expires by capture age.
+- Prevented cached, repeated, mismatched or failed responses from refreshing mask expiry or replacing a valid captured-frame pair.
+- Extended same-model CPU recovery to GPU execution failures after successful initialization. The worker retries the exact retained input frame and updates the active backend/capabilities; invalid confidence output remains an explicit error.
+- Kept usable effects visible during slower processing, displayed decimal effect rates below 10 fps and distinguished background processing from rate measurement. Slow device cadence remains a limitation, not a promised camera/output rate.
+
+Apply the app's Update banner and reload an existing installation. See VALIDATION.md for the completed verification evidence and its limits. Physical Windows hardware and generated-package testing remain separate; this update does not add meeting-app routing or NPU execution.
+
 ## 3.2.0 — 2026-10-17
 
 - Replaced the older square SelfieSegmenter with the bundled SelfieMulticlass 256×256 person model. The foreground combines all non-background classes, including body skin, hair, clothing and accessories, to improve shoulder and arm coverage.

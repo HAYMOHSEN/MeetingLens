@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-16T22:50:48.039Z",
+  "testedAt": "2026-10-17T05:52:48.631Z",
   "capabilities": {
     "face": true,
     "segmentation": true,
@@ -45,7 +45,7 @@
     "foregroundMAE": 0,
     "backgroundMAE": 47.29088541666667
   },
-  "inferenceMs": 484.30000000447035,
+  "inferenceMs": 586.8000000007451,
   "concurrent": 6,
   "framing": {
     "x": 54.18079579462773,
@@ -62,6 +62,20 @@
         "segmentation": false,
         "backend": "unavailable",
         "eyeContact": false
+      }
+    },
+    {
+      "state": "ready",
+      "message": "On-device AI ready · CPU/WASM worker · no camera uploads",
+      "capabilities": {
+        "face": true,
+        "segmentation": true,
+        "backend": "CPU/WASM worker",
+        "segmentationDelegate": "CPU",
+        "analysisIntervalMs": 125,
+        "personModel": "SelfieMulticlass 256×256",
+        "eyeContact": false,
+        "errors": {}
       }
     },
     {

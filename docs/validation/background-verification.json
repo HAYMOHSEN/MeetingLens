@@ -1,15 +1,15 @@
 {
-  "checkedAt": "2026-10-16T22:45:37.349Z",
+  "checkedAt": "2026-10-17T05:45:19.429Z",
   "reports": [
     {
       "name": "All six photographic scenes decode and both thumbnail sets use their matching photograph",
       "pass": true,
-      "ms": 996
+      "ms": 977
     },
     {
       "name": "Scene switches visibly replace surroundings and preserve the centered portrait",
       "pass": true,
-      "ms": 6115,
+      "ms": 7230,
       "minimumBackgroundDifference": 62.082320601851855,
       "portraitDifference": [
         {
@@ -41,24 +41,24 @@
     {
       "name": "Background softness changes surroundings without blurring the portrait face",
       "pass": true,
-      "ms": 3481,
+      "ms": 4169,
       "backgroundMeanChannelDifference": 39.58351736829998,
       "faceMeanChannelDifference": 0.01934243565599498
     },
     {
       "name": "A slow old image cannot overwrite the last selected scene after rapid clicks",
       "pass": true,
-      "ms": 24985
+      "ms": 28708
     },
     {
       "name": "A missing background shows a usable neutral fallback and recovers on another scene",
       "pass": true,
-      "ms": 599
+      "ms": 570
     },
     {
       "name": "Zero intensity bypasses selected live backgrounds and Privacy Shield clears the camera",
       "pass": true,
-      "ms": 11982
+      "ms": 14869
     }
   ]
 }

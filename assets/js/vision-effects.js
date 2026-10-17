@@ -9,7 +9,7 @@
   const maskCanvas = canvas(), captureCanvas = canvas();
   let worker = null, initializing = null, busy = false, nextID = 1, lastStart = -Infinity;
   let lastFaceAt = 0, failureCount = 0, disposed = false, statusCallback = () => {};
-  let cached = { face: null, faceLandmarks: null, mask: null, timestamp: 0, inferenceMs: 0 };
+  let cached = { face: null, faceLandmarks: null, mask: null, timestamp: 0, completedAt: 0, validForMs: 1500, inferenceMs: 0 };
   let availability = { face: false, segmentation: false, backend: "unavailable", eyeContact: false };
   const pending = new Map();
   let renderBuffers = new WeakMap();
@@ -17,8 +17,18 @@
   let cancelGeneration = 0;
   let lastComposition = { mode: "source", reason: null };
   function freshCached() {
-    return cached.timestamp && performance.now() - cached.timestamp > 1500
-      ? { ...cached, face: null, faceLandmarks: null, mask: null, stale: true } : cached;
+    const now = performance.now();
+    const captureStale = cached.timestamp && now - cached.timestamp > 1500;
+    // The app retains the exact camera frame that produced a person mask. A
+    // slow successful result is usable when it arrives, even if its capture is
+    // older than the normal face-tracking lifetime. Cached/error paths never
+    // refresh completedAt, so an abandoned result still expires promptly.
+    const maskStale = cached.completedAt && now - cached.completedAt > cached.validForMs;
+    return captureStale || maskStale ? { ...cached,
+      face: captureStale ? null : cached.face,
+      faceLandmarks: captureStale ? null : cached.faceLandmarks,
+      mask: maskStale ? null : cached.mask,
+      stale: Boolean(maskStale || (captureStale && !cached.mask)) } : cached;
   }
 
   function status(state, message, details = {}) {
@@ -40,7 +50,7 @@
     for (const task of pending.values()) { clearTimeout(task.timer); task.reject(error); }
     pending.clear(); worker?.terminate(); worker = null;
     availability = { face: false, segmentation: false, backend: "unavailable", eyeContact: false };
-    cached = { ...cached, face: null, faceLandmarks: null, mask: null };
+    cached = { ...cached, face: null, faceLandmarks: null, mask: null, completedAt: 0, validForMs: 1500 };
     status("error", "Local AI is unavailable. Camera and manual controls still work.", { error: error.message });
   }
   async function init({ onStatus } = {}) {
@@ -54,7 +64,7 @@
     for (const task of pending.values()) { clearTimeout(task.timer); task.reject(new Error("Local models are restarting.")); }
     pending.clear(); worker?.terminate(); worker = null;
     availability = { face: false, segmentation: false, backend: "unavailable", eyeContact: false };
-    cached = { ...cached, face: null, faceLandmarks: null, mask: null };
+    cached = { ...cached, face: null, faceLandmarks: null, mask: null, completedAt: 0, validForMs: 1500 };
     const operation = (async () => {
       if (!window.Worker || !window.OffscreenCanvas || !window.createImageBitmap || !window.WebAssembly) {
         status("unavailable", "This browser cannot run local AI effects. Use current Microsoft Edge or Chrome.");
@@ -68,6 +78,14 @@
         worker.onmessage = event => {
           const task = pending.get(event.data.id); if (!task) return;
           clearTimeout(task.timer); pending.delete(event.data.id);
+          if (event.data.capabilities) {
+            const previous = availability;
+            availability = { ...event.data.capabilities };
+            if (previous.backend !== availability.backend || previous.segmentation !== availability.segmentation || previous.face !== availability.face) {
+              status(availability.face || availability.segmentation ? "ready" : "unavailable",
+                availability.segmentation ? `On-device AI ready · ${availability.backend} · no camera uploads` : "Background detection is unavailable. Other available controls still work.");
+            }
+          }
           if (event.data.error) task.reject(new Error(event.data.error)); else task.resolve(event.data);
         };
         worker.onerror = event => failWorker(new Error(event.message || "Local vision worker stopped."), loadingWorker);
@@ -101,6 +119,9 @@
       if (generation !== cancelGeneration || disposed || !worker) { bitmap.close(); return cached; }
       const { result } = await request("analyze", { bitmap, timestamp, options: { face: options.face !== false, segmentation: options.segmentation !== false } }, [bitmap], 20000);
       if (generation !== cancelGeneration || disposed) return cached;
+      // An old worker reply must not renew the usable lifetime of its mask or
+      // overwrite the pixels attached to the currently completed camera frame.
+      if (!Number.isFinite(result?.timestamp) || result.timestamp < timestamp || (cached.timestamp && result.timestamp <= cached.timestamp)) return freshCached();
       // Smooth only the framing rectangle. Landmark masks retain their measured positions.
       if (result.face) {
         const previous = cached.face;
@@ -118,7 +139,12 @@
         maskCanvas.getContext("2d").putImageData(new ImageData(result.mask.pixels, result.mask.width, result.mask.height), 0, 0);
         result.mask = maskCanvas;
       }
-      cached = { ...result, face: options.face === false ? null : result.face, faceLandmarks: result.faceLandmarks || null };
+      const completedAt = performance.now();
+      // Slow but progressing devices keep a complete frame while the next one
+      // is analyzed. Even the slowest accepted pair expires within five seconds
+      // of its last genuine completion if processing stalls.
+      const validForMs = Math.max(1500, Math.min(5000, (completedAt - timestamp) * 2.5));
+      cached = { ...result, completedAt, validForMs, face: options.face === false ? null : result.face, faceLandmarks: result.faceLandmarks || null };
       failureCount = 0;
       return freshCached();
     } catch (error) {
@@ -393,7 +419,7 @@
     captureCanvas.width = captureCanvas.height = maskCanvas.width = maskCanvas.height = 1;
     renderBuffers = new WeakMap();
     edgeMasks = new WeakMap();
-    cached = { face: null, faceLandmarks: null, mask: null, timestamp: 0, inferenceMs: 0 };
+    cached = { face: null, faceLandmarks: null, mask: null, timestamp: 0, completedAt: 0, validForMs: 1500, inferenceMs: 0 };
   }
   function dispose() {
     disposed = true; reset(); worker?.terminate(); worker = null;

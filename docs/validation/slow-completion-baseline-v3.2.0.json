@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-10-17T05:40:04.115Z",
+  "reproductionConfirmed": true,
+  "fixture": "Unchanged production vision bridge and exact production currentAnalysis function, deterministic worker completion clock",
+  "conclusion": "A successful inference taking more than 1500 ms is rejected twice immediately on completion, so backgrounds cannot appear on slow devices.",
+  "checks": [
+    {
+      "simulatedInferenceMs": 500,
+      "requestTimestamp": 600,
+      "completionTimestamp": 1100,
+      "bridgedMaskPresent": true,
+      "bridgedStaleFlag": false,
+      "appAcceptsValidMask": true
+    },
+    {
+      "simulatedInferenceMs": 1499,
+      "requestTimestamp": 1600,
+      "completionTimestamp": 3099,
+      "bridgedMaskPresent": true,
+      "bridgedStaleFlag": false,
+      "appAcceptsValidMask": true
+    },
+    {
+      "simulatedInferenceMs": 1501,
+      "requestTimestamp": 3599,
+      "completionTimestamp": 5100,
+      "bridgedMaskPresent": false,
+      "bridgedStaleFlag": true,
+      "appAcceptsValidMask": false
+    },
+    {
+      "simulatedInferenceMs": 2200,
+      "requestTimestamp": 5600,
+      "completionTimestamp": 7800,
+      "bridgedMaskPresent": false,
+      "bridgedStaleFlag": true,
+      "appAcceptsValidMask": false
+    },
+    {
+      "simulatedInferenceMs": 5000,
+      "requestTimestamp": 8300,
+      "completionTimestamp": 13300,
+      "bridgedMaskPresent": false,
+      "bridgedStaleFlag": true,
+      "appAcceptsValidMask": false
+    }
+  ],
+  "versionTested": "3.2.0"
+}

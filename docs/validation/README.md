@@ -1,10 +1,10 @@
 # Release validation evidence
 
-These JSON records accompany MeetingLens 3.2.0. The final serial command has **145 browser scenarios across fifteen browser suites**, plus **five Node worker-protocol checks**, for **150 behavioral checks**. The real bundled-vision module runs separately and is not counted again. Historical native source/protocol evidence contains a separate twelve checks. See ../../VALIDATION.md for the final command status, measured vision results, matching-frame/body-edge tests and hardware limitations.
+These JSON records accompany MeetingLens 3.2.1. The serial command has **147 browser scenarios across fifteen browser suites**, plus **eight Node worker-protocol checks**, for **155 behavioral checks**. The real bundled-vision module runs separately. Historical native source/protocol evidence contains a separate twelve checks. See ../../VALIDATION.md for command status, vision results, slow-completion and runtime-fallback coverage, and hardware limitations.
 
-Final record refresh status: **completed**. The records reflect the successful v3.2.0 serial command, the separate real-vision result and the sanitized supplied-camera check. The unchanged native evidence retains its historical scope.
+Final record refresh status: **completed after the successful v3.2.1 serial run**.
 
-Browser records use local fixtures and synthetic camera/microphone streams on Linux. production-camera-validation.json is a sanitized numerical report from a supplied camera still streamed through the actual production camera path with all six backgrounds. It records exact sampled foreground/background preservation and PNG agreement; it is not a physical Windows hardware or live-motion test. No supplied camera image, personal photo, recording, private path or intermediate render is included here.
+Browser records use local fixtures and synthetic camera/microphone streams on Linux. production-camera-validation.json retains the v3.2.0 sanitized supplied-camera check with all six backgrounds; the model/calibration are unchanged. It was not rerun for v3.2.1 and is not physical Windows hardware or live-motion evidence. No supplied camera image, personal photo, recording, private path or intermediate render is included here.
 
 The reports do not certify Windows hardware, sustained effect cadence, physical-GPU performance, full native packaging, C++ builds, NPU performance or meeting-app routing. Matching-frame processing adds delay and may reduce motion cadence on CPU. The interface distinguishes newly completed person-effect frames from ordinary preview refresh; refresh is not camera capture FPS.
 

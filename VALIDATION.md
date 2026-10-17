@@ -1,12 +1,12 @@
-# MeetingLens 3.2.0 validation record
+# MeetingLens 3.2.1 validation record
 
 Checked for the **17 October 2026** release. This is development evidence for the tested configuration, not Microsoft Store certification or proof of compatibility with every webcam. Browser tests ran in headless Chromium on Linux; camera/microphone flows used synthetic media and controlled events unless otherwise stated.
 
 ## Release regression scope
 
-The current release command covers **145 browser checks across fifteen browser suites**, plus **five Node worker-protocol checks**, for **150 behavioral checks**. The real bundled-vision verification runs separately in the same command; historical native checks are also separate.
+The current release command covers **147 browser checks across fifteen browser suites**, plus **eight Node worker-protocol checks**, for **155 behavioral checks**. The real bundled-vision verification runs separately in the same command; historical native checks are also separate.
 
-Final serial command result: **passed, exit code 0**. All 145 browser scenarios and five Node worker-protocol checks passed, followed by the separate real bundled-vision verification.
+Final serial command result: **passed, exit code 0; 147 browser checks and eight Node checks passed**.
 
 | Browser suite | Checks | What the checks exercise |
 |---|---:|---|
@@ -23,8 +23,8 @@ Final serial command result: **passed, exit code 0**. All 145 browser scenarios 
 | Shipping session — scripts/verify-shipping-session.cjs | 16 | Backup mode/picker/deletion races, recorder callback isolation, tied-time retention, database retry/late connection closure, quota/write aborts, QR privacy and late microphone cleanup. |
 | Shipping shell — scripts/verify-shipping-shell.cjs | 6 | Local links/assets, manifest scope/dimensions, actual repository-path service worker, 320/768/1366 layouts/named controls, offline pages and scoped update/cache cleanup. |
 | Background compositor — scripts/verify-background-compositor.cjs | 15 | Actual scene/person compositing, foreground preservation, aspect-cover cropping, scene-only softness, matte edge cleanup, narrower confidence transitions, exact clothing texture, partial hair coverage, smooth diagonal boundaries, unavailable-image/mask fallback, real bundled segmentation and browser errors. |
-| Live backgrounds — scripts/verify-live-backgrounds.cjs | 9 | All six scenes on a controlled MediaStream, automatic model loading, actual PNG export, real-room restore, delayed/missing models, scene-loading races, original/Basic bypass, stale masks, Shield and camera restart. |
-| Matching frames — scripts/verify-frame-pairing.cjs | 5 | Moving captured poses with delayed analysis, cached/failed inference recovery, current Original/Basic preview, matching split comparison and actual PNG export, and Shield/stop/mute/hidden-state buffer cleanup with late-result rejection. |
+| Live backgrounds — scripts/verify-live-backgrounds.cjs | 10 | All six scenes on a controlled MediaStream, automatic model loading, actual PNG export, real-room restore, delayed/missing models, scene-loading races, Original/Basic bypass, stale masks, Shield, camera restart, and a real bundled-model response delayed by 2.2 seconds. |
+| Matching frames — scripts/verify-frame-pairing.cjs | 6 | Moving captured poses with delayed analysis, cached/failed inference recovery, current Original/Basic preview, matching split comparison and actual PNG export, privacy buffer cleanup, and the actual vision bridge accepting slow completions without renewing old cached results or retaining a stalled pair indefinitely. |
 
 Suite totals are behavioral scenarios, not a guarantee of defect-free software. The session folder tests use simulated directory APIs; they do not replace a real Windows folder permission/write test. Synthetic microphones do not establish speech clarity or real-room noise suppression. File exports and QR decoding are actual browser outputs from controlled fixtures.
 
@@ -38,11 +38,17 @@ The boundary regressions compare a broad confidence ramp with an independent cop
 
 ## Worker-protocol checks
 
-scripts/verify-person-worker.cjs adds **five Node checks** using deterministic MediaPipe task doubles. They cover the complete foreground union and alpha calibration, same-model CPU fallback after GPU initialization failure, software/private/unknown renderer handling, invalid class shapes/confidence rejection, and disposal during initialization followed by a clean retry. They exercise the worker protocol; actual model quality is checked separately. These five checks plus the 145 browser scenarios make 150; the standalone real-vision module is not counted again.
+scripts/verify-person-worker.cjs adds **eight Node checks** using deterministic MediaPipe task doubles. They cover foreground union and alpha calibration, same-model CPU fallback after GPU initialization or execution failure, software/private/unknown renderers, invalid confidence rejection, failed CPU recovery cleanup, and cancellation during initialization or runtime recovery. Recovery must retry the same bitmap and capture timestamp and report the actual delegate. These eight checks plus the 147 browser scenarios make 155; the standalone real-vision module is not counted again.
+
+## Slow-processing regression
+
+Version 3.2.0 rejected successful analysis as stale when capture-to-response time exceeded 1.5 seconds. The vision bridge cleared the mask and the app independently rejected the capture timestamp. A VM reproduction using the actual bridge demonstrated the failure at 1501, 2200 and 5000 milliseconds.
+
+Version 3.2.1 stamps genuine successful responses with a completion time while retaining the capture timestamp for exact frame pairing. A paired mask remains usable for 1.5–5 seconds after completion, with the window based on measured round-trip duration. The controlled browser regression verifies slow success, stable display during the next slow request, bounded stall expiry, recovery, and cached replies that cannot renew completion time. A separate test delays responses from the actual bundled model by 2.2 seconds and compares rendered foreground/background pixels. These tests use controlled media on Linux, not physical Windows hardware.
 
 ## Supplied-camera-photo production-path check
 
-The sanitized report in docs/validation/production-camera-validation.json records a completed check using one supplied camera still streamed through the actual production camera path and the bundled SelfieMulticlass 256×256 model on CPU/WebAssembly. It tested **all six scenes**, with **eight foreground regions** and **two background regions per scene**. This is a still-image source in an actual browser MediaStream, not a physical Windows webcam session or a live-motion test.
+The sanitized report in docs/validation/production-camera-validation.json retains the **v3.2.0** check using one supplied camera still streamed through the production camera path and the bundled SelfieMulticlass 256×256 model on CPU/WebAssembly. The detector and foreground calibration are unchanged in v3.2.1; this earlier numerical check was not rerun for the timing fix. It tested **all six scenes**, with **eight foreground regions** and **two background regions per scene**. This is a still-image source in a browser MediaStream, not a physical Windows webcam session or a live-motion test.
 
 - Minimum sampled foreground alpha: **1**; maximum sampled foreground RGB difference from the source: **0**.
 - Maximum sampled background alpha: **0**; maximum background RGB difference from the selected scene: **0**.
@@ -52,17 +58,17 @@ The sanitized report in docs/validation/production-camera-validation.json record
 
 These region samples demonstrate that the tested body areas were retained and the sampled room areas replaced in this supplied image. They do not establish perfect segmentation across every pixel, pose, person or webcam. The retained report contains numerical summaries only; the supplied image, private paths and intermediate renders are excluded from deliverables.
 
-Version 3.2.0 combines all non-background model classes and displays each completed mask with its matching captured frame. It retains the preceding completed pair while the next analysis runs, adding delay and potentially reducing motion cadence, especially on CPU. The interface measures new completed pairs as fps · effects; ordinary/Original/Basic rendering is labeled fps · preview refresh. Preview refresh is not physical-camera capture FPS. Pair freshness is limited to 1.5 seconds. Recognized hardware can use GPU segmentation, with the same model on CPU when GPU initialization fails or the renderer is software/unknown; physical-GPU performance remains untested.
+Version 3.2.1 retains all non-background classes and displays each mask with its matching captured frame. Matching adds delay and can reduce motion cadence, especially on CPU. The interface measures completed pairs as fps · effects; ordinary/Original/Basic rendering is labeled fps · preview refresh. Refresh is not camera capture FPS. Paired-mask expiry starts at genuine completion and adapts within 1.5–5 seconds; face-only tracking still expires by capture age. Cached, repeated, mismatched and failed replies cannot renew the pair. Supported GPUs can run segmentation; initialization or execution failure retries the same model on CPU. Physical-GPU performance remains untested.
 
 ## Real bundled vision inference
 
-The separate real-vision verification exercised the replacement person model and existing Face Landmarker in a local worker using the bundled sample fixture. The completed v3.2.0 results are retained in assets/vendor/vision/VALIDATION.json. Status: **passed**.
+The separate real-vision verification exercises the person model and Face Landmarker in a local worker using the bundled sample. Current results are retained in assets/vendor/vision/VALIDATION.json. Status: **passed**.
 
 - Detected face landmarks: **478**.
 - Person-mask fixture silhouette intersection-over-union: **0.9932**.
 - Controlled blur background mean absolute error: **47.29**; foreground mean absolute error: **0.00**.
 - Framing, six concurrent requests and reset/disposal checks passed. Requests stayed on the same origin and no uncaught browser errors were recorded.
-- Measured fixture inference time in milliseconds: **484.3**. This is one Linux measurement, not an FPS, battery, NPU, or Windows performance claim.
+- Measured fixture inference time in milliseconds: **586.8**. This is one Linux measurement, not an FPS, battery, NPU, or Windows performance claim.
 - The tested backend was CPU/WASM worker, with CPU segmentation. Production person segmentation may use recognized hardware GPUs; the same model is available on CPU/WebAssembly, face tracking stays on CPU and eye contact remains unsupported.
 
 These fixture metrics do not predict every face, hairstyle, room, movement, or lighting condition. Inspect real webcam results and provide manual controls/fallbacks.
@@ -78,7 +84,7 @@ Evidence: native-windows/validation/managed-source-check.json.
 
 ## Historical v2.0.1 baseline
 
-The previous professional-background update passed 22 checks on 16 October 2026: six background, 13 studio, and three offline/update scenarios. Visual checks covered 1920×1080, 1366×768, and 390×844. Those historical results remain a separate baseline; the table above describes the v3.2.0 verification scope.
+The previous professional-background update passed 22 checks on 16 October 2026: six background, 13 studio, and three offline/update scenarios. Visual checks covered 1920×1080, 1366×768, and 390×844. Those historical results remain a separate baseline; the table above describes the v3.2.1 verification scope.
 
 ## Release requirements still separate
 

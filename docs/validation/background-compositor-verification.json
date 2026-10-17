@@ -1,30 +1,30 @@
 {
-  "at": "2026-10-16T22:47:43.620Z",
+  "at": "2026-10-17T05:47:58.763Z",
   "checks": [
     {
       "name": "No replacement retains existing camera rendering",
       "pass": true,
-      "ms": 128
+      "ms": 143
     },
     {
       "name": "Scene replaces actual room while keeping foreground pixels intact",
       "pass": true,
-      "ms": 90
+      "ms": 97
     },
     {
       "name": "Portrait scenes cover wide camera frames without borders or stretching",
       "pass": true,
-      "ms": 29
+      "ms": 26
     },
     {
       "name": "Wide scenes use centered aspect-cover cropping",
       "pass": true,
-      "ms": 37
+      "ms": 24
     },
     {
       "name": "Background softness blurs scene texture while leaving person sharp",
       "pass": true,
-      "ms": 96,
+      "ms": 132,
       "background": [
         127,
         127,
@@ -35,18 +35,18 @@
     {
       "name": "Person confidence alpha blends edges with the selected scene",
       "pass": true,
-      "ms": 39
+      "ms": 57
     },
     {
       "name": "Conservative matte cleanup reduces room fringe without changing foreground core",
       "pass": true,
-      "ms": 132,
+      "ms": 124,
       "fringeReduction": 0.40714285714285714
     },
     {
       "name": "Wide confidence ramps become clear edges while keeping a partial transition",
       "pass": true,
-      "ms": 104,
+      "ms": 92,
       "beforeWidth": 77,
       "afterWidth": 37,
       "partialPixels": 59,
@@ -59,7 +59,7 @@
     {
       "name": "High-confidence clothing detail stays exact and fine partial hair survives",
       "pass": true,
-      "ms": 330,
+      "ms": 432,
       "changed": 0,
       "maxError": 0,
       "hair": [
@@ -73,7 +73,7 @@
     {
       "name": "Low-resolution diagonal mattes upscale smoothly without staircase jumps",
       "pass": true,
-      "ms": 34,
+      "ms": 30,
       "maxStep": 1,
       "rowsWithPartialCoverage": 280,
       "rows": 280,
@@ -84,24 +84,24 @@
     {
       "name": "Scene softness never widens or blurs the subject contour",
       "pass": true,
-      "ms": 83,
+      "ms": 91,
       "changed": 0,
       "maxError": 0
     },
     {
       "name": "Unready and malformed scenes safely retain camera output",
       "pass": true,
-      "ms": 57
+      "ms": 34
     },
     {
       "name": "Missing person mask safely leaves the real camera image visible",
       "pass": true,
-      "ms": 11
+      "ms": 14
     },
     {
       "name": "Real bundled model matte replaces background and preserves detected person",
       "pass": true,
-      "ms": 1652,
+      "ms": 1570,
       "caps": {
         "face": true,
         "segmentation": true,
@@ -118,13 +118,13 @@
       "sceneError": 0,
       "timing1280": {
         "newMatteMs": {
-          "mean": 64.2000000004967,
-          "max": 73.10000000149012,
+          "mean": 49.416666666666664,
+          "max": 59.80000000074506,
           "runs": 6
         },
         "cachedMatteMs": {
-          "mean": 0.058333332960804306,
-          "max": 0.19999999552965164,
+          "mean": 0.050000000124176346,
+          "max": 0.10000000149011612,
           "runs": 12
         }
       },

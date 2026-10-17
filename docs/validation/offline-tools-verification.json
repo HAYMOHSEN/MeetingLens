@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-16T22:46:46.725Z",
+  "checkedAt": "2026-10-17T05:46:51.181Z",
   "environment": "Headless Chromium/Linux, SwiftShader WebGL2",
   "offlineAfterSuccessfulFirstInstall": true,
   "physicalWindowsHardwareTested": false,
@@ -7,27 +7,27 @@
     {
       "name": "Real service worker installs every v3 tool and all eight local AI runtime files",
       "passed": true,
-      "ms": 391
+      "ms": 475
     },
     {
       "name": "Offline Photo Lab loads its real whiteboard sample and suggests physical board corners",
       "passed": true,
-      "ms": 2093
+      "ms": 3870
     },
     {
       "name": "Offline Windows capability viewer imports a local report without probing hardware",
       "passed": true,
-      "ms": 551
+      "ms": 566
     },
     {
       "name": "Cached jsQR decoder loads offline and decodes a real QR fixture",
       "passed": true,
-      "ms": 589
+      "ms": 1028
     },
     {
       "name": "Offline studio initializes actual cached AI models and detects face and person matte",
       "passed": true,
-      "ms": 2171
+      "ms": 3143
     }
   ],
   "evidence": {
@@ -60,7 +60,7 @@
       {
         "file": "assets/js/vision-effects.js",
         "cached": true,
-        "bytes": 27250
+        "bytes": 29334
       },
       {
         "file": "assets/vendor/jsqr/jsQR.js",
@@ -75,7 +75,7 @@
       {
         "file": "assets/vendor/vision/meetinglens-worker.js",
         "cached": true,
-        "bytes": 8600
+        "bytes": 11262
       },
       {
         "file": "assets/vendor/vision/vision_bundle.js",
@@ -113,8 +113,8 @@
         "bytes": 16371837
       }
     ],
-    "modelBytes": 39708014,
-    "serverRequestsBeforeOffline": 54,
+    "modelBytes": 39710676,
+    "serverRequestsBeforeOffline": 53,
     "httpServerClosed": true,
     "board": {
       "photos": 2,
@@ -164,23 +164,23 @@
         "errors": {}
       },
       "face": {
-        "x": 0.4237862229347229,
-        "y": 0.202716663479805,
-        "width": 0.1431599259376526,
-        "height": 0.3038712590932846,
+        "x": 0.42376214265823364,
+        "y": 0.20263727009296417,
+        "width": 0.14320611953735352,
+        "height": 0.3040175884962082,
         "eyes": [
           {
-            "x": 0.46320079267024994,
-            "y": 0.30567046999931335
+            "x": 0.46319057047367096,
+            "y": 0.30564169585704803
           },
           {
-            "x": 0.5233474373817444,
-            "y": 0.2961087077856064
+            "x": 0.5233230590820312,
+            "y": 0.29609060287475586
           }
         ],
         "mouth": {
-          "x": 0.4990522414445877,
-          "y": 0.4150408208370209
+          "x": 0.4990500509738922,
+          "y": 0.41506558656692505
         }
       },
       "landmarks": 478,
@@ -190,7 +190,7 @@
         "foreground": 64896,
         "background": 163039
       },
-      "inferenceMs": 400.3999999985099
+      "inferenceMs": 586
     }
   },
   "errors": []
