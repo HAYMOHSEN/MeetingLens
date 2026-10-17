@@ -97,7 +97,7 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Export/import a capability report, malformed JSON, unsupported schema, and files over 1 MB; all strings render safely as text.
 - [ ] Confirm the report page describes snapshots, not live control; Settings opens only by user click.
 - [ ] Test OS multi-app camera options only on supported Windows/device setups; document availability.
-- [ ] Keep the upstream virtual-camera reference separate from claims of connected PWA output. Build/start testing does not prove end-to-end routing.
+- [ ] Keep the upstream virtual-camera reference separate from the MeetingLens-specific provider. Build/start tests do not prove end-to-end meeting compatibility; complete the 3.3.0 native acceptance gates below.
 - [ ] Do not claim NPU performance or a Windows effect without hardware evidence.
 
 ## Hosted PWA, accessibility, and Store
@@ -112,3 +112,18 @@ Record results for the exact deployed source and generated Windows package being
 - [ ] Partner Center identity, supported Windows versions, permissions, privacy/age declarations, languages, pricing, availability, and support match the actual app.
 - [ ] Store copy and ten screenshots match FEATURE_MATRIX.md; native-only or unfinished integration is not advertised as a PWA feature.
 - [ ] Record all known limitations and the release decision before submission.
+
+## 3.3.0 Windows virtual-camera integration candidate
+
+These checks are mandatory before calling the separate Windows Camera package production ready. Browser tests and direct C# metadata compilation do not check Windows Frame Server integration.
+
+- [ ] Run `.github/workflows/windows-virtual-camera.yml`; require successful native C++ build, desktop publish, portable tests, provider activation, camera registration/enumeration, and installer/uninstaller smoke checks.
+- [ ] Install the exact resulting package on Windows 11 x64 (22H2 or later); record its SHA-256, Windows build, camera driver and WebView2 Runtime versions.
+- [ ] Choose a physical built-in/USB webcam, start local effects and meeting output, and select the MeetingLens camera in current Teams and Zoom desktop clients.
+- [ ] Confirm 720p framing, colors, orientation, mirror behavior, microphone selection and acceptable audio/video synchronization. Disable duplicate meeting-app effects when comparing.
+- [ ] Request a background before model load, reject/break the model, stall analysis and switch scenes: no unprocessed room or sample portrait may appear in the virtual output during a blocked state.
+- [ ] Test Privacy Shield, Stop, Original/split comparison, permission denial, unplug/replug, virtual-camera input recursion, stalled browser/host, and host crash. Verify safe blank output and recovery.
+- [ ] Test minimized/background/covered windows during a real call; verify continued output only after explicit meeting-output start. Check that microphones still stop when hidden.
+- [ ] Test Teams and Zoom simultaneously, repeated join/leave, format negotiation, sleep/resume and a sustained one-hour call on both a low-power and typical PC.
+- [ ] Close the host; verify its session camera disappears and physical camera capture stops. Uninstall/reinstall; verify only MeetingLens files/CLSID are changed and no camera is left behind.
+- [ ] Sign the final executable/DLL/installer and verify publisher identity. Update Store claims and screenshots from the exact tested native package; a PWABuilder-only package does not supply this integration.

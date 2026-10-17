@@ -1,0 +1,110 @@
+{
+  "platform": "linux",
+  "scope": "Browser bridge; no Windows camera/device certification",
+  "results": [
+    {
+      "name": "Ordinary browser cannot claim a native camera connection",
+      "pass": true
+    },
+    {
+      "name": "Bridge listeners precede hello and ready never starts transmission",
+      "pass": true
+    },
+    {
+      "name": "Host pulls copy exact RGBA bytes and no frame data enters messages",
+      "pass": true
+    },
+    {
+      "name": "Duplicate, reordered, malformed and foreign requests do not copy",
+      "pass": true
+    },
+    {
+      "name": "Shield immediately invalidates output and delayed pulls cannot send",
+      "pass": true
+    },
+    {
+      "name": "Camera off, unplugged, demo or unready effects stay blocked",
+      "pass": true
+    },
+    {
+      "name": "Expired preview is never reused as live video",
+      "pass": true
+    },
+    {
+      "name": "Wrong dimensions, protocol, FPS, session or buffer size are rejected",
+      "pass": true
+    },
+    {
+      "name": "Duplicate ready never resets the active session or retains extra buffers",
+      "pass": true
+    },
+    {
+      "name": "Output stop requires a new explicit start",
+      "pass": true
+    },
+    {
+      "name": "Host stop releases its buffer and rejects delayed ready for that session",
+      "pass": true
+    },
+    {
+      "name": "Host timeout releases resources, notifies app and requires reconnect",
+      "pass": true
+    },
+    {
+      "name": "Heartbeat keeps an idle session alive without sending pictures",
+      "pass": true
+    },
+    {
+      "name": "Bounded shared transport reuses one canvas for repeated pulls",
+      "pass": true
+    },
+    {
+      "name": "Dispose stops output, releases buffer and removes host listeners",
+      "pass": true
+    },
+    {
+      "name": "Broken host transport fails closed rather than throwing into the studio",
+      "pass": true
+    },
+    {
+      "name": "Real browser UI shows companion required and disabled output controls",
+      "pass": true
+    },
+    {
+      "name": "Real camera canvas pixels are exported after explicit user start",
+      "pass": true
+    },
+    {
+      "name": "Denied camera permission never exports demo portrait",
+      "pass": true
+    },
+    {
+      "name": "Requested background with unavailable models never exports actual room",
+      "pass": true
+    },
+    {
+      "name": "Original comparison and split comparison cannot enter meeting output",
+      "pass": true
+    },
+    {
+      "name": "Privacy Shield stops physical camera and immediately blacks native output",
+      "pass": true
+    },
+    {
+      "name": "Active output continues with hidden document using native pulls",
+      "pass": true
+    },
+    {
+      "name": "Disconnected camera is blocked before any subsequent pull",
+      "pass": true
+    },
+    {
+      "name": "Native host selects a physical camera before opening the system default",
+      "pass": true
+    },
+    {
+      "name": "Own virtual camera default is rejected and its input tracks released",
+      "pass": true
+    }
+  ]
+}

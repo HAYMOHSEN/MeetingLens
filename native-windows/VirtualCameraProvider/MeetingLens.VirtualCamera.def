@@ -1,0 +1,4 @@
+LIBRARY "MeetingLens.VirtualCamera"
+EXPORTS
+    DllCanUnloadNow PRIVATE
+    DllGetClassObject PRIVATE

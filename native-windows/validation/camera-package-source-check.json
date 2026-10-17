@@ -1,0 +1,30 @@
+{
+  "schema": "meetinglens.camera.packaging-source-check.v1",
+  "parserVersion": "7.4.13",
+  "platform": "Linux",
+  "files": [
+    {
+      "path": "native-windows/build-camera.ps1",
+      "parsed": true,
+      "sha256": "2fa3b39962991e2a4d49948a6378b448782cd5e9baef49dc9119faeeb1043175"
+    },
+    {
+      "path": "native-windows/Install-Camera.ps1",
+      "parsed": true,
+      "sha256": "4b72328a85ad25de0c721ef0601f8718f38e278315333d3974871ed928b9b33a"
+    },
+    {
+      "path": "native-windows/Uninstall-Camera.ps1",
+      "parsed": true,
+      "sha256": "b2c86fa35f1b6afd86b8c2cc3d8ac3124b53d366e9beec3bdb46b8be1dfcd214"
+    },
+    {
+      "path": "native-windows/validate-camera.ps1",
+      "parsed": true,
+      "sha256": "f6f86ebd7a649b3ce2d444af305b2c2758e6b3f28b3b538eb075612cd9762e2c"
+    }
+  ],
+  "windowsPowerShell51Tested": false,
+  "windowsInstallerExecuted": false,
+  "nativeWindowsBuildExecuted": false
+}

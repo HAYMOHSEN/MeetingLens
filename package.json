@@ -1,7 +1,7 @@
 {
   "name": "meetinglens-pwa",
   "private": true,
-  "version": "3.2.3",
+  "version": "3.3.0",
   "description": "Local camera effects, photo editing, whiteboard capture and session tools for MeetingLens.",
   "scripts": {
     "capture:store-assets": "node scripts/capture-store-assets.mjs",
@@ -20,7 +20,8 @@
     "test:vision": "node assets/vendor/vision/verify-vision.cjs",
     "test:frame-pairing": "node scripts/verify-frame-pairing.cjs",
     "test:person-worker": "node scripts/verify-person-worker.cjs",
-    "test:ai-startup": "node scripts/verify-ai-startup.cjs"
+    "test:ai-startup": "node scripts/verify-ai-startup.cjs",
+    "test:virtual-camera": "node scripts/verify-virtual-camera.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.80",

@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "checkedAtUtc": "2026-10-17T12:43:37.156393+00:00",
+  "scope": "Managed Windows camera host source compilation and portable frame/message tests; excludes Windows execution and native provider binary validation",
+  "managedSourceCompilation": {
+    "passed": true,
+    "method": "Direct Microsoft Roslyn C# compiler against official reference assemblies",
+    "sdk": "8.0.426",
+    "compiler": "4.11.0-3.25569.22 (3fb752d4)",
+    "targetFramework": "net8.0-windows10.0.22621.0",
+    "warningsAsErrors": true,
+    "sdkDefaultSuppressedWarnings": [
+      "CS1701",
+      "CS1702"
+    ],
+    "sdkDefaultSuppressionReason": "Standard .NET SDK framework reference unification warnings for the official WebView2 net5 WPF assembly against .NET8 WPF metadata",
+    "officialMetadataReferenceCount": 212,
+    "officialPackages": {
+      "Microsoft.NETCore.App.Ref": "8.0.32",
+      "Microsoft.WindowsDesktop.App.Ref": "8.0.32",
+      "Microsoft.Windows.SDK.NET.Ref": "10.0.22621.56",
+      "Microsoft.Web.WebView2": "1.0.4258.31"
+    },
+    "net8DefaultSdkAnalyzers": {
+      "passed": true,
+      "config": "analysislevel_8_default_warnaserror.globalconfig",
+      "generatedTargetPlatformAttributes": "Windows10.0.22621.0"
+    },
+    "sourceSha256": {
+      "native-windows/MeetingLens.Camera/CameraWindow.cs": "5519374bca7940a018bdeec1d1316b86210ffa891866fe22b7cbcab4b6e7f4c1",
+      "native-windows/MeetingLens.Camera/FramePipeServer.cs": "6a4034a8ef13325ee2985daaa2f098ec25d35e3b3ac790b855ded7742dc65e52",
+      "native-windows/MeetingLens.Camera/FrameProtocol.cs": "056c924e59735217061872d74f6796f83225c69a0c60181e9ed7d2bf7b0a34a9",
+      "native-windows/MeetingLens.Camera/FrameStore.cs": "bacb17bc1c52e6d81a68ab7f76ecdcb79c7eb02805286c9a943ac178d651c560",
+      "native-windows/MeetingLens.Camera/MessageContract.cs": "902184b095d155da30c7b6c0278ca2ce660d1df17fd397b16e8703a80fe0a9e5",
+      "native-windows/MeetingLens.Camera/Program.cs": "c8ed00c81d72733df861e85a8b0d918560c2c1c7badf5ca44aa7c58eeb817016",
+      "native-windows/MeetingLens.Camera/VirtualCameraRegistration.cs": "251461819c39e2d0a196a7dd73136c65faa3a1fcff186052562ab6adcb239296"
+    },
+    "warnings": [],
+    "errors": []
+  },
+  "repositoryPortableProtocolTests": {
+    "passed": true,
+    "checks": 23,
+    "tests": [
+      "MLF1 little-endian magic",
+      "Protocol version and exact header length",
+      "Fixed dimensions",
+      "Exact stride and payload",
+      "Sequence and same-boot capture timestamp",
+      "750ms expiration and future timestamp rejection",
+      "New session starts black",
+      "Fresh frame keeps capture timestamp",
+      "RGBA to top-down opaque BGRA conversion reaches last pixel",
+      "Stale frame clears all pixels",
+      "Privacy and stop immediately clear latest frame",
+      "Valid frame metadata accepted",
+      "Prior and foreign sessions rejected",
+      "Wrong JSON scalar types cannot throw",
+      "Fractional, zero, negative and overflow values rejected",
+      "Malformed and oversized messages rejected",
+      "Allowed state live",
+      "Allowed state privacy",
+      "Allowed state blocked",
+      "Allowed state stopped",
+      "Exact secure origin and document required",
+      "Permission origins accepted only for bundled app",
+      "Only bundled top-level pages may navigate"
+    ]
+  },
+  "independentPortableChecks": {
+    "passed": true,
+    "checks": 40,
+    "failed": 0,
+    "results": [
+      {
+        "name": "Header magic/version/layout and little-endian fields",
+        "passed": true
+      },
+      {
+        "name": "Header exact size enforced",
+        "passed": true
+      },
+      {
+        "name": "Header rejects negative capture ticks",
+        "passed": true
+      },
+      {
+        "name": "Freshness boundary is strictly below750ms",
+        "passed": true
+      },
+      {
+        "name": "Freshness rejects future and negative timestamps",
+        "passed": true
+      },
+      {
+        "name": "Initiallyblack copy clears existing destination",
+        "passed": true
+      },
+      {
+        "name": "RGBA becomes opaque BGRA including firstlast pixels",
+        "passed": true
+      },
+      {
+        "name": "Published frame owns source bytes",
+        "passed": true
+      },
+      {
+        "name": "Stale published frame becomes black without redisplay",
+        "passed": true
+      },
+      {
+        "name": "Black clears published frame immediately",
+        "passed": true
+      },
+      {
+        "name": "FrameStore rejects invalidsize sequence and tick",
+        "passed": true
+      },
+      {
+        "name": "FrameStore requires exact copy size",
+        "passed": true
+      },
+      {
+        "name": "Exact packaged origin trusted",
+        "passed": true
+      },
+      {
+        "name": "Reject document http://appassets.meetinglens.example/index.html",
+        "passed": true
+      },
+      {
+        "name": "Reject document https://evil.example/index.html",
+        "passed": true
+      },
+      {
+        "name": "Reject document https://appassets.meetinglens.example:444/index.html",
+        "passed": true
+      },
+      {
+        "name": "Reject document https://attacker@appassets.meetinglens.example/index.html",
+        "passed": true
+      },
+      {
+        "name": "Reject document https://appassets.meetinglens.example/other.html",
+        "passed": true
+      },
+      {
+        "name": "Reject document file:///index.html",
+        "passed": true
+      },
+      {
+        "name": "Reject document not a URL",
+        "passed": true
+      },
+      {
+        "name": "Valid frame message accepted",
+        "passed": true
+      },
+      {
+        "name": "Wrong session rejected",
+        "passed": true
+      },
+      {
+        "name": "State live accepted",
+        "passed": true
+      },
+      {
+        "name": "State stopped accepted",
+        "passed": true
+      },
+      {
+        "name": "State blocked accepted",
+        "passed": true
+      },
+      {
+        "name": "State privacy accepted",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely ",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely []",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely null",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":\"x\"}",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":null}",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":true}",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":{}}",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":1,\"sessionId\":\"test-session\",\"type\":\"meetinglens.native.frame\",\"width\":null,\"height\":720",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":1,\"sessionId\":\"test-session\",\"type\":\"meetinglens.native.frame\",\"width\":1280,\"height\":\"72",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":1,\"sessionId\":\"test-session\",\"type\":\"meetinglens.native.frame\",\"width\":1280,\"height\":720",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":1,\"sessionId\":\"test-session\",\"type\":\"meetinglens.native.frame\",\"width\":1280,\"height\":720",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely {\"protocol\":1,\"sessionId\":\"test-session\",\"type\":\"meetinglens.native.frame\",\"width\":1280,\"height\":720",
+        "passed": true
+      },
+      {
+        "name": "Malformed message rejected safely xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "passed": true
+      }
+    ]
+  },
+  "fullMsbuild": {
+    "status": "blocked-by-execution-environment-before-project-evaluation",
+    "error": "Microsoft.Build.Shared.Debugging.DebugUtils type initializer: System.Diagnostics.Process.get_ProcessName reports process information unavailable",
+    "directCompilerFallbackUsed": true
+  },
+  "notRun": [
+    "Windows installer execution",
+    "Windows native C++ provider compilation",
+    "Windows COM provider activation",
+    "MFCreateVirtualCamera runtime registration",
+    "Named pipe Windows ACL and LocalService runtime",
+    "Physical webcam processing",
+    "Teams capture",
+    "Zoom capture",
+    "Google Meet capture",
+    "Microsoft Store package certification"
+  ],
+  "releaseStatus": "Source and portable tests validated; Windows build and meeting-app capture validation remain required",
+  "sourceFreezeConfirmedByHostAuthor": true,
+  "testSourceSha256": {
+    "native-windows/MeetingLens.Camera/tests/Program.cs": "c2cbc58fcc9f1ecb83dc541c8cabb60a0918077dda249c23d60dbc755ebf0ac3",
+    "native-windows/MeetingLens.Camera/tests/ProtocolTests.csproj": "c674831cd6f92fe55db8f8d8605f2f460968e0fe7894cd2d358053c5d86bdee9"
+  }
+}

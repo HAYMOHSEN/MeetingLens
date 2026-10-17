@@ -59,7 +59,7 @@
       <a class="nav-button nav-link native-link" href="./native-capabilities.html"><svg class="icon"><use href="#i-chip"/></svg><span>Windows companion</span></a>
       <div class="nav-spacer"></div>
       <div class="local-note"><svg class="icon"><use href="#i-shield"/></svg><b>A little more peace of mind.</b><p>Your camera preview is processed on your device.</p><a href="./privacy.html">Privacy policy <span aria-hidden="true">↗</span></a></div>
-      <span class="nav-version">MEETINGLENS · V3.2.3</span>
+      <span class="nav-version">MEETINGLENS · V3.3.0</span>
     </nav>
 
     <main class="main-content" id="mainContent">
@@ -89,6 +89,13 @@
           <div class="preview-controls"><div class="preview-tools"><button class="control-button" id="holdOriginalButton" title="Press and hold to view the original"><svg class="icon"><use href="#i-sliders"/></svg><span>Hold original</span></button><label class="compare-control" for="enhancementRange"><span>Intensity</span><input id="enhancementRange" type="range" min="0" max="100" value="65"><output id="enhancementOutput" for="enhancementRange">65%</output></label></div><div class="capture-tools"><button class="icon-button shield-quick" id="shieldQuickButton" aria-label="Activate Privacy Shield" title="Privacy Shield"><svg class="icon"><use href="#i-shield"/></svg></button><button class="capture-button" id="captureButton"><svg class="icon"><use href="#i-camera"/></svg><span>Take snapshot</span></button><button class="icon-button" id="stopCameraButton" disabled aria-label="Stop camera" title="Stop camera"><svg class="icon"><use href="#i-pause"/></svg></button></div></div>
           <div class="session-bar"><span><i class="session-indicator"></i><b id="sessionState">Sample mode</b></span><span id="deviceLabel">Camera not started</span><span id="fpsLabel">— fps</span></div>
         </div>
+
+        <article class="native-output-card" aria-label="Meeting camera output">
+          <div class="native-output-heading"><div><p class="card-kicker">TEAMS · ZOOM · MEET</p><h2>Meeting camera</h2></div><span class="native-output-tag" id="virtualCameraState" data-state="unavailable">COMPANION NEEDED</span></div>
+          <p id="virtualCameraStatus" role="status" aria-live="polite">Windows companion required. A browser or PWA install alone cannot provide a virtual camera.</p>
+          <div class="native-output-actions"><button class="control-button" id="virtualCameraStartButton" type="button" disabled><svg class="icon"><use href="#i-camera"/></svg>Start meeting camera</button><button class="control-button" id="virtualCameraStopButton" type="button" disabled>Stop output</button><a href="./native-capabilities.html">Windows setup <span aria-hidden="true">↗</span></a></div>
+          <p class="native-output-help">720p video · up to 30 fps. Output follows preview mirroring; guides are excluded. Keep the Windows companion running during your call. Privacy Shield, stopped camera, comparison view or unavailable background effects send black video. Choose your microphone separately in the meeting app.</p>
+        </article>
 
         <div class="scene-strip-heading"><div><b>Find your setting</b><span>Professional camera backgrounds</span></div><span>06 curated spaces</span></div>
         <div class="scene-strip" aria-label="Camera background shortcuts">
@@ -240,9 +247,9 @@
 
           <section class="control-panel" id="privacy-panel">
             <article class="privacy-card"><span class="shield-mark"><svg class="icon"><use href="#i-shield"/></svg></span><div><p class="card-kicker">YOUR SPACE. YOUR CONTROL.</p><h3>Privacy Shield</h3><p>Pause your camera and cover the preview whenever you need a moment.</p></div><button class="privacy-button" id="privacyButton">Activate shield <svg class="icon"><use href="#i-shield"/></svg></button></article>
-            <div class="switch-row"><div><b>Pause when you switch away</b><small>Release the camera while this app is hidden</small></div><button class="switch on" id="autoPauseSwitch" type="button" role="switch" aria-checked="true" aria-label="Pause camera when app is hidden"><i></i></button></div>
+            <div class="switch-row"><div><b>Pause when you switch away</b><small>Release the camera while hidden unless meeting output is active</small></div><button class="switch on" id="autoPauseSwitch" type="button" role="switch" aria-checked="true" aria-label="Pause camera when app is hidden"><i></i></button></div>
             <div class="privacy-list"><div><span>Camera processing</span><b>On your device</b></div><div><span>Camera video uploaded</span><b>Never</b></div><div><span>Saved adjustments</span><b>This browser only</b></div><div><span>Snapshots</span><b>Saved at your request</b></div></div>
-            <p class="intro-copy">Privacy Shield controls the MeetingLens preview. It does not mute or pause other meeting apps.</p><a class="policy-link" href="./privacy.html">Read our privacy policy <svg class="icon"><use href="#i-arrow"/></svg></a>
+            <p class="intro-copy">Privacy Shield clears the MeetingLens preview and sends black video through its Windows companion. It does not mute your microphone in other meeting apps.</p><a class="policy-link" href="./privacy.html">Read our privacy policy <svg class="icon"><use href="#i-arrow"/></svg></a>
           </section>
         </div>
         <div class="inspector-footer"><svg class="icon"><use href="#i-check"/></svg><span id="settingsSaveStatus">Adjustments saved on this device</span></div>
@@ -252,6 +259,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"><span><svg class="icon"><use href="#i-check"/></svg></span><p id="toastText">Ready.</p></div>
   <script src="./assets/js/vision-effects.js" defer></script>
   <script src="./assets/js/session-tools.js" defer></script>
+  <script src="./assets/js/virtual-camera.js" defer></script>
   <script src="./assets/js/app.js" defer></script>
 </body>
 </html>

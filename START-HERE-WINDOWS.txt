@@ -1,0 +1,25 @@
+MEETINGLENS 3.3.0 — WINDOWS CAMERA INTEGRATION CANDIDATE
+
+This ZIP is a SOURCE UPDATE for your existing MeetingLens repository (3.2.2 or 3.2.3). It is NOT a Windows executable or a ready-to-publish Store package. Keep your existing assets/models, assets/vendor, icons, backgrounds and other unchanged repository files. It includes the earlier 3.2.3 head-detail fix.
+
+1. UPDATE YOUR EXISTING GITHUB REPOSITORY
+Extract this ZIP. Upload the CONTENTS into HAYMOHSEN/MeetingLens at the repository root, preserving folder names, including .github/workflows. Replace matching files and keep all other existing files. Do not upload only this ZIP file, and do not nest its contents inside an extra folder. Commit the upload.
+
+2. BUILD THE WINDOWS TEST PACKAGE
+Open your repository's Actions tab. Select "Windows virtual camera test package". It can start automatically on upload; otherwise select Run workflow on the updated branch. Wait for the required compile/runtime/install tests to finish successfully. Read the separate session-camera result and hardware limits.
+Download the artifact "MeetingLens-Camera-win-x64-UNSIGNED-TEST". Extract that download, then extract the versioned Windows test ZIP inside it. If the workflow fails, retain its logs; do not install or ship an incomplete artifact.
+
+3. INSTALL AND TEST ON WINDOWS
+Requirements: Windows 11 22H2 or later, x64, WebView2 Evergreen Runtime, and administrator permission for installation. The test app includes its .NET runtime.
+Read native-windows/CAMERA-INSTALL.md. Run the extracted binary package's Install-Camera.ps1 from 64-bit PowerShell as administrator, then launch MeetingLens.Camera.exe from C:\Program Files\MeetingLens Camera as your normal user.
+Click Enable virtual camera, start the physical camera in the studio, choose effects, then click Start meeting camera. In Teams/Zoom choose MeetingLens Virtual Camera (Windows may append a virtual-camera suffix). Keep the desktop application running. Use the meeting app's normal microphone selector.
+The ordinary website/PWABuilder installation alone cannot install this device. No OBS or meeting screen-sharing is needed by the native connection.
+
+CURRENT TEST STATUS
+The managed host compiled against real Microsoft APIs with warnings as errors and SDK analyzers. 23 repository managed tests, 40 independent managed checks, 36 portable C++ protocol/color checks, and 26 browser bridge checks passed. Camera, AI-startup, capability-report and offline-shell regression checks also passed. ZIP CRC and full extraction were checked.
+Windows C++ compilation/runtime, Windows installation, actual webcam capture in Teams/Zoom, background/minimize behavior and sustained calls have NOT been executed in this Linux authoring environment. The included Windows workflow runs real provider sample tests, not only registration. Physical acceptance and publisher signing remain required before shipping. No zero-defect claim is made.
+
+Privacy Shield, stopped/disconnected input, comparison views, unavailable requested backgrounds and expired transport frames send black video. The native component carries video only; it is not a virtual microphone. The output is fixed 1280x720, nominal 30 fps; AI effect updates may be slower.
+
+VALIDATION AND LICENSES
+See docs/validation/virtual-camera-3.3.0.md, native-windows/CAMERA-INSTALL.md, RELEASE_CHECKLIST.md and the retained third-party notices. Do not use old PWA screenshots to advertise an untested native package. No personal photos, frame buffers, private test images, signing certificates or account credentials are included.

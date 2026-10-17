@@ -1,6 +1,6 @@
 # MeetingLens — Microsoft Store Listing Pack
 
-Copy for the **3.2.1 PWA release**. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
+Copy for the **3.3.0 standalone PWA**; the separate Windows camera integration is a candidate requiring its own acceptance and packaging. Confirm it against the deployed and generated Windows package before submission. English and Arabic metadata are provided; the interface is English unless separately translated and verified. Separate native source projects are not bundled into a PWABuilder PWA package.
 
 ## Product identity
 
@@ -9,7 +9,7 @@ Copy for the **3.2.1 PWA release**. Confirm it against the deployed and generate
 | Product name | MeetingLens | MeetingLens |
 | Short title | MeetingLens | MeetingLens |
 | Suggested category | Productivity | الإنتاجية |
-| Version | 3.2.1 | 3.2.1 |
+| Version | 3.3.0 | 3.3.0 |
 
 Reserve the final name in Partner Center. Package identity, supported Windows versions, languages, and declarations must match the actual submitted package.
 

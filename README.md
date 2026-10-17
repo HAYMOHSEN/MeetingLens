@@ -1,6 +1,6 @@
 # MeetingLens — Camera Studio and Photo Lab
 
-Version **3.2.3**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
+Version **3.3.0 — Windows camera integration candidate**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera. This source adds a separate Windows desktop host and a MeetingLens-specific Media Foundation virtual-camera provider. Actual Windows installation and Teams/Zoom acceptance remain release gates; source implementation is not certification.
 
 ## Camera studio
 
@@ -54,13 +54,15 @@ No microphone, recording, QR scan, or backup starts automatically. Downloaded sn
 
 ## Windows companion and meeting apps
 
-The PWA improves its own preview; it does not create a virtual-camera device or send its processed canvas/audio into Zoom, Teams, Meet, or other apps.
+The standalone PWA improves its own preview and does not create a Windows camera device. The new **MeetingLens Camera** desktop host embeds the bundled studio in WebView2 and connects its processed canvas to a native Media Foundation camera provider. The intended meeting flow is: install the separate Windows camera package, open MeetingLens Camera, start the physical camera and meeting output, then select the MeetingLens camera in Teams, Zoom, or another service that accepts it. This is video output only; select your microphone in the meeting app as usual. A PWABuilder wrapper does not install the native provider.
+
+See [Windows camera installation](./native-windows/CAMERA-INSTALL.md) for the Windows build, installation, and acceptance steps. The provider uses a session lifetime: keep the desktop host open while using it. Privacy Shield, stopped/disconnected input, unavailable rendering, and stalled output produce a safe blank frame rather than a demonstration portrait or stale private image. The camera format is fixed at 1280 × 720 with a nominal 30 fps; effect processing may update more slowly. This candidate must pass the documented Windows and meeting-app checks before public distribution.
 
 The separate source project in [native-windows/README.md](./native-windows/README.md) provides a Windows camera preview and device-capability controls. On supported Windows cameras it reads and changes available Windows Studio Effects through Kernel Streaming properties, including background blur, eye contact, and portrait light; automatic framing and device zoom/modes use Windows camera controls. Unsupported modes stay unavailable. Windows controls NPU acceleration and Voice Focus availability.
 
 The companion can export a local JSON report. Import it in [Windows camera tools](./native-capabilities.html) to review a **snapshot** of capabilities; this is not a live bridge to the companion. Camera/sound settings open only after the user clicks their links. Avoid applying duplicate blur or other effects in Windows, MeetingLens, and the meeting app.
 
-The native project also includes a DirectShow diagnostic preview and a pinned Microsoft virtual-camera reference with build scripts. That reference is not connected to the PWA canvas. Multi-app camera sharing depends on supported Windows settings/device behavior; no integrated MeetingLens routing is claimed. The managed Windows source passed compilation against 209 official reference assemblies and 12 KS protocol/report checks in a Linux harness. Full Windows publishing, native C++ builds, and physical-device testing remain to be completed using the native guide and release checklist.
+The native project also includes a DirectShow diagnostic preview and a pinned, unchanged Microsoft virtual-camera reference. The MeetingLens provider is a separate implementation under `native-windows/VirtualCameraProvider`; it uses its own COM identity and a bounded local pipe connection to the desktop host. The browser bridge uses a WebView2 shared buffer rather than JPEG encoding or a localhost HTTP server. Physical-camera sharing depends on Windows/device behavior; selecting the processed virtual camera does not require each meeting client to open the physical camera.
 
 See [FEATURE_MATRIX.md](./FEATURE_MATRIX.md) for the exact status of every requested feature and [NATIVE_COMPANION_ROADMAP.md](./NATIVE_COMPANION_ROADMAP.md) for integration work remaining.
 

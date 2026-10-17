@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.3.0 — 2026-10-17 — Windows camera integration candidate
+
+- Added a separate WebView2 desktop host and a MeetingLens-specific Media Foundation virtual-camera provider with its own COM identity. The upstream Microsoft sample remains unchanged.
+- Connected the studio's processed canvas to the host with a reusable shared buffer and a single outstanding frame request. A bounded local named pipe supplies fixed 720p BGRA frames to the provider, which exposes NV12/RGB32 video.
+- Added explicit output controls and status. The browser-only PWA continues to explain that the Windows desktop component is required; a PWABuilder installation alone does not create the camera.
+- Added stale-frame expiry, safe blank output for stopped/private/blocked input, strict message and frame validation, session camera lifetime, and an installer/build/acceptance workflow.
+- Retained the 3.2.3 head-detail correction and other local effects. There is no virtual microphone or claim of new NPU/eye-contact synthesis.
+
+This is an integration source candidate, not a certified Windows release. See the Windows camera installation and validation documents for measured checks and outstanding build, installation, hardware, and meeting-app acceptance gates. No claim of zero defects or verified Teams/Zoom operation is made from browser/source tests.
+
 ## 3.2.3 — 2026-10-17
 
 - Added Head edge detail for live replacement and room blur. A closer analysis of a padded head region can distinguish hair from an overlapping chair more accurately than the full-frame model alone.

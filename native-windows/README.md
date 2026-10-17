@@ -1,6 +1,6 @@
 # MeetingLens Windows companion source
 
-This folder supplies a Windows camera control application, a separate DirectShow diagnostic utility, and Microsoft's complete virtual-camera reference source. These are separate from the installable web PWA. No native executable is embedded in the PWA, and the browser does not silently start a local service or change system effects.
+This folder supplies a Windows camera control application, a separate DirectShow diagnostic utility, and a new **MeetingLens Camera** integration candidate. The latter embeds the bundled PWA in WebView2 and sends its processed canvas to a product-specific Media Foundation virtual-camera provider. See [CAMERA-INSTALL.md](./CAMERA-INSTALL.md) to build and test it. These native projects are separate from the installable web PWA. The browser does not silently install a camera, start a local HTTP service, or change system effects.
 
 ## What is implemented
 
@@ -18,7 +18,7 @@ This folder supplies a Windows camera control application, a separate DirectShow
 | Multi-app camera | Opens the selected camera's Windows settings and explains Advanced camera options | Windows version, driver and enterprise policy decide availability |
 | Basic camera mode | Opens the same Windows settings page; separate DirectShow diagnostics enumerate modes and preview a selected camera | DirectShow diagnostics do not guarantee unprocessed pixels or bypass Studio effects |
 | Capability report | Exports a real point-in-time JSON report without pictures, audio or raw device identifiers | Import/report integration is status-only, not a live bridge |
-| Virtual camera | Real upstream media-source DLL, installer/manager and tests, with build script | Developer reference; has not been integrated with the MeetingLens PWA compositor |
+| Virtual camera | MeetingLens-specific provider, WebView2 studio host, shared frame buffer, local named pipe, build/install/test scripts | Integration source candidate; Windows build/install and meeting-app acceptance remain release gates |
 
 The native preview uses the system camera stream. Do not layer equivalent app filters on top of active system effects. The companion queries the current flags and displays their state instead of assuming all effects are off. Effects are not enabled merely by connecting a camera.
 
@@ -53,7 +53,13 @@ The application does not change Windows defaults. It tracks changes it makes and
 
 DirectShow and Windows' **Basic camera** setting are different mechanisms. A DirectShow graph can still include camera firmware processing, driver processing or Windows effects. Use Windows settings and the KS state report to investigate processing; this tool never edits camera policy or the registry to force a bypass.
 
-## Genuine virtual-camera source, not a completed MeetingLens feed
+## MeetingLens Camera integration candidate
+
+`MeetingLens.Camera/` is the dedicated desktop application, and `VirtualCameraProvider/` is its native Media Foundation provider. The browser bridge sends processed canvas pixels through a WebView2 shared buffer after explicit output start. A local named pipe grants access to the user and Windows Frame Server's service identity; there is no TCP listener or screen capture. The provider has its own CLSID and uses a current-user, session-lifetime camera. It delivers fixed 1280 × 720 RGB32/NV12 video at a nominal 30 fps while honoring slower local effect updates. No virtual microphone is supplied.
+
+Run `build-camera.ps1` on Windows or use the separate Windows virtual-camera workflow. Follow `CAMERA-INSTALL.md` before installing or distributing its output. A successful source/protocol check is not a Windows installation test. Public release requires the real Teams/Zoom acceptance checks, including privacy, producer crash, camera removal, sleep/resume, simultaneous clients, and complete uninstall. The source and package remain a candidate until those checks pass.
+
+## Preserved upstream reference
 
 Microsoft's source under `vendor/Samples/VirtualCamera/` implements a real COM media source with synthetic, physical-camera wrapper and augmented-camera modes. It includes its actual activation class, stream code, installer, manager, tests and MSI projects. This prevents a registration-only demo from referring to a nonexistent producer DLL.
 
@@ -65,7 +71,7 @@ To build the upstream source DLL and installer console on Windows, install Visua
 
 The script builds without registering or installing anything. For a developer test installation, open the pinned upstream `VirtualCameraSample.sln` and follow its `README.md`, including the Visual Studio Installer Projects extension and MSI registration steps. The optional upstream WinUI manager has its own package/SDK requirements; the headless build script does not build it. Preserve sample licensing and replace the sample name/CLSID before releasing a MeetingLens-specific provider.
 
-Before MeetingLens can advertise a selectable enhanced camera in Teams, Zoom or Windows Camera, finish a signed installer, frame-producer/consumer transport, fixed media-type negotiation, camera shutdown and multi-client tests. The current source package does **not** send the PWA canvas to this source and does **not** claim that the sample's wrapper alone guarantees concurrent streaming in every meeting app. Where supported, Windows' own Multi-App Camera option can share the physical camera without a MeetingLens virtual device.
+The upstream reference is not the MeetingLens camera package. Its wrapper alone does not establish concurrent streaming in every meeting app. The new MeetingLens provider and desktop host implement the frame transport separately; they still require actual Windows build, install, signing and acceptance checks before a production release. Where supported, Windows' own Multi-App Camera option can share the physical camera without a MeetingLens virtual device.
 
 ## Verification and release checks
 
@@ -90,7 +96,7 @@ The managed WPF source compiled with warnings treated as errors against 209 offi
 
 Each `effects[]` entry has `id`, `label`, `supported`, nullable `flags`/`capabilities`, supported `modes[]` and an optional `error`. Supported flag and capability values are decimal strings so JavaScript preserves every 64-bit flag exactly. Effect ids are `backgroundBlur`, `eyeContact` and `portraitLight`. `autoFraming.supported` is queried separately. A report is a snapshot and can become stale if another application, device mode, driver or Windows update changes support. A PWA that reads it must never interpret it as permission to control system effects.
 
-No HTTP listener, port, service, protocol handler or remote-control endpoint is installed. Voice Focus reports `controlledByCompanion: false`; the NPU reports that acceleration is managed by Windows. Camera device identifiers are hashed for exported reports, and there are no raw video/audio samples in those reports.
+The controls/report utility installs no HTTP listener, port, service, protocol handler or remote-control endpoint. The separate MeetingLens Camera host adds only the documented local shared-buffer/named-pipe video transport. Voice Focus reports `controlledByCompanion: false`; the NPU reports that acceleration is managed by Windows. Camera device identifiers are hashed for exported reports, and there are no raw video/audio samples in those reports.
 
 ## Primary references
 

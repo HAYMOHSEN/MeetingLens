@@ -1,7 +1,7 @@
 "use strict";
 const BASE = self.registration.scope;
 const CACHE_PREFIX = `meetinglens-shell-${BASE}-`;
-const CACHE_NAME = `${CACHE_PREFIX}v3.2.3`;
+const CACHE_NAME = `${CACHE_PREFIX}v3.3.0`;
 const url = path => new URL(path, BASE).href;
 const APP_SHELL = [
   "./",
@@ -16,6 +16,7 @@ const APP_SHELL = [
   "./assets/styles/photo-workbench.css",
   "./assets/styles/session-tools.css",
   "./assets/js/app.js",
+  "./assets/js/virtual-camera.js",
   "./assets/js/vision-effects.js",
   "./assets/js/session-tools.js",
   "./assets/js/photo-workbench.js",

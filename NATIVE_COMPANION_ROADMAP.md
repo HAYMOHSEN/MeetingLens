@@ -1,29 +1,22 @@
-# MeetingLens Windows source and remaining release work
+# MeetingLens 3.3.0 Windows camera integration candidate
 
-The PWA and native Windows source have different capabilities. Review `native-windows/README.md` and `native-windows/implementation-status.json` before building or listing the native features.
+The implementation now includes a dedicated `MeetingLens.Camera` WebView2 desktop host and a product-specific Media Foundation source under `VirtualCameraProvider`. The existing Windows controls app and the preserved Microsoft sample remain separate.
 
-## Included source now
+## Implemented connection
 
-- A Windows 11 WPF controls app with actual device enumeration, preview, driver-advertised resolution/frame-rate selection, hardware zoom, guarded Kernel Streaming read/write for background blur, eye contact and portrait light, and DigitalWindow automatic framing.
-- Explicit links to Windows camera and sound settings for system-managed Voice Focus, Multi-App Camera and Basic camera options where available.
-- A DirectShow C++ diagnostic application with webcam enumeration, advertised-mode inspection/selection and real preview; this is an alternative capture path, not a guarantee of raw pixels.
-- Complete Microsoft MIT-licensed virtual-camera provider, installer, manager and tests pinned to a specific upstream commit, plus a script that builds the actual provider DLL and installer console.
-- A Windows build workflow and twelve hardware-independent tests for KS binary layout, supported-mode filtering, malformed responses and exact report serialization.
-- A locally exported capability/status JSON contract so the PWA can explain actual Windows support without pretending to have a live system-control bridge.
+The desktop host loads its bundled studio from a trusted virtual HTTPS origin. Explicit meeting-output start permits the JavaScript bridge to copy processed canvas pixels into a reusable WebView2 shared buffer. The host validates each message and hands the latest BGRA frame to the native source through a random, access-controlled local named pipe. There is one frame request at a time, no JPEG round trip, no HTTP listener, no screen capture, and no virtual microphone.
 
-## Native hardware/OS dependencies
+The provider advertises fixed 1280 × 720 RGB32/NV12 video with a nominal 30 fps. Its pipe clock uses monotonic Windows uptime; stale frames expire after 750 ms. Stopped, shielded, unavailable or failed input produces safe blank output. Actual effect updates can be slower than the nominal camera cadence.
 
-Studio effects are supplied by Windows and the camera driver. NPU support, installed effect packages, camera opt-in and specific supported modes decide whether controls can be used. Windows owns the NPU acceleration path. No feature toggles or registry edits force unsupported eye-contact models, portrait-light modes or USB hardware support. Voice Focus remains managed in Windows sound controls; no camera KS write is used as a microphone toggle.
+The camera has a distinct MeetingLens COM identity. Its registration belongs in a stable protected installation directory, and its device lifetime belongs to the running host session. The install and uninstall scripts do not change unrelated camera settings or install a kernel driver.
 
-## Before a MeetingLens virtual-camera release
+## Remaining production gates
 
-1. Create product-specific media-source identity, installer, uninstaller and signing workflow from the included Microsoft reference; do not ship the unmodified sample identity as a finished MeetingLens provider.
-2. Connect a single native capture/compositor producer to the virtual-camera media source using authenticated local IPC/shared memory with bounded queues, validated dimensions/stride, a stable frame clock and explicit media-type negotiation.
-3. Decide whether the enhanced source lives in a native UI, a packaged WebView2 host, or a separate native rendering engine. The web PWA currently has no transport to the provider.
-4. Treat camera/microphone consent and a visible capture indicator as part of the actual native flow. Make privacy stop all native capture and release devices.
-5. Test simultaneous clients with Teams, Zoom and Windows Camera, format changes, camera unplug, sleep/resume, NPU-unavailable fallback, app crashes and complete uninstall. Windows' native Multi-App Camera option can share the physical webcam on supported builds, but does not itself route the MeetingLens web canvas.
-6. Publish native feature claims only after Windows build and physical-device checks succeed; update Store screenshots from that exact released product.
+1. Execute the Windows virtual-camera build workflow and retain its actual build, COM, camera and installer validation outputs.
+2. Test the installed candidate on physical Windows PCs: built-in/USB cameras; denied permission; busy/disconnected camera; stop/restart; shield; sleep/resume; process crash; minimize/background; slow segmentation; and full uninstall/reinstall.
+3. Select the virtual camera in current Teams and Zoom desktop clients and supported browser services. Check colors, orientation, backgrounds, latency, continued rendering and simultaneous consumers. Record exact Windows, client and binary versions.
+4. Test a sustained call on a low-power device. The 720p output clock does not imply 30 new AI-processed frames per second.
+5. Sign the final executable, source DLL and production installer using publisher-controlled certificates, and review Store packaging/claims against that tested product. No publisher certificate or signature is invented by the source build.
+6. Publish native feature claims and replacement screenshots only after acceptance passes. A PWABuilder PWA package alone does not install this native camera.
 
-## Current validation limit
-
-The managed Windows UI source compiled against 209 official .NET/Windows reference assemblies with warnings treated as errors, and all twelve KS protocol/report tests passed in a Linux harness. Full Windows packaging, the DirectShow/upstream provider C++ builds and physical-device tests have not run in this authoring workspace. The included Windows CI workflow is ready after upload. Browser tests of the PWA are separate evidence and do not certify Windows NPU behavior, virtual-camera routing, microphone Voice Focus or meeting-app compatibility.
+See `native-windows/CAMERA-INSTALL.md`, `native-windows/implementation-status.json`, and `docs/validation/virtual-camera-3.3.0.md` for the reproducible build and current evidence. Source/protocol tests are not Windows hardware or meeting-app certification.

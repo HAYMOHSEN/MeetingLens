@@ -1,0 +1,121 @@
+name: Windows virtual camera test package
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'native-windows/MeetingLens.Camera/**'
+      - 'native-windows/VirtualCameraProvider/**'
+      - 'native-windows/*Camera.ps1'
+      - 'native-windows/build-camera.ps1'
+      - 'native-windows/validate-camera.ps1'
+      - 'native-windows/CAMERA-INSTALL.md'
+      - 'assets/**'
+      - 'index.html'
+      - 'photo-workbench.html'
+      - 'privacy.html'
+      - 'manifest.webmanifest'
+      - 'service-worker.js'
+      - 'package.json'
+      - '.github/workflows/windows-virtual-camera.yml'
+  pull_request:
+    paths:
+      - 'native-windows/**'
+      - 'assets/**'
+      - 'index.html'
+      - 'photo-workbench.html'
+      - 'privacy.html'
+      - 'manifest.webmanifest'
+      - 'service-worker.js'
+      - 'package.json'
+      - '.github/workflows/windows-virtual-camera.yml'
+permissions:
+  contents: read
+concurrency:
+  group: virtual-camera-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-x64:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: microsoft/setup-msbuild@v2
+      - uses: NuGet/setup-nuget@v2
+      - name: Run complete managed frame and message contract tests
+        shell: pwsh
+        run: |
+          & dotnet run --project ./native-windows/MeetingLens.Camera/tests/ProtocolTests.csproj --configuration Release
+          if ($LASTEXITCODE -ne 0) { throw 'Managed protocol tests failed.' }
+      - name: Build provider, verify real sample delivery, and publish desktop host
+        shell: pwsh
+        run: ./native-windows/build-camera.ps1
+      - name: Parse scripts with minimum supported Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          foreach ($path in @('native-windows/build-camera.ps1', 'native-windows/Install-Camera.ps1', 'native-windows/Uninstall-Camera.ps1', 'native-windows/validate-camera.ps1')) {
+            $tokens = $null
+            $parseErrors = $null
+            [Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path), [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count -gt 0) { throw ($parseErrors | Out-String) }
+          }
+      - name: Validate protocol, registration collision protection and COM activation
+        shell: pwsh
+        run: |
+          $bundle = './native-windows/artifacts/MeetingLens-Camera-win-x64'
+          $app = Join-Path ([Environment]::GetFolderPath('ProgramFiles')) 'MeetingLens Camera'
+          $page = Join-Path $bundle 'app/web/index.html'
+          $originalBytes = [IO.File]::ReadAllBytes((Resolve-Path $page))
+          try {
+            [IO.File]::AppendAllText((Resolve-Path $page), 'checksum-negative-test')
+            $refused = $false
+            try { & "$bundle/Install-Camera.ps1" } catch { $refused = $true; Write-Output $_.Exception.Message }
+            if (-not $refused -or (Test-Path -LiteralPath $app)) { throw 'A modified package must be rejected before creating the installation.' }
+          } finally {
+            [IO.File]::WriteAllBytes((Resolve-Path $page), $originalBytes)
+          }
+          & "$bundle/Install-Camera.ps1"
+          try {
+            $refused = $false
+            try { & "$bundle/Install-Camera.ps1" } catch { $refused = $true; Write-Output $_.Exception.Message }
+            if (-not $refused) { throw 'The second installation should have refused to overwrite the existing installation.' }
+            ./native-windows/validate-camera.ps1 -AppDirectory $app
+          } finally {
+            & "$bundle/Uninstall-Camera.ps1"
+          }
+          if (Test-Path -LiteralPath $app) { throw 'The owned installation folder was not removed.' }
+          if (Test-Path 'HKLM:\SOFTWARE\Classes\CLSID\{2EBFD872-C949-48E9-A2C4-87C5B0A5BC92}') { throw 'The owned provider registration was not removed.' }
+      - name: Attempt real session camera start and enumeration on hosted Windows
+        id: camera-enumeration
+        continue-on-error: true
+        shell: pwsh
+        run: ./native-windows/validate-camera.ps1 -RegisterProviderForTest -TestCameraEnumeration -ReportDirectory ./native-windows/artifacts/camera-enumeration-validation
+      - name: Record hardware test limits
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -Path ./native-windows/artifacts -ItemType Directory -Force | Out-Null
+          @'
+          This is an unsigned Windows x64 test package.
+          The build checks actual C++/C# compilation, full protocol tests, real provider NV12/RGB32 sample delivery and registered COM activation.
+          The separate session-camera step records its result; Windows hosted runners may not support camera services or interactive camera consent.
+          Teams, Zoom, USB webcams, sleep/resume, long sessions and signed installation require a physical Windows acceptance run.
+          Passing this workflow does not certify those tests.
+          '@ | Set-Content ./native-windows/artifacts/HARDWARE-TEST-LIMITS.txt
+          "Session camera step result: ${{ steps.camera-enumeration.outcome }}" | Add-Content ./native-windows/artifacts/HARDWARE-TEST-LIMITS.txt
+          Get-Content ./native-windows/artifacts/HARDWARE-TEST-LIMITS.txt >> $env:GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MeetingLens-Camera-win-x64-UNSIGNED-TEST
+          if-no-files-found: error
+          path: |
+            native-windows/artifacts/MeetingLens-Camera-*-win-x64-UNSIGNED-TEST.zip
+            native-windows/artifacts/MeetingLens-Camera-*-win-x64-UNSIGNED-TEST.zip.sha256
+            native-windows/artifacts/camera-validation/**
+            native-windows/artifacts/camera-enumeration-validation/**
+            native-windows/artifacts/camera-provider-tests-x64/*.stdout.txt
+            native-windows/artifacts/camera-provider-tests-x64/*.stderr.txt
+            native-windows/artifacts/HARDWARE-TEST-LIMITS.txt

@@ -1,6 +1,6 @@
 {
   "schema": "meetinglens.native.implementation.v1",
-  "version": "3.0.1",
+  "version": "3.3.0-candidate",
   "validation": {
     "managedSourceCompilation": "passed-against-209-official-net-and-windows-metadata-references-with-warnings-as-errors",
     "protocolTests": "12-passed-in-linux-harness",
@@ -8,7 +8,13 @@
     "windowsBuild": "full-windows-packaging-not-executed-in-linux-workspace",
     "hardware": "not-executed",
     "ciWorkflow": "workflows/windows-native-build.yml",
-    "nativeSelfTestChecks": 12
+    "nativeSelfTestChecks": 12,
+    "cameraHostManagedSource": "passed-212-official-metadata-references-warnings-as-errors-and-sdk-analyzers",
+    "cameraHostPortableTests": 23,
+    "cameraHostIndependentChecks": 40,
+    "cameraProviderPortableChecks": 36,
+    "browserOutputChecks": 26,
+    "cameraIntegrationEvidence": "../docs/validation/virtual-camera-3.3.0.md"
   },
   "windowsControlsSource": {
     "project": "MeetingLens.Windows/MeetingLens.Windows.csproj",
@@ -30,15 +36,33 @@
     "bypassesWindowsStudioEffects": false
   },
   "virtualCamera": {
-    "status": "real-upstream-provider-and-installer-source-included-not-integrated",
-    "provider": "vendor/Samples/VirtualCamera/VirtualCameraMediaSource",
-    "supportsPwaCanvasInput": false,
+    "status": "integrated-source-candidate-awaiting-windows-acceptance",
+    "provider": "VirtualCameraProvider",
+    "host": "MeetingLens.Camera",
+    "supportsPwaCanvasInput": true,
+    "standalonePwaInstallsDevice": false,
+    "output": {
+      "width": 1280,
+      "height": 720,
+      "nominalFps": 30,
+      "formats": [
+        "NV12",
+        "RGB32"
+      ],
+      "staleFrameMs": 750
+    },
+    "transport": "WebView2-shared-buffer-and-local-named-pipe",
+    "lifetime": "current-user-session",
+    "virtualMicrophone": false,
     "meetingAppsValidated": false,
-    "releasedOrInstalled": false
+    "releasedOrInstalled": false,
+    "windowsWorkflow": "workflows/windows-virtual-camera.yml"
   },
   "pwaBridge": {
     "liveSystemControl": false,
     "localHttpService": false,
-    "reportSchema": "meetinglens.windows.capabilities.v1"
+    "reportSchema": "meetinglens.windows.capabilities.v1",
+    "canvasBridgeInDesktopHost": true,
+    "standaloneBrowserVideoOutput": false
   }
 }

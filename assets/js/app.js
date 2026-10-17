@@ -69,14 +69,16 @@
   let visionReady = false, visionLoading = false, visionCapabilities = {}, analysis = null, analysisCompletedAt = 0, analysisValidForMs = 1500, visionPending = false, visionGeneration = 0;
   let lastVisionAt = -Infinity, demoRevision = 0, analyzedDemoRevision = -1, trackingCenter = null, visionRetryTimer = null, replacementRendered = false, blurRendered = false;
   let visionStartupError = "", visionFrameError = "", visionModelErrors = {};
-  let sessionTools = null;
+  let sessionTools = null, virtualCamera = null, nativeFrameCurrent = false, nativeFrameRenderedAt = -Infinity, nativeVideoTime = -1, nativeVideoProgressAt = -Infinity;
   const LIVE_ANALYSIS_MAX_AGE = 1500;
+  function isCaptureHidden() { return document.hidden && !virtualCamera?.isActive(); }
   const panelText = { studio: ["Your studio", "SESSION OVERVIEW"], looks: ["Light & color", "NATURAL ENHANCEMENT"],
     background: ["Camera backgrounds", "SCENE EXPLORER"], frame: ["Framing & capture", "COMPOSITION"],
     device: ["Camera & capture", "DEVICE SETUP"], presets: ["My presets", "SAVED SETUPS"], privacy: ["Privacy & settings", "ON YOUR DEVICE"],
     effects: ["Live effects", "LOCAL CAMERA INTELLIGENCE"], session: ["Voice, QR & backup", "SESSION TOOLS"] };
 
   function resetVision() {
+    invalidateNativeFrame();
     visionGeneration++; analysis = null; analysisCompletedAt = 0; analysisValidForMs = LIVE_ANALYSIS_MAX_AGE; trackingCenter = null; lastVisionAt = -Infinity; analyzedDemoRevision = -1; replacementRendered = blurRendered = false;
     pairedVisionFrame = pendingVisionFrame = comparisonSource = null; pairedVisionTimestamp = 0;
     resetEffectFrameRate();
@@ -164,7 +166,7 @@
     renderVisionDiagnostics();
   }
   function loadRequiredVision() {
-    if (phase !== "live" || visionLoading || disposed || state.privacy || state.browserBasic || state.originalHeld || state.enhancement <= 0 || document.hidden || cameraMuted) return;
+    if (phase !== "live" || visionLoading || disposed || state.privacy || state.browserBasic || state.originalHeld || state.enhancement <= 0 || isCaptureHidden() || cameraMuted) return;
     const face = state.autoFrame || state.refinement || state.teeth;
     const segmentation = state.backgroundBlur || state.portraitLight || state.backgroundReplace;
     if ((face || segmentation) && (!visionReady || (face && !visionCapabilities.face) || (segmentation && !visionCapabilities.segmentation))) enableVision();
@@ -190,7 +192,7 @@
     finally { visionLoading = false; updateControls(); }
   }
   function scheduleAnalysis(source) {
-    if (!effectsActive() || visionPending || disposed || state.privacy || document.hidden || cameraMuted) return;
+    if (!effectsActive() || visionPending || disposed || state.privacy || isCaptureHidden() || cameraMuted) return;
     const now = performance.now();
     const live = phase === "live", face = Boolean(visionCapabilities.face && (state.autoFrame || state.refinement || state.teeth));
     const segmentation = Boolean(visionCapabilities.segmentation && (state.backgroundBlur || state.portraitLight || (state.backgroundReplace && live)));
@@ -222,7 +224,7 @@
       const slow = result.mask && analysisCompletedAt - result.timestamp > LIVE_ANALYSIS_MAX_AGE;
       text("trackingStatus", (result.face ? "Face located · local tracking active" : state.autoFrame ? "No face located · using the wider frame" : "Local person effects active") + (slow ? " · slower processing on this device" : ""));
       requestRender();
-    }).catch(error => { if (generation === visionGeneration && !state.privacy && !document.hidden && !disposed) { text("trackingStatus", "Frame analysis paused. Manual preview remains available."); recordVisionStatus({ state: "recovering", error }); } }).finally(() => {
+    }).catch(error => { if (generation === visionGeneration && !state.privacy && !isCaptureHidden() && !disposed) { text("trackingStatus", "Frame analysis paused. Manual preview remains available."); recordVisionStatus({ state: "recovering", error }); } }).finally(() => {
       if (requestFrame && requestFrame !== pairedVisionFrame) clearAnalysisFrame(requestFrame);
       if (pendingVisionFrame === requestFrame) pendingVisionFrame = null;
       visionPending = false; if (generation !== visionGeneration) requestRender();
@@ -363,14 +365,32 @@
     else { const track = activeStream?.getVideoTracks()[0]; text("deviceLabel", track?.label || "Connected camera"); text("resolutionLabel", `${canvas.width} × ${canvas.height} output`); text("cameraSetupState", `${video.videoWidth || track?.getSettings?.().width || "—"} × ${video.videoHeight || track?.getSettings?.().height || "—"} input · camera stream is video only`); }
     updateFrameRateLabel();
     updateBackgroundNotice();
+    virtualCamera?.refresh();
   }
   function clearCameraError() { hide("cameraError", true); text("cameraErrorText", ""); }
   function cameraError(message) { text("cameraErrorText", message); hide("cameraError", false); }
   function errorMessage(error) {
+    if (error?.name === "VirtualCameraLoopError") return "Choose a physical USB or built-in camera in Camera & capture. MeetingLens Virtual Camera is the meeting output and cannot be its own input.";
     const messages = { NotAllowedError: "Camera access was denied. Allow the camera in your browser or Windows privacy settings, then select Retry.", SecurityError: "Camera access is blocked. Open MeetingLens over HTTPS and check your browser camera permissions.", NotFoundError: "No available camera was found. Connect a camera, select it below, then select Retry.", NotReadableError: "The camera could not be opened. Close another app using it, check its connection, then select Retry.", OverconstrainedError: "This camera could not use the selected settings. Choose another camera or a lower quality, then retry.", AbortError: "Camera startup was interrupted. Check the camera, then select Retry." };
     return messages[error?.name] || "The camera could not start. Check its connection and permissions, then select Retry.";
   }
-  function clearPreview() { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.filter = "none"; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = "#101825"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore(); }
+  function invalidateNativeFrame() { nativeFrameCurrent = false; virtualCamera?.refresh(); }
+  function getNativeFrame(options = {}) {
+    // Native pulls keep live processing moving when Windows minimizes the
+    // companion and throttles requestAnimationFrame. Never draw from status
+    // refresh callbacks, which would recurse into the output bridge.
+    if (options.refresh && virtualCamera?.isActive() && phase === "live" && !state.privacy && !disposed && !cameraMuted) drawFrame(true);
+    let reason = "Start your physical camera before sending video to a meeting.";
+    let ready = phase === "live" && !cameraMuted && !disposed && !state.privacy && !isCaptureHidden() && video.readyState >= 2 && nativeFrameCurrent && performance.now() - nativeVideoProgressAt <= 1000;
+    if (state.originalHeld || state.split) { ready = false; reason = "Comparison view pauses meeting output. Release Original and turn off side-by-side comparison."; }
+    else if (phase === "live" && cameraMuted) reason = "Camera signal paused. Meeting camera output is black.";
+    else if (state.backgroundReplace && !replacementRendered) { ready = false; reason = "Waiting for the selected background. Meeting camera output stays black to protect your room."; }
+    else if (state.backgroundBlur && !state.backgroundReplace && !backgroundBlurApplied()) { ready = false; reason = "Waiting for background blur. Meeting camera output stays black to protect your room."; }
+    else if (phase === "live" && !nativeFrameCurrent) reason = "Preparing the enhanced preview. Meeting camera output is black.";
+    return { canvas, ready, reason, privacy: state.privacy, renderedAt: nativeFrameRenderedAt };
+  }
+  function meetingOutputActiveChanged(active) { if (!active && document.hidden && !disposed && (phase === "live" || phase === "starting")) stopCamera(false, "paused"); }
+  function clearPreview() { invalidateNativeFrame(); ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.filter = "none"; ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = "#101825"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore(); }
   function resizeOutput() {
     const size = state.quality === "high" ? [1920, 1080] : state.quality === "efficient" ? [640, 360] : [1280, 720];
     if (canvas.width === size[0] && canvas.height === size[1]) return;
@@ -492,19 +512,20 @@
     if (strength && state.temperature) { const alpha = Math.abs(state.temperature) / 50 * .13 * strength; ctx.fillStyle = state.temperature > 0 ? `rgba(255,161,62,${alpha})` : `rgba(58,139,255,${alpha})`; ctx.fillRect(0, 0, w, h); }
     if (strength && state.vignette) { const vignette = ctx.createRadialGradient(w / 2, h * .46, h * .30, w / 2, h / 2, w * .68); vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, `rgba(3,9,18,${state.vignette / 100 * strength})`); ctx.fillStyle = vignette; ctx.fillRect(0, 0, w, h); }
   }
-  function drawFrame() {
-    if (state.privacy || document.hidden || disposed) return;
+  function drawFrame(forNative = false) {
+    if (state.privacy || isCaptureHidden() || disposed) return;
     if (phase === "starting" || cameraMuted) { replacementRendered = blurRendered = false; clearPreview(); updateLiveBackgroundStatus(); return; }
-    let source; if (phase === "live") { if (video.readyState < 2) return; source = video; } else { drawDemoSource(); source = demoCanvas; }
+    let source; if (phase === "live") { if (video.readyState < 2) { invalidateNativeFrame(); return; } source = video; if (video.currentTime !== nativeVideoTime) { nativeVideoTime = video.currentTime; nativeVideoProgressAt = performance.now(); } } else { drawDemoSource(); source = demoCanvas; }
     source = prepareEffects(source);
     updateLiveBackgroundStatus();
     updateFrameRateLabel();
     ctx.save(); ctx.filter = "none"; ctx.fillStyle = "#101825"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore(); drawView(source, state.originalHeld);
     if (state.split && !state.originalHeld) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, canvas.width / 2, canvas.height); ctx.clip(); drawView(comparisonSource, true); ctx.restore(); }
+    nativeFrameCurrent = phase === "live"; nativeFrameRenderedAt = performance.now(); if (!forNative) virtualCamera?.refresh();
   }
-  function requestRender() { dirty = true; if (!rafId && !document.hidden && !state.privacy && !disposed) rafId = requestAnimationFrame(render); }
+  function requestRender() { dirty = true; if (!rafId && !isCaptureHidden() && !state.privacy && !disposed) rafId = requestAnimationFrame(render); }
   function render(time) {
-    rafId = 0; if (document.hidden || state.privacy || disposed) return;
+    rafId = 0; if (isCaptureHidden() || state.privacy || disposed) return;
     const live = phase === "live", targetFps = state.quality === "efficient" ? Math.min(20, state.requestedFps) : state.requestedFps;
     const newFrame = live && !cameraMuted && video.readyState >= 2 && video.currentTime !== lastVideoTime;
     if (dirty || (newFrame && time - lastRender >= 1000 / targetFps - 1)) {
@@ -518,7 +539,7 @@
   function releaseCamera() {
     resetVision();
     const previous = activeStream; activeStream = null; try { video.pause(); } catch { /* Can reject during startup. */ }
-    video.srcObject = null; stopTracks(previous); cameraMuted = false; measuredFps = null; sampleStart = 0; sampleFrames = 0; lastVideoTime = -1;
+    video.srcObject = null; stopTracks(previous); cameraMuted = false; measuredFps = null; sampleStart = 0; sampleFrames = 0; lastVideoTime = -1; nativeVideoTime = -1; nativeVideoProgressAt = -Infinity;
     if (rafId) cancelAnimationFrame(rafId); rafId = 0; clearPreview();
   }
   function cancelCapture(message) { captureToken++; clearTimeout(captureTimer); captureTimer = null; const wasActive = countdownActive; countdownActive = false; hide("countdown", true); updateCameraUI(); if (message && wasActive) showToast(message); }
@@ -527,6 +548,7 @@
     if (showMessage) showToast("Camera stopped. Start it again when you are ready.");
   }
   function requestIsCurrent(id) { return id === requestId && !state.privacy && !document.hidden && !disposed; }
+  function isOwnVirtualCamera(label) { return /^MeetingLens(?: Windows)? Virtual Camera(?:\b|$)/i.test(label || ""); }
   function cameraConstraints(fallback = false) {
     const device = selectedCameraId ? { deviceId: { exact: selectedCameraId } } : {};
     if (fallback) return { video: Object.keys(device).length ? device : true, audio: false };
@@ -541,10 +563,18 @@
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) { phase = "error"; cameraError("Camera access needs a secure HTTPS page and a supported browser. Publish the app, or use localhost for development."); updateCameraUI(); return; }
     const id = ++requestId; cancelCapture(); releaseCamera(); phase = "starting"; clearCameraError(); updateControls(); requestRender(); let acquired = null, usedFallback = false;
     try {
+      if (window.chrome?.webview && !selectedCameraId) {
+        // Never feed this virtual camera back into itself when Windows makes it
+        // the default input. Labeled physical cameras can be selected upfront.
+        const inputs = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+        if (!requestIsCurrent(id)) return;
+        selectedCameraId = inputs.find(device => device.kind === "videoinput" && device.label && !isOwnVirtualCamera(device.label))?.deviceId || "";
+      }
       try { acquired = await navigator.mediaDevices.getUserMedia(cameraConstraints()); }
       catch (error) { if (error?.name !== "OverconstrainedError" || !requestIsCurrent(id)) throw error; usedFallback = true; acquired = await navigator.mediaDevices.getUserMedia(cameraConstraints(true)); }
       if (!requestIsCurrent(id)) { stopTracks(acquired); return; }
       const track = acquired.getVideoTracks()[0]; if (!track || track.readyState === "ended") throw new Error("No active video track");
+      if (isOwnVirtualCamera(track.label)) { const error = new Error("Choose a physical USB or built-in camera in Camera & capture. MeetingLens Virtual Camera is the meeting output and cannot be its own input."); error.name = "VirtualCameraLoopError"; throw error; }
       activeStream = acquired; video.srcObject = acquired;
       track.addEventListener("ended", () => { if (activeStream !== acquired) return; stopCamera(false, "error"); cameraError("The camera disconnected or stopped. Reconnect it and select Retry."); refreshDevices(); });
       track.addEventListener("mute", () => { if (activeStream !== acquired || phase !== "live") return; cameraMuted = true; cancelCapture(); resetVision(); clearPreview(); updateCameraUI(); requestRender(); });
@@ -560,12 +590,12 @@
       loadRequiredVision();
       await refreshDevices();
       if (requestIsCurrent(id)) showToast(usedFallback ? "Requested camera mode was unavailable. The driver default is shown instead." : "Camera connected. The microphone stays off until you start it separately.");
-    } catch (error) { stopTracks(acquired); if (id !== requestId) return; releaseCamera(); phase = "error"; cameraError(errorMessage(error)); updateControls(); requestRender(); }
+    } catch (error) { stopTracks(acquired); if (id !== requestId) return; releaseCamera(); phase = "error"; cameraError(errorMessage(error)); updateControls(); requestRender(); if (error?.name === "VirtualCameraLoopError") refreshDevices(); }
   }
   async function refreshDevices() {
     if (!navigator.mediaDevices?.enumerateDevices) return;
     try {
-      const devices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === "videoinput"); if (disposed) return;
+      const devices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === "videoinput" && !isOwnVirtualCamera(device.label)); if (disposed) return;
       const select = $("#cameraSelect"); if (!select) return; const wanted = selectedCameraId; select.replaceChildren();
       const option = document.createElement("option"); option.value = ""; option.textContent = "System default camera"; select.append(option);
       devices.forEach((device, index) => { const opt = document.createElement("option"); opt.value = device.deviceId; opt.textContent = (device.label || `Camera ${index + 1}`).slice(0, 100); select.append(opt); });
@@ -603,6 +633,7 @@
     const tick = () => { if (token !== captureToken || state.privacy || document.hidden || disposed) return; if (!remaining) { finish(); return; } text("countdown", String(remaining--)); hide("countdown", false); captureTimer = setTimeout(tick, 1000); }; tick();
   }
   function applyChanges(changes, message) {
+    invalidateNativeFrame();
     const visionChanged = ["autoFrame", "backgroundBlur", "backgroundReplace", "headDetail", "portraitLight", "refinement", "teeth", "browserBasic"].some(key => Object.hasOwn(changes, key) && changes[key] !== state[key]);
     const requestModels = ["autoFrame", "backgroundBlur", "backgroundReplace", "portraitLight", "refinement", "teeth"].some(key => changes[key] === true && !state[key]) ||
       (state.browserBasic && changes.browserBasic === false) || (state.enhancement <= 0 && changes.enhancement > 0);
@@ -652,7 +683,7 @@
       presets.push(...imported.map(item => ({ ...item, id: makeId() }))); writeStorage(PRESETS_KEY, presets); renderPresets(); showToast(`${imported.length} setup${imported.length === 1 ? "" : "s"} imported.`);
     } catch (error) { showToast(error instanceof SyntaxError ? "This file is not valid JSON. Choose an exported MeetingLens setup file." : error.message || "The setup file could not be read."); } finally { input.value = ""; }
   }
-  function setOriginal(held) { if (state.originalHeld === held || state.privacy) return; state.originalHeld = held; resetEffectFrameRate(); updateControls(); requestRender(); if (!held) loadRequiredVision(); }
+  function setOriginal(held) { if (state.originalHeld === held || state.privacy) return; invalidateNativeFrame(); state.originalHeld = held; resetEffectFrameRate(); updateControls(); requestRender(); if (!held) loadRequiredVision(); }
   function isEditing(event) { return Boolean(event.target?.closest?.("input,select,textarea,[contenteditable='true']")); }
   function updateConnection() { text("offlineLabel", navigator.onLine ? "On-device processing" : "Offline · cached studio"); $("#offlineLabel")?.classList.toggle("offline", !navigator.onLine); hide("offlineLabel", navigator.onLine); }
   function registerEvents() {
@@ -690,9 +721,9 @@
     document.addEventListener("keydown", event => { if (isEditing(event) || event.repeat) return; if (event.altKey && event.key.toLowerCase() === "p") { event.preventDefault(); activatePrivacyShield(); } else if (event.altKey && event.key.toLowerCase() === "s") { event.preventDefault(); captureSnapshot(); } else if (!event.ctrlKey && !event.altKey && !event.metaKey && event.key.toLowerCase() === "c") { event.preventDefault(); setOriginal(true); } });
     document.addEventListener("keyup", event => { if (event.key.toLowerCase() === "c") setOriginal(false); }); window.addEventListener("blur", () => setOriginal(false)); on("cameraVideo", "loadedmetadata", updateCameraUI);
     navigator.mediaDevices?.addEventListener?.("devicechange", () => { clearTimeout(deviceRefreshTimer); deviceRefreshTimer = setTimeout(handleDeviceChange, 250); });
-    document.addEventListener("visibilitychange", () => { setOriginal(false); cancelCapture(); if (document.hidden) { if (phase === "starting" || (phase === "live" && state.autoPause)) stopCamera(false, "paused"); else { resetVision(); clearPreview(); if (rafId) cancelAnimationFrame(rafId); rafId = 0; sampleStart = 0; sampleFrames = 0; measuredFps = null; } } else { updateCameraUI(); requestRender(); loadRequiredVision(); } });
-    window.addEventListener("pagehide", () => { sessionTools?.stopPrivateResources("App closed"); stopCamera(false); disposed = true; clearTimeout(deviceRefreshTimer); for (const url of objectUrls) URL.revokeObjectURL(url); objectUrls.clear(); });
-    window.addEventListener("pageshow", event => { if (event.persisted) { disposed = false; phase = "demo"; updateControls(); requestRender(); } });
+    document.addEventListener("visibilitychange", () => { setOriginal(false); cancelCapture(); if (document.hidden && !virtualCamera?.isActive()) { if (phase === "starting" || (phase === "live" && state.autoPause)) stopCamera(false, "paused"); else { resetVision(); clearPreview(); if (rafId) cancelAnimationFrame(rafId); rafId = 0; sampleStart = 0; sampleFrames = 0; measuredFps = null; } } else { updateCameraUI(); requestRender(); loadRequiredVision(); } });
+    window.addEventListener("pagehide", () => { virtualCamera?.dispose(); sessionTools?.stopPrivateResources("App closed"); stopCamera(false); disposed = true; clearTimeout(deviceRefreshTimer); for (const url of objectUrls) URL.revokeObjectURL(url); objectUrls.clear(); });
+    window.addEventListener("pageshow", event => { if (event.persisted) { disposed = false; phase = "demo"; virtualCamera = window.MeetingLensVirtualCamera?.init({ getFrame: getNativeFrame, onActiveChange: meetingOutputActiveChanged }) || null; updateControls(); requestRender(); } });
     window.addEventListener("beforeinstallprompt", event => { event.preventDefault(); deferredInstallPrompt = event; hide("installButton", false); });
     on("installButton", "click", async () => { if (!deferredInstallPrompt) return; try { await deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; } catch { showToast("Use your browser’s Install app option to install MeetingLens."); } deferredInstallPrompt = null; hide("installButton", true); });
     window.addEventListener("appinstalled", () => { hide("installButton", true); showToast("MeetingLens installed."); }); window.addEventListener("online", updateConnection); window.addEventListener("offline", updateConnection);
@@ -712,9 +743,11 @@
   loadScene(state.scene);
   portrait.src = "./assets/demo/professional-portrait.webp";
   sessionTools = window.MeetingLensSessionTools?.init({ getCanvas: () => canvas, onStatus: (message, level) => { if (level === "error") showToast(message); } }) || null;
+  virtualCamera = window.MeetingLensVirtualCamera?.init({ getFrame: getNativeFrame, onActiveChange: meetingOutputActiveChanged }) || null;
   resizeOutput(); registerEvents(); updateControls(); renderPresets(); storageNotice(); updateConnection(); refreshDevices(); registerServiceWorker(); requestRender();
   window.MeetingLensStudio = { getState: () => ({ ...sanitize(state), phase, privacy: state.privacy, visionReady, visionPending }), getAnalysis: () => analysis,
     getFramePair: () => pairedVisionFrame && currentAnalysis()?.timestamp === pairedVisionTimestamp ? { timestamp: pairedVisionTimestamp, width: pairedVisionFrame.width, height: pairedVisionFrame.height } : null,
+    getMeetingOutput: () => virtualCamera?.getStatus() || { state: "unavailable", connected: false },
     loadAI: enableVision, stop: () => { sessionTools?.stopPrivateResources("Session stopped"); stopCamera(false); } };
   const params = new URLSearchParams(location.search); if (Object.prototype.hasOwnProperty.call(panelText, params.get("screen"))) setPanel(params.get("screen"));
   if (params.get("action") === "camera") showToast("Select Start camera when you are ready to grant permission.");

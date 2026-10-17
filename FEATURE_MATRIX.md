@@ -1,4 +1,4 @@
-# MeetingLens 3.2.1 feature status
+# MeetingLens 3.3.0 integration candidate feature status
 
 This table describes the implemented source, not certification or proof of compatibility with every device. The installable PWA and the separate native Windows source projects have different capabilities. See VALIDATION.md and RELEASE_CHECKLIST.md for testing.
 
@@ -17,7 +17,7 @@ This table describes the implemented source, not certification or proof of compa
 | Kernel Streaming / double-filter avoidance | Browser page can import a validated local capability report and warns if its snapshot reported active Windows blur. Basic preview bypasses app effects. | Separate native utility reads/sets supported KS effect properties. Report import is not live synchronization or an automatic system-wide filter policy. |
 | NPU offload | No NPU provider is selected. Person segmentation can use a recognized hardware GPU with the same model on CPU/WebAssembly as fallback; face tracking uses CPU. | Windows chooses acceleration for supported Studio Effects; the utility does not select or benchmark an NPU provider. |
 | USB webcams / multiple cameras | Enumerate available cameras and switch the active device, releasing the previous stream. | Modes/behavior depend on camera and driver; simultaneous multi-camera composition is not implemented. |
-| Multi-App Camera | PWA does not register a virtual camera or broadcast its canvas. | Open Windows camera settings for available OS multi-app controls. A pinned Microsoft virtual-camera reference and build script are included, but its source provider is not connected to the PWA canvas. End-to-end enhanced Zoom/Teams/Camera routing is unfinished. |
+| Virtual meeting camera | The standalone PWA does not register a camera. Its new WebView2 bridge supplies processed canvas pixels only in the separate MeetingLens Camera desktop host after explicit output start. | MeetingLens-specific Media Foundation provider, local pipe transport, WebView2 host, installer and Windows CI are included in source. Fixed 1280 × 720, nominal 30 fps, RGB32/NV12 output. No virtual microphone. Windows build/install and Teams/Zoom/hardware acceptance are release gates; source checks do not establish meeting compatibility. |
 | Basic Camera Mode / raw DirectShow | Basic preview bypasses MeetingLens visual processing only; browser/driver system effects may remain. | A separate C++ DirectShow diagnostic preview is provided. It does not guarantee raw sensor data or override enterprise policy/system effects. |
 | Fine zoom / resolution / FPS | Digital crop zoom in 0.1% steps; supported camera capability ranges inform resolution/FPS choices, with safe request fallback and actual output readout. | Native utility lists driver-reported formats and exposes device zoom/ranges when supported. Hidden or unsupported driver modes cannot be manufactured. |
 | QR links to clipboard | Local BarcodeDetector or bundled jsQR decoding; explicit copy, optional copy of newly decoded links, and a fallback when clipboard permission is blocked. | No automatic URL opening. Clipboard access remains subject to browser/OS permissions. |
@@ -38,4 +38,4 @@ The report viewer never controls the camera, requests microphone access, launche
 
 ## Before claiming a capability publicly
 
-Use the exact shipped version and package, verify the workflow on the supported hardware, keep optional controls unavailable when unsupported, and keep the Store copy aligned with this matrix. Native reference source, Windows settings links, and a completed PWA are not proof of an integrated virtual camera.
+Use the exact shipped version and package, verify the workflow on the supported hardware, keep optional controls unavailable when unsupported, and keep the Store copy aligned with this matrix. Native implementation source and a completed PWA are not proof of successful installation or meeting-app compatibility. The 3.3.0 native camera candidate must pass its Windows acceptance checks before public feature claims.
