@@ -88,8 +88,10 @@ async function start(page) {
 }
 async function waitMask(page) {
   await page.waitForFunction(() => {
-    const a = window.MeetingLensStudio.getAnalysis();
-    return window.MeetingLensStudio.getState().visionReady && !!a?.mask && performance.now() - a.timestamp < 1500;
+    const a = window.MeetingLensStudio.getAnalysis(), pair = window.MeetingLensStudio.getFramePair();
+    // Readiness follows the completed-pair lifetime used by the app. A valid
+    // detailed result can finish after the old 1.5-second capture-age limit.
+    return window.MeetingLensStudio.getState().visionReady && !!a?.mask && pair?.timestamp === a.timestamp;
   }, null, { timeout: 100000 });
   await page.waitForTimeout(200);
 }
@@ -322,7 +324,8 @@ async function run() {
       window.MeetingLensVision.analyze = () => new Promise(resolve => { window.__releaseStalled = () => resolve({ timestamp: performance.now(), mask: null, face: null }); });
     });
     await page.waitForFunction(() => !!window.__releaseStalled && window.MeetingLensStudio.getState().visionPending);
-    await page.waitForTimeout(1900);
+    await page.waitForFunction(() => !window.MeetingLensStudio.getFramePair(), null, { timeout: 10000 });
+    await settleFrame(page);
     assert(difference(raw, await pixels(page)) < .1, "Expired person mask falls back to a complete current camera frame");
     await page.locator("#stopCameraButton").click(); await page.evaluate(() => window.__releaseStalled());
     await close(context, page);

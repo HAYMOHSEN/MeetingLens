@@ -122,7 +122,7 @@
       captureCanvas.getContext("2d", { alpha: false }).drawImage(source, 0, 0, captureCanvas.width, captureCanvas.height);
       const bitmap = await createImageBitmap(captureCanvas);
       if (generation !== cancelGeneration || disposed || !worker) { bitmap.close(); return cached; }
-      const { result } = await request("analyze", { bitmap, timestamp, options: { face: options.face !== false, segmentation: options.segmentation !== false } }, [bitmap], 20000);
+      const { result } = await request("analyze", { bitmap, timestamp, options: { face: options.face !== false, segmentation: options.segmentation !== false, headDetail: Boolean(options.headDetail) } }, [bitmap], 20000);
       if (generation !== cancelGeneration || disposed) return cached;
       // An old worker reply must not renew the usable lifetime of its mask or
       // overwrite the pixels attached to the currently completed camera frame.

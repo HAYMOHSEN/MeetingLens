@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.3 — 2026-10-17
+
+- Added Head edge detail for live replacement and room blur. A closer analysis of a padded head region can distinguish hair from an overlapping chair more accurately than the full-frame model alone.
+- Kept the same local model and captured-frame pairing. The detailed mask blends into the full-frame mask; body pixels outside that region retain the original coverage.
+- Made the additional processing optional in Live effects, enabled by default. It increases analysis time, especially on CPU. Missing face regions and optional-pass failures retain the ordinary mask.
+- Advanced the offline-shell cache so existing installations receive the worker, controls and bridge together.
+
+The reported chair/hair case was reproduced from an unprocessed supplied camera image before implementing this change. See [the validation record](./docs/validation/head-detail-3.2.3.md) for the final verification scope. Strong window backlight can still leave a real pale rim in the captured hair. General webcam compatibility and other scenes require further physical-device testing.
+
 ## 3.2.2 — 2026-10-17
 
 - Load the required local models for saved blur, portrait light, framing and face-refinement settings when a camera session starts. Automatic loading respects Privacy Shield, Basic preview, Hold original, hidden/muted camera state and zero intensity.

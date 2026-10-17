@@ -59,7 +59,7 @@
       <a class="nav-button nav-link native-link" href="./native-capabilities.html"><svg class="icon"><use href="#i-chip"/></svg><span>Windows companion</span></a>
       <div class="nav-spacer"></div>
       <div class="local-note"><svg class="icon"><use href="#i-shield"/></svg><b>A little more peace of mind.</b><p>Your camera preview is processed on your device.</p><a href="./privacy.html">Privacy policy <span aria-hidden="true">↗</span></a></div>
-      <span class="nav-version">MEETINGLENS · V3.2.2</span>
+      <span class="nav-version">MEETINGLENS · V3.2.3</span>
     </nav>
 
     <main class="main-content" id="mainContent">
@@ -142,6 +142,7 @@
             <p class="tracking-status" id="trackingStatus" role="status">Face tracking is off</p>
             <div class="switch-row"><div><b>Background Blur</b><small>Soften the room while keeping you in focus</small></div><button class="switch" id="backgroundBlurSwitch" type="button" role="switch" aria-checked="false" aria-label="Background Blur"><i></i></button></div>
             <div class="setting-block effect-adjustment"><label for="blurAmountRange"><span>Blur depth</span><output id="blurAmountOutput" for="blurAmountRange">12</output></label><input id="blurAmountRange" type="range" min="0" max="30" value="12"><div class="range-hints"><span>Subtle</span><span>Soft bokeh</span></div></div>
+            <div class="switch-row"><div><b>Head edge detail</b><small id="headDetailDescription">Closer head analysis can reduce chair and hair confusion with blur or replacement. Adds processing time; turn off for faster effects. Inactive in Basic preview.</small></div><button class="switch" id="headDetailSwitch" type="button" role="switch" aria-checked="true" aria-label="Head edge detail" aria-describedby="headDetailDescription"><i></i></button></div>
             <div class="switch-row"><div><b>Portrait Light</b><small>Lift shadows with a gentle, adjustable light</small></div><button class="switch" id="portraitLightSwitch" type="button" role="switch" aria-checked="false" aria-label="Portrait Light"><i></i></button></div>
             <div class="setting-block effect-adjustment"><label for="portraitLightRange"><span>Light strength</span><output id="portraitLightOutput" for="portraitLightRange">50%</output></label><input id="portraitLightRange" type="range" min="0" max="100" value="50"></div>
             <div class="switch-row"><div><b>Face Refinement</b><small>Subtle smoothing within the detected face</small></div><button class="switch" id="refinementSwitch" type="button" role="switch" aria-checked="false" aria-label="Face Refinement"><i></i></button></div>

@@ -9,7 +9,7 @@
     softness: false, scene: "room", sceneStrength: 25, frame: "conversation", zoom: 100, showFrame: true,
     eyeLine: true, mirror: true, grid: false, temperature: 0, vignette: 8, split: false,
     quality: "balanced", timer: 0, snapshotFormat: "png", autoPause: true,
-    autoFrame: false, backgroundBlur: false, backgroundReplace: false, blurAmount: 12, portraitLight: false, portraitLightAmount: 50,
+    autoFrame: false, backgroundBlur: false, backgroundReplace: false, headDetail: true, blurAmount: 12, portraitLight: false, portraitLightAmount: 50,
     refinement: false, teeth: false, browserBasic: false, requestedResolution: "auto", requestedFps: 30 });
   const limits = { brightness: [0, 100], contrast: [0, 100], saturation: [0, 100], enhancement: [0, 100],
     sceneStrength: [0, 100], zoom: [100, 200], temperature: [-50, 50], vignette: [0, 60], blurAmount: [0, 30], portraitLightAmount: [0, 100] };
@@ -201,7 +201,7 @@
     pendingVisionFrame = requestFrame;
     lastVisionAt = now; analyzedDemoRevision = demoRevision; visionPending = true;
     const generation = visionGeneration;
-    window.MeetingLensVision.analyze(requestFrame || source, now, { face, segmentation }).then(result => {
+    window.MeetingLensVision.analyze(requestFrame || source, now, { face, segmentation, headDetail: Boolean(state.headDetail && segmentation && (state.backgroundBlur || state.backgroundReplace)) }).then(result => {
       if (generation !== visionGeneration || disposed || state.privacy || cameraMuted) return;
       if (document.hidden) { analyzedDemoRevision = -1; return; }
       // analyze() can return its previous cache after a recoverable frame error.
@@ -317,9 +317,10 @@
     for (const [id, key] of Object.entries({ qualitySelect: "quality", timerSelect: "timer", snapshotFormat: "snapshotFormat" })) { const el = document.getElementById(id); if (el) el.value = String(state[key]); }
     const lightRange = $("#portraitLightRange"); if (lightRange) lightRange.value = state.portraitLightAmount;
     text("portraitLightOutput", state.portraitLightAmount + "%"); text("blurAmountOutput", state.blurAmount + " px");
-    for (const [id, key] of Object.entries({ autoFrameSwitch: "autoFrame", backgroundBlurSwitch: "backgroundBlur", portraitLightSwitch: "portraitLight", refinementSwitch: "refinement", teethSwitch: "teeth", browserBasicSwitch: "browserBasic" })) setSwitch(id, state[key]);
+    for (const [id, key] of Object.entries({ autoFrameSwitch: "autoFrame", backgroundBlurSwitch: "backgroundBlur", headDetailSwitch: "headDetail", portraitLightSwitch: "portraitLight", refinementSwitch: "refinement", teethSwitch: "teeth", browserBasicSwitch: "browserBasic" })) setSwitch(id, state[key]);
     setSwitch("replaceBackgroundSwitch", state.backgroundReplace);
     const replaceSwitch = $("#replaceBackgroundSwitch"); if (replaceSwitch) replaceSwitch.disabled = state.browserBasic;
+    const headDetailSwitch = $("#headDetailSwitch"); if (headDetailSwitch) headDetailSwitch.disabled = state.browserBasic;
     for (const id of ["autoFrameSwitch", "backgroundBlurSwitch", "portraitLightSwitch", "refinementSwitch", "teethSwitch"]) {
       const el = document.getElementById(id); if (el) el.disabled = !visionReady || state.browserBasic || (id === "backgroundBlurSwitch" || id === "portraitLightSwitch" ? !visionCapabilities.segmentation : !visionCapabilities.face);
     }
@@ -602,7 +603,7 @@
     const tick = () => { if (token !== captureToken || state.privacy || document.hidden || disposed) return; if (!remaining) { finish(); return; } text("countdown", String(remaining--)); hide("countdown", false); captureTimer = setTimeout(tick, 1000); }; tick();
   }
   function applyChanges(changes, message) {
-    const visionChanged = ["autoFrame", "backgroundBlur", "backgroundReplace", "portraitLight", "refinement", "teeth", "browserBasic"].some(key => Object.hasOwn(changes, key) && changes[key] !== state[key]);
+    const visionChanged = ["autoFrame", "backgroundBlur", "backgroundReplace", "headDetail", "portraitLight", "refinement", "teeth", "browserBasic"].some(key => Object.hasOwn(changes, key) && changes[key] !== state[key]);
     const requestModels = ["autoFrame", "backgroundBlur", "backgroundReplace", "portraitLight", "refinement", "teeth"].some(key => changes[key] === true && !state[key]) ||
       (state.browserBasic && changes.browserBasic === false) || (state.enhancement <= 0 && changes.enhancement > 0);
     const oldScene = state.scene, oldStrength = state.sceneStrength, oldQuality = state.quality, oldResolution = state.requestedResolution, oldFps = state.requestedFps; Object.assign(state, sanitize({ ...state, ...changes }));
@@ -672,7 +673,7 @@
     on("deviceFpsSelect", "change", event => applyChanges({ requestedFps: Number(event.target.value) }));
     on("portraitLightRange", "input", event => applyChanges({ portraitLightAmount: Number(event.target.value) }));
     on("enableVisionButton", "click", enableVision);
-    for (const [id, key] of Object.entries({ autoFrameSwitch: "autoFrame", backgroundBlurSwitch: "backgroundBlur", portraitLightSwitch: "portraitLight", refinementSwitch: "refinement", teethSwitch: "teeth", browserBasicSwitch: "browserBasic" })) on(id, "click", () => applyChanges({ [key]: !state[key] }));
+    for (const [id, key] of Object.entries({ autoFrameSwitch: "autoFrame", backgroundBlurSwitch: "backgroundBlur", headDetailSwitch: "headDetail", portraitLightSwitch: "portraitLight", refinementSwitch: "refinement", teethSwitch: "teeth", browserBasicSwitch: "browserBasic" })) on(id, "click", () => applyChanges({ [key]: !state[key] }));
     on("openWindowsCameraSettings", "click", () => { if (/Windows/i.test(navigator.userAgent)) location.href = "ms-settings:camera"; else showToast("Open Windows Settings → Bluetooth & devices → Cameras on your Windows PC."); });
     on("cameraSelect", "change", event => { selectedCameraId = event.target.value; if (phase === "live") { stopCamera(false); startCamera(); } });
     on("privacyButton", "click", activatePrivacyShield); on("shieldQuickButton", "click", activatePrivacyShield); on("startCameraButton", "click", startCamera); on("retryCameraButton", "click", startCamera);

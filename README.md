@@ -1,6 +1,6 @@
 # MeetingLens — Camera Studio and Photo Lab
 
-Version **3.2.2**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
+Version **3.2.3**. MeetingLens is a Windows-friendly, installable PWA for preparing a webcam, improving photos, and capturing readable whiteboards. Camera, photo, and audio processing run locally. The app includes six professional interior backgrounds for live video and a clearly labeled fictional AI sample portrait for trying the controls without a camera.
 
 ## Camera studio
 
@@ -25,6 +25,8 @@ Face tracking, segmentation, and landmark assistance use bundled MediaPipe model
 After installing an older version, apply the app's **Update** banner and reload the updated app before testing. If no update appears, close and reopen the app online. This feature changes MeetingLens previews and snapshots; it does not change the camera selected in Zoom or Teams.
 
 Saved framing, blur, portrait light and face-refinement settings load their required models when the camera starts, just as selected backgrounds do. Basic preview, Hold original, zero intensity and Privacy Shield defer automatic loading. If an effect fails, open **Live effects → AI diagnostic details** to read the startup, model or frame-processing error. The Background panel also shows a relevant detection failure. These details stay in memory for the current tab; there is no automatic error upload. A successful retry clears the resolved errors. This disclosure helps identify failures on a particular browser; it does not remove the WebGL2 requirement or guarantee that a device can run the models.
+
+**Head edge detail**, enabled by default in Live effects, analyzes the head area more closely when using room blur or a replacement scene. This can reduce a chair being mistaken for hair while preserving the full-frame body mask. It adds processing time; switch it off if the effect cadence is too slow on your device. It uses the existing local model on the same captured frame. If a suitable face region is unavailable or the optional pass fails, the ordinary person mask remains usable. Bright backlighting captured in real hair can remain visible; this control does not reconstruct clipped highlights or guarantee correct classification in every scene.
 
 Live person effects apply each completed mask to the same captured camera frame that produced it. This avoids cutting a newly moved shoulder or arm with an older silhouette. The previous completed frame stays visible while the next analysis runs, so processing introduces delay and can reduce the displayed motion cadence, especially on CPU. Version 3.2.1 keeps a successful slow result usable after it finishes, rather than rejecting it immediately because capture occurred more than 1.5 seconds earlier. Its matching frame expires 1.5–5 seconds after genuine completion, depending on measured processing time; fast processing retains the normal 1.5-second limit. Cached results and errors cannot renew that lifetime. Face tracking still uses capture age.
 

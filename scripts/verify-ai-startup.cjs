@@ -16,7 +16,10 @@ async function check(name, action) {
 async function open(settings = {}, responses = [{ capabilities: ready }]) {
   const context = await browser.newContext({ viewport: { width: 1500, height: 1000 }, serviceWorkers: "block", permissions: ["camera"] }); contexts.add(context);
   await context.addInitScript(({ settings, responses }) => {
-    localStorage.setItem("meetinglens-settings", JSON.stringify(settings));
+    if (localStorage.getItem("meetinglens-settings") === null) localStorage.setItem("meetinglens-settings", JSON.stringify(settings));
+    window.__startupCameraRequests = 0;
+    const getUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = (...args) => { window.__startupCameraRequests++; return getUserMedia(...args); };
     window.__startupWorkers = [];
     window.Worker = class {
       constructor() { this.index = window.__startupWorkers.length; this.terminated = false; window.__startupWorkers.push(this); }
@@ -29,12 +32,17 @@ async function open(settings = {}, responses = [{ capabilities: ready }]) {
           message.bitmap?.close();
           const response = responses[Math.min(this.index, responses.length - 1)];
           window.__startupAnalysisOptions = message.options;
+          const mask = response.analysisMask ? { width: 2, height: 2, pixels: new Uint8ClampedArray(16).fill(255) } : null;
+          if (window.__startupHoldAnalysis) {
+            window.__startupReleaseHeld = () => this.onmessage?.({ data: { id: message.id, result: { timestamp: message.timestamp, face: null, mask } } });
+            return;
+          }
           if (response.analyzeError && !window.__startupFramesReleased) {
             if (!this.analysisFailed) { this.analysisFailed = true; queueMicrotask(() => this.onmessage?.({ data: { id: message.id, error: response.analyzeError } })); }
             else window.__startupReleaseFrame = () => { window.__startupFramesReleased = true; this.onmessage?.({ data: { id: message.id, result: { timestamp: message.timestamp, face: null, mask: null } } }); };
             return;
           }
-          queueMicrotask(() => this.onmessage?.({ data: { id: message.id, result: { timestamp: message.timestamp, face: response.analysisFace || null, mask: null } } }));
+          queueMicrotask(() => this.onmessage?.({ data: { id: message.id, result: { timestamp: message.timestamp, face: response.analysisFace || null, mask } } }));
         }
       }
     };
@@ -172,7 +180,7 @@ async function run() {
     await start(page); await page.waitForFunction(() => window.__startupFaceProcessing.length > 0);
     const result = await page.evaluate(() => ({ calls: window.__startupFaceProcessing, options: window.__startupAnalysisOptions,
       state: window.MeetingLensStudio.getState(), pair: window.MeetingLensStudio.getFramePair(), face: window.MeetingLensStudio.getAnalysis()?.face, crop: window.__startupFaceCrop }));
-    assert.deepEqual(result.options, { face: true, segmentation: false });
+    assert.deepEqual(result.options, { face: true, segmentation: false, headDetail: false });
     assert(result.calls.every(item => !item.backgroundImage && item.backgroundBlur === 0 && item.portraitLight === 0 && item.skinSmoothing > 0 && item.teethWhitening > 0));
     assert.equal(result.pair, null); assert(result.face); assert(result.state.autoFrame && result.state.refinement && result.state.backgroundBlur && result.state.backgroundReplace);
     assert(result.crop.cropWidth < result.crop.sourceWidth, "Available face tracking still drives auto framing");
@@ -185,9 +193,69 @@ async function run() {
     await check(`Saved ${setting} automatically loads local models after camera start`, async () => {
       const { context, page } = await open({ [setting]: true }); await noWorker(page); await start(page); await workerCount(page, 1);
       await page.waitForFunction(() => window.MeetingLensStudio.getState().visionReady); assert.equal(await page.evaluate(key => window.MeetingLensStudio.getState()[key], setting), true);
+      await page.waitForFunction(() => Boolean(window.__startupAnalysisOptions));
+      assert.equal(await page.evaluate(() => window.__startupAnalysisOptions.headDetail), ["backgroundReplace", "backgroundBlur"].includes(setting), "Head detail runs only for blur or replacement, not portrait light or face-only effects");
       await close(context, page);
     });
   }
+  await check("Head edge detail defaults on and its toggle saves without starting models or camera", async () => {
+    const { context, page } = await open(); await panel(page, "effects");
+    assert.equal(await page.locator("#headDetailSwitch").getAttribute("aria-checked"), "true");
+    assert(await page.locator("#headDetailSwitch").isEnabled());
+    await page.locator("#headDetailSwitch").click();
+    assert.equal(await page.locator("#headDetailSwitch").getAttribute("aria-checked"), "false");
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("meetinglens-settings")).headDetail), false);
+    await page.reload({ waitUntil: "networkidle" }); await panel(page, "effects");
+    assert.equal(await page.locator("#headDetailSwitch").getAttribute("aria-checked"), "false");
+    await page.locator("#headDetailSwitch").click(); await noWorker(page);
+    assert.equal(await page.evaluate(() => window.__startupCameraRequests), 0);
+    const state = await page.evaluate(() => window.MeetingLensStudio.getState());
+    assert.equal(state.phase, "demo"); assert(!state.backgroundBlur && !state.backgroundReplace && !state.portraitLight);
+    await start(page); await noWorker(page);
+    await page.locator("#headDetailSwitch").click(); await noWorker(page);
+    assert.equal(await page.evaluate(() => window.__startupCameraRequests), 1);
+    await close(context, page);
+  });
+  await check("Head edge detail transports explicit opt-in and defaults off for direct bridge callers", async () => {
+    const { context, page } = await open(); await load(page);
+    const flags = await page.evaluate(async () => {
+      const source = document.createElement("canvas"); source.width = source.height = 2;
+      const flags = [];
+      for (const options of [{}, { headDetail: true }, { headDetail: false }]) {
+        await window.MeetingLensVision.analyze(source, performance.now(), { ...options, force: true });
+        flags.push(window.__startupAnalysisOptions.headDetail);
+      }
+      return flags;
+    });
+    assert.deepEqual(flags, [false, true, false]);
+    await close(context, page);
+  });
+  await check("Saved disabled head edge detail stays off during background analysis and is disabled in Basic", async () => {
+    const { context, page } = await open({ backgroundBlur: true, headDetail: false }); await start(page);
+    await page.waitForFunction(() => Boolean(window.__startupAnalysisOptions));
+    assert.equal(await page.evaluate(() => window.__startupAnalysisOptions.headDetail), false);
+    await panel(page, "effects"); assert.equal(await page.locator("#headDetailSwitch").getAttribute("aria-checked"), "false");
+    await panel(page, "device"); await page.locator("#browserBasicSwitch").click(); await panel(page, "effects");
+    assert(await page.locator("#headDetailSwitch").isDisabled());
+    assert.equal(await page.locator("#headDetailSwitch").getAttribute("aria-checked"), "false");
+    await close(context, page);
+  });
+  await check("Changing head edge detail clears its old frame pair and rejects an in-flight old result", async () => {
+    const { context, page } = await open({ backgroundBlur: true }, [{ capabilities: ready, analysisMask: true }]);
+    await start(page); await page.waitForFunction(() => Boolean(window.MeetingLensStudio.getFramePair()));
+    await page.evaluate(() => { window.__startupHoldAnalysis = true; });
+    await page.waitForFunction(() => typeof window.__startupReleaseHeld === "function");
+    await panel(page, "effects"); await page.locator("#headDetailSwitch").click();
+    assert.equal(await page.evaluate(() => window.MeetingLensStudio.getFramePair()), null);
+    assert.equal(await page.evaluate(() => window.MeetingLensStudio.getAnalysis()), null);
+    await page.evaluate(() => { window.__startupReleaseHeld(); });
+    await page.waitForFunction(() => window.__startupAnalysisOptions.headDetail === false);
+    assert.equal(await page.evaluate(() => window.MeetingLensStudio.getFramePair()), null);
+    assert.equal(await page.evaluate(() => window.MeetingLensStudio.getAnalysis()), null);
+    assert.equal(await page.evaluate(() => window.__startupWorkers.length), 1);
+    assert.equal(await page.evaluate(() => window.__startupCameraRequests), 1);
+    await close(context, page);
+  });
   await check("Basic preview defers saved effects until Basic is disabled", async () => {
     const { context, page } = await open({ backgroundBlur: true, browserBasic: true }); await start(page); await noWorker(page);
     await panel(page, "device"); await page.locator("#browserBasicSwitch").click(); await workerCount(page, 1);
