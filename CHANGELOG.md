@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.2.2 — 2026-10-17
+
+- Load the required local models for saved blur, portrait light, framing and face-refinement settings when a camera session starts. Automatic loading respects Privacy Shield, Basic preview, Hold original, hidden/muted camera state and zero intensity.
+- Show the underlying startup, per-model and frame-processing errors in a text-only AI diagnostic disclosure. The Background panel reports the relevant detection failure, and partial model availability keeps supported effects usable.
+- Limit automatic model retries to relevant effect and session changes so unrelated color or zoom adjustments do not restart a partially available worker.
+- Advance the offline-shell cache so existing installations can receive the changed interface and scripts together.
+
+This change repairs saved-effect startup and exposes failures; it does not establish the cause of every browser's AI initialization failure. The model, runtime and WebGL2 requirement are unchanged. Physical Windows hardware verification remains outstanding. Apply the app's Update banner and reload after deployment.
+
+See [the focused validation record](./docs/validation/ai-startup-3.2.2.md) for completed checks and their limits.
+
 ## 3.2.1 — 2026-10-17
 
 - Fixed live backgrounds remaining inactive when successful person analysis took longer than 1.5 seconds. Genuine new results now record completion time, and matching captured-frame masks have a bounded 1.5–5-second lifetime measured from completion according to actual analysis duration. Fast results retain the normal 1.5-second stall limit; face tracking still expires by capture age.

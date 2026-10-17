@@ -8,7 +8,7 @@ const suites = [
   "verify-studio.cjs", "verify-backgrounds.cjs", "verify-offline.cjs",
   "verify-advanced.cjs", "verify-photo-workbench.cjs", "verify-session.cjs",
   "verify-native-report.cjs", "verify-offline-tools.cjs",
-  "verify-shipping-camera.cjs", "verify-shipping-photo.cjs",
+  "verify-shipping-camera.cjs", "verify-ai-startup.cjs", "verify-shipping-photo.cjs",
   "verify-shipping-session.cjs", "verify-shipping-shell.cjs",
   "verify-person-worker.cjs", "verify-frame-pairing.cjs",
   "verify-background-compositor.cjs", "verify-live-backgrounds.cjs",

@@ -59,7 +59,7 @@
       <a class="nav-button nav-link native-link" href="./native-capabilities.html"><svg class="icon"><use href="#i-chip"/></svg><span>Windows companion</span></a>
       <div class="nav-spacer"></div>
       <div class="local-note"><svg class="icon"><use href="#i-shield"/></svg><b>A little more peace of mind.</b><p>Your camera preview is processed on your device.</p><a href="./privacy.html">Privacy policy <span aria-hidden="true">↗</span></a></div>
-      <span class="nav-version">MEETINGLENS · V3.2.1</span>
+      <span class="nav-version">MEETINGLENS · V3.2.2</span>
     </nav>
 
     <main class="main-content" id="mainContent">
@@ -136,6 +136,7 @@
               <p>Load face landmarks and person segmentation for framing, depth blur and face refinement.</p>
               <button class="wide-button" id="enableVisionButton" type="button"><svg class="icon"><use href="#i-download"/></svg>Load local AI models</button>
               <p class="status-copy" id="visionStatus" role="status" aria-live="polite">Models are not loaded. All live effects are off.</p>
+              <details id="visionDiagnostics" hidden><summary>AI diagnostic details</summary><p class="status-copy" id="visionDiagnosticText" style="white-space: pre-line; overflow-wrap: anywhere"></p></details>
             </article>
             <div class="switch-row"><div><b>Auto Framing</b><small>Gently follow your face and keep it centered</small></div><button class="switch" id="autoFrameSwitch" type="button" role="switch" aria-checked="false" aria-label="Auto Framing"><i></i></button></div>
             <p class="tracking-status" id="trackingStatus" role="status">Face tracking is off</p>

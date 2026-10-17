@@ -67,7 +67,8 @@
   let pairedVisionFrame = null, pendingVisionFrame = null, pairedVisionTimestamp = 0, comparisonSource = null;
   let effectSampleStart = 0, effectSampleFrames = 0, lastEffectFrameAt = 0, measuredEffectFps = null;
   let visionReady = false, visionLoading = false, visionCapabilities = {}, analysis = null, analysisCompletedAt = 0, analysisValidForMs = 1500, visionPending = false, visionGeneration = 0;
-  let lastVisionAt = -Infinity, demoRevision = 0, analyzedDemoRevision = -1, trackingCenter = null, visionRetryTimer = null, replacementRendered = false;
+  let lastVisionAt = -Infinity, demoRevision = 0, analyzedDemoRevision = -1, trackingCenter = null, visionRetryTimer = null, replacementRendered = false, blurRendered = false;
+  let visionStartupError = "", visionFrameError = "", visionModelErrors = {};
   let sessionTools = null;
   const LIVE_ANALYSIS_MAX_AGE = 1500;
   const panelText = { studio: ["Your studio", "SESSION OVERVIEW"], looks: ["Light & color", "NATURAL ENHANCEMENT"],
@@ -76,7 +77,7 @@
     effects: ["Live effects", "LOCAL CAMERA INTELLIGENCE"], session: ["Voice, QR & backup", "SESSION TOOLS"] };
 
   function resetVision() {
-    visionGeneration++; analysis = null; analysisCompletedAt = 0; analysisValidForMs = LIVE_ANALYSIS_MAX_AGE; trackingCenter = null; lastVisionAt = -Infinity; analyzedDemoRevision = -1; replacementRendered = false;
+    visionGeneration++; analysis = null; analysisCompletedAt = 0; analysisValidForMs = LIVE_ANALYSIS_MAX_AGE; trackingCenter = null; lastVisionAt = -Infinity; analyzedDemoRevision = -1; replacementRendered = blurRendered = false;
     pairedVisionFrame = pendingVisionFrame = comparisonSource = null; pairedVisionTimestamp = 0;
     resetEffectFrameRate();
     for (const frame of [...liveAnalysisFrames, rawEffectCanvas, processedEffectCanvas]) clearAnalysisFrame(frame);
@@ -101,7 +102,7 @@
   function updateFrameRateLabel() {
     if (phase !== "live") { text("fpsLabel", "Sample · still image"); return; }
     if (cameraMuted) { text("fpsLabel", "Signal paused"); return; }
-    const personEffects = effectsActive() && (state.backgroundBlur || state.portraitLight ||
+    const personEffects = visionCapabilities.segmentation && effectsActive() && (state.backgroundBlur || state.portraitLight ||
       (state.backgroundReplace && sceneImages.get(state.scene)?.status === "ready"));
     if (personEffects) {
       const paired = pairedVisionFrame && currentAnalysis()?.timestamp === pairedVisionTimestamp;
@@ -118,7 +119,14 @@
     try { frame.getContext("2d", { alpha: false }).drawImage(source, 0, 0, frame.width, frame.height); return frame; }
     catch { clearAnalysisFrame(frame); return null; }
   }
-  function effectsActive() { return visionReady && !state.browserBasic && !state.originalHeld && state.enhancement > 0 && (state.autoFrame || state.backgroundBlur || state.portraitLight || state.refinement || state.teeth || (state.backgroundReplace && phase === "live")); }
+  function effectsActive() { return visionReady && !state.browserBasic && !state.originalHeld && state.enhancement > 0 &&
+    ((visionCapabilities.face && (state.autoFrame || state.refinement || state.teeth)) ||
+      (visionCapabilities.segmentation && (state.backgroundBlur || state.portraitLight || (state.backgroundReplace && phase === "live")))); }
+  function backgroundBlurApplied() {
+    const fresh = currentAnalysis();
+    return Boolean(blurRendered && state.backgroundBlur && effectsActive() && visionCapabilities.segmentation && fresh?.mask &&
+      (phase !== "live" || (pairedVisionFrame && pairedVisionTimestamp === fresh.timestamp)));
+  }
   function currentAnalysis() {
     // A completed person mask uses its retained camera frame, so its lifetime
     // starts on completion. Face-only tracking still follows capture age.
@@ -129,15 +137,48 @@
     if (phase === "live" && analysis && (!Number.isFinite(freshnessAt) || performance.now() - freshnessAt > validForMs)) return null;
     return analysis;
   }
+  function visionErrorText(value) {
+    return String(value?.message || value || "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 1200);
+  }
+  function renderVisionDiagnostics() {
+    const lines = [];
+    if (visionStartupError) lines.push(`Local AI: ${visionStartupError}`);
+    if (visionModelErrors.segmentation) lines.push(`Background detection: ${visionModelErrors.segmentation}`);
+    if (visionModelErrors.face) lines.push(`Face tracking: ${visionModelErrors.face}`);
+    if (visionFrameError) lines.push(`Frame processing: ${visionFrameError}`);
+    text("visionDiagnosticText", lines.join("\n")); hide("visionDiagnostics", lines.length === 0);
+  }
+  function recordVisionStatus(status) {
+    if (status.state === "loading") { visionStartupError = visionFrameError = ""; visionModelErrors = {}; }
+    const capabilities = status.capabilities;
+    if (capabilities) {
+      for (const name of ["face", "segmentation"]) {
+        if (capabilities[name]) delete visionModelErrors[name];
+        else if (capabilities.errors?.[name]) visionModelErrors[name] = visionErrorText(capabilities.errors[name]);
+      }
+    }
+    if (status.error) {
+      if (status.state === "recovering") visionFrameError = visionErrorText(status.error);
+      else visionStartupError = visionErrorText(status.error);
+    } else if (status.state === "ready") { visionStartupError = visionFrameError = ""; }
+    renderVisionDiagnostics();
+  }
+  function loadRequiredVision() {
+    if (phase !== "live" || visionLoading || disposed || state.privacy || state.browserBasic || state.originalHeld || state.enhancement <= 0 || document.hidden || cameraMuted) return;
+    const face = state.autoFrame || state.refinement || state.teeth;
+    const segmentation = state.backgroundBlur || state.portraitLight || state.backgroundReplace;
+    if ((face || segmentation) && (!visionReady || (face && !visionCapabilities.face) || (segmentation && !visionCapabilities.segmentation))) enableVision();
+  }
   async function enableVision() {
     if (visionLoading || (visionReady && visionCapabilities.face && visionCapabilities.segmentation)) return;
-    if (!window.MeetingLensVision) { text("visionStatus", "Local vision files are unavailable. Manual controls still work."); return; }
+    if (!window.MeetingLensVision) { text("visionStatus", "Local vision files are unavailable. Manual controls still work."); recordVisionStatus({ state: "error", error: "The local vision script did not load. Check assets/js/vision-effects.js in this deployment." }); updateLiveBackgroundStatus(); return; }
     visionLoading = true; visionReady = false; resetVision(); updateControls();
     try {
       visionCapabilities = await window.MeetingLensVision.init({ onStatus: status => {
+        recordVisionStatus(status);
         text("visionStatus", status.message || "Checking local models…");
+        if (status.capabilities) visionCapabilities = { ...status.capabilities };
         if (status.capabilities && status.state === "ready") {
-          visionCapabilities = { ...status.capabilities };
           visionReady = Boolean(visionCapabilities.face || visionCapabilities.segmentation);
           updateControls();
         }
@@ -145,14 +186,14 @@
       } });
       visionReady = Boolean(visionCapabilities.face || visionCapabilities.segmentation);
       if (visionReady) { resetVision(); requestRender(); }
-    } catch { text("visionStatus", "Local AI could not start. Check WebGL support or use manual controls."); }
+    } catch (error) { text("visionStatus", "Local AI could not start. Check AI diagnostic details below."); recordVisionStatus({ state: "error", error }); }
     finally { visionLoading = false; updateControls(); }
   }
   function scheduleAnalysis(source) {
     if (!effectsActive() || visionPending || disposed || state.privacy || document.hidden || cameraMuted) return;
     const now = performance.now();
-    const live = phase === "live", face = state.autoFrame || state.refinement || state.teeth;
-    const segmentation = state.backgroundBlur || state.portraitLight || (state.backgroundReplace && live);
+    const live = phase === "live", face = Boolean(visionCapabilities.face && (state.autoFrame || state.refinement || state.teeth));
+    const segmentation = Boolean(visionCapabilities.segmentation && (state.backgroundBlur || state.portraitLight || (state.backgroundReplace && live)));
     const interval = segmentation ? Math.max(face ? 125 : 33, Number(visionCapabilities.analysisIntervalMs) || 125) : 200;
     if (live ? now - lastVisionAt < interval : analyzedDemoRevision === demoRevision) return;
     const requestFrame = live && segmentation ? freezeAnalysisFrame(source) : null;
@@ -175,19 +216,20 @@
         if (previous && previous !== pairedVisionFrame) clearAnalysisFrame(previous);
       }
       analysis = result; analysisCompletedAt = performance.now();
+      if (visionFrameError) { visionFrameError = ""; renderVisionDiagnostics(); }
       analysisValidForMs = Math.max(LIVE_ANALYSIS_MAX_AGE, Math.min(5000, (analysisCompletedAt - result.timestamp) * 2.5));
       if (requestFrame) { if (result.mask && !state.originalHeld) recordEffectFrame(); else resetEffectFrameRate(); }
       const slow = result.mask && analysisCompletedAt - result.timestamp > LIVE_ANALYSIS_MAX_AGE;
       text("trackingStatus", (result.face ? "Face located · local tracking active" : state.autoFrame ? "No face located · using the wider frame" : "Local person effects active") + (slow ? " · slower processing on this device" : ""));
       requestRender();
-    }).catch(() => { if (generation === visionGeneration && !state.privacy && !document.hidden && !disposed) text("trackingStatus", "Frame analysis paused. Manual preview remains available."); }).finally(() => {
+    }).catch(error => { if (generation === visionGeneration && !state.privacy && !document.hidden && !disposed) { text("trackingStatus", "Frame analysis paused. Manual preview remains available."); recordVisionStatus({ state: "recovering", error }); } }).finally(() => {
       if (requestFrame && requestFrame !== pairedVisionFrame) clearAnalysisFrame(requestFrame);
       if (pendingVisionFrame === requestFrame) pendingVisionFrame = null;
       visionPending = false; if (generation !== visionGeneration) requestRender();
     });
   }
   function prepareEffects(source) {
-    replacementRendered = false; comparisonSource = source;
+    replacementRendered = blurRendered = false; comparisonSource = source;
     scheduleAnalysis(source);
     const freshAnalysis = currentAnalysis();
     if (!effectsActive() || !freshAnalysis) {
@@ -195,8 +237,10 @@
       return source;
     }
     const scene = sceneImages.get(state.scene);
-    const backgroundImage = phase === "live" && state.backgroundReplace && scene?.status === "ready" ? scene.image : null;
-    if (phase === "live" && (backgroundImage || state.backgroundBlur || state.portraitLight)) {
+    const backgroundImage = visionCapabilities.segmentation && phase === "live" && state.backgroundReplace && scene?.status === "ready" ? scene.image : null;
+    const backgroundBlur = visionCapabilities.segmentation && state.backgroundBlur;
+    const portraitLight = visionCapabilities.segmentation && state.portraitLight;
+    if (phase === "live" && (backgroundImage || backgroundBlur || portraitLight)) {
       if (!freshAnalysis.mask || !pairedVisionFrame || pairedVisionTimestamp !== freshAnalysis.timestamp) return source;
       // Hold this complete frame until the next matching result arrives. This
       // adds inference latency, but cannot erase a newly moved arm with an old
@@ -212,10 +256,11 @@
       const strength = state.enhancement / 100;
       window.MeetingLensVision.process(rawEffectCanvas, processedEffectCanvas, { analysis: freshAnalysis,
         backgroundImage, backgroundSoftness: backgroundImage ? state.sceneStrength / 100 * 8 * strength : 0,
-        backgroundBlur: state.backgroundBlur ? state.blurAmount * strength : 0,
-        portraitLight: state.portraitLight ? state.portraitLightAmount / 100 * strength : 0,
-        skinSmoothing: state.refinement ? .35 * strength : 0, teethWhitening: state.teeth ? .35 * strength : 0 });
+        backgroundBlur: backgroundBlur ? state.blurAmount * strength : 0,
+        portraitLight: portraitLight ? state.portraitLightAmount / 100 * strength : 0,
+        skinSmoothing: visionCapabilities.face && state.refinement ? .35 * strength : 0, teethWhitening: visionCapabilities.face && state.teeth ? .35 * strength : 0 });
       replacementRendered = Boolean(backgroundImage && window.MeetingLensVision.lastBackgroundApplied);
+      blurRendered = Boolean(!backgroundImage && backgroundBlur && state.blurAmount > 0 && freshAnalysis.mask);
       return processedEffectCanvas;
     } catch { return source; }
   }
@@ -290,7 +335,7 @@
   }
   function updateLabels() {
     const live = phase === "live";
-    text("effectLabel", state.browserBasic ? "Basic preview · app effects bypassed" : state.originalHeld || state.enhancement === 0 ? "Original · effects bypassed" : `${lookNames[state.look]}${state.backgroundBlur && visionReady ? " · background blur" : ""} · ${live ? replacementRendered ? sceneNames[state.scene] : "Your camera background" : sceneNames[state.scene]}`);
+    text("effectLabel", state.browserBasic ? "Basic preview · app effects bypassed" : state.originalHeld || state.enhancement === 0 ? "Original · effects bypassed" : `${lookNames[state.look]}${backgroundBlurApplied() ? " · background blur" : ""} · ${live ? replacementRendered ? sceneNames[state.scene] : "Your camera background" : sceneNames[state.scene]}`);
     text("lightSummary", state.enhancement === 0 ? "Effects bypassed" : `${lookNames[state.look]} · ${state.enhancement}% intensity`);
     text("frameSummary", `${state.frame[0].toUpperCase() + state.frame.slice(1)} · ${state.zoom}% crop`);
     text("lightState", state.enhancement === 0 ? "Original" : "Custom");
@@ -340,25 +385,31 @@
     updateLiveBackgroundStatus();
   }
   function updateLiveBackgroundStatus() {
-    const scene = sceneImages.get(state.scene), live = phase === "live";
+    const scene = sceneImages.get(state.scene), live = phase === "live", requested = state.backgroundReplace || state.backgroundBlur;
     let message, error = false;
     if (state.privacy) message = "Background effects stopped · Privacy Shield is active.";
     else if (state.browserBasic) message = "Basic preview is on. Turn it off in Camera & capture to use background effects.";
     else if (state.originalHeld) message = "Showing your original camera background while Original is held.";
-    else if (state.enhancement === 0 && live && state.backgroundReplace) message = "Intensity is 0%. Increase the preview intensity to apply your selected background.";
-    else if (!live) message = state.backgroundReplace ? `${sceneNames[state.scene]} selected. Start your camera to apply it behind you.` : "Choose a scene, then start your camera. Background detection loads locally when needed.";
-    else if (!state.backgroundReplace) message = state.backgroundBlur ? "Your camera background is selected with blur. Choose a scene to replace it." : "Your real camera background is shown. Click any scene below to replace it.";
+    else if (state.enhancement === 0 && live && requested) message = "Intensity is 0%. Increase the preview intensity to apply background effects.";
+    else if (!live) message = state.backgroundReplace ? `${sceneNames[state.scene]} selected. Start your camera to apply it behind you.` : state.backgroundBlur ? "Background blur selected. Start your camera to apply it." : "Choose a scene, then start your camera. Background detection loads locally when needed.";
+    else if (!requested) message = "Your real camera background is shown. Click any scene below to replace it.";
     else if (visionLoading) message = "Loading local background detection… Your camera room is visible until it is ready.";
-    else if (!visionReady || !visionCapabilities.segmentation) { message = "Background detection is unavailable. Your camera room is shown. Select Retry background or check WebGL support in Edge or Chrome."; error = true; }
+    else if (!visionReady || !visionCapabilities.segmentation) { const cause = visionModelErrors.segmentation || visionStartupError; message = "Background detection is unavailable. Your camera room is shown. " + (cause ? `Cause: ${cause} ` : "") + "Select Retry background to try again."; error = true; }
+    else if (!state.backgroundReplace) {
+      if (state.blurAmount === 0) message = "Blur depth is 0. Increase blur depth in Live effects to soften your camera background.";
+      else if (backgroundBlurApplied()) message = "Live background blur · processed on this device";
+      else if (!currentAnalysis()?.mask) message = analysis ? "Background tracking is delayed. Your camera room is shown until detection recovers." : "Finding you in the camera… Your camera room is shown until detection is ready.";
+      else { message = "Background blur could not render. Your camera room is shown. Select Retry background to try again."; error = true; }
+    }
     else if (scene?.status === "failed") { message = "This background image could not load. Choose another scene or select Retry background."; error = true; }
     else if (scene?.status !== "ready") message = `Loading ${sceneNames[state.scene]}… Your camera room is shown until it is ready.`;
     else if (!currentAnalysis()?.mask) message = analysis ? "Background tracking is delayed. Your camera room is shown until detection recovers." : "Finding you in the camera… Your camera room is shown until detection is ready.";
     else if (replacementRendered) message = `Live background: ${sceneNames[state.scene]} · processed on this device`;
     else { message = "Background replacement could not render. Your camera room is shown. Try another scene or retry."; error = true; }
     const status = $("#liveBackgroundStatus"); if (status) { if (status.textContent !== message) status.textContent = message; status.dataset.level = error ? "error" : "info"; }
-    hide("retryBackgroundButton", !live || !state.backgroundReplace || visionLoading || !error || state.browserBasic || state.privacy);
+    hide("retryBackgroundButton", !live || !requested || visionLoading || !error || state.browserBasic || state.privacy);
     if (live) {
-      const label = state.browserBasic ? "Basic preview · app effects bypassed" : state.originalHeld || state.enhancement === 0 ? "Original · effects bypassed" : `${lookNames[state.look]} · ${replacementRendered ? sceneNames[state.scene] : state.backgroundBlur && visionReady ? "background blur" : "Your camera background"}`;
+      const label = state.browserBasic ? "Basic preview · app effects bypassed" : state.originalHeld || state.enhancement === 0 ? "Original · effects bypassed" : `${lookNames[state.look]} · ${replacementRendered ? sceneNames[state.scene] : backgroundBlurApplied() ? "background blur" : "Your camera background"}`;
       const element = $("#effectLabel"); if (element && element.textContent !== label) element.textContent = label;
     }
   }
@@ -367,7 +418,7 @@
     if (sceneImages.get(scene)?.status === "failed") sceneImages.delete(scene);
     applyChanges({ scene, backgroundReplace: true }, phase === "live" ? "Applying your selected camera background…" : "Background selected. It will apply when you start your camera.");
     loadScene(scene);
-    if (phase === "live" && !state.browserBasic && state.enhancement > 0 && (!visionReady || !visionCapabilities.segmentation)) enableVision();
+    loadRequiredVision();
     updateLiveBackgroundStatus();
   }
   function loadScene(scene) {
@@ -442,7 +493,7 @@
   }
   function drawFrame() {
     if (state.privacy || document.hidden || disposed) return;
-    if (phase === "starting" || cameraMuted) { replacementRendered = false; clearPreview(); updateLiveBackgroundStatus(); return; }
+    if (phase === "starting" || cameraMuted) { replacementRendered = blurRendered = false; clearPreview(); updateLiveBackgroundStatus(); return; }
     let source; if (phase === "live") { if (video.readyState < 2) return; source = video; } else { drawDemoSource(); source = demoCanvas; }
     source = prepareEffects(source);
     updateLiveBackgroundStatus();
@@ -496,7 +547,7 @@
       activeStream = acquired; video.srcObject = acquired;
       track.addEventListener("ended", () => { if (activeStream !== acquired) return; stopCamera(false, "error"); cameraError("The camera disconnected or stopped. Reconnect it and select Retry."); refreshDevices(); });
       track.addEventListener("mute", () => { if (activeStream !== acquired || phase !== "live") return; cameraMuted = true; cancelCapture(); resetVision(); clearPreview(); updateCameraUI(); requestRender(); });
-      track.addEventListener("unmute", () => { if (activeStream === acquired) { cameraMuted = false; updateCameraUI(); requestRender(); } });
+      track.addEventListener("unmute", () => { if (activeStream === acquired) { cameraMuted = false; updateCameraUI(); requestRender(); loadRequiredVision(); } });
       let playTimeout;
       try {
         await Promise.race([video.play(), new Promise((_, reject) => {
@@ -505,7 +556,7 @@
       } finally { clearTimeout(playTimeout); }
       if (!requestIsCurrent(id) || activeStream !== acquired) { stopTracks(acquired); if (video.srcObject === acquired) video.srcObject = null; if (activeStream === acquired) activeStream = null; return; }
       phase = "live"; cameraMuted = Boolean(track.muted); updateControls(); updateDeviceCapabilities(); requestRender();
-      if (state.backgroundReplace && !state.browserBasic && state.enhancement > 0 && (!visionReady || !visionCapabilities.segmentation)) enableVision();
+      loadRequiredVision();
       await refreshDevices();
       if (requestIsCurrent(id)) showToast(usedFallback ? "Requested camera mode was unavailable. The driver default is shown instead." : "Camera connected. The microphone stays off until you start it separately.");
     } catch (error) { stopTracks(acquired); if (id !== requestId) return; releaseCamera(); phase = "error"; cameraError(errorMessage(error)); updateControls(); requestRender(); }
@@ -552,6 +603,8 @@
   }
   function applyChanges(changes, message) {
     const visionChanged = ["autoFrame", "backgroundBlur", "backgroundReplace", "portraitLight", "refinement", "teeth", "browserBasic"].some(key => Object.hasOwn(changes, key) && changes[key] !== state[key]);
+    const requestModels = ["autoFrame", "backgroundBlur", "backgroundReplace", "portraitLight", "refinement", "teeth"].some(key => changes[key] === true && !state[key]) ||
+      (state.browserBasic && changes.browserBasic === false) || (state.enhancement <= 0 && changes.enhancement > 0);
     const oldScene = state.scene, oldStrength = state.sceneStrength, oldQuality = state.quality, oldResolution = state.requestedResolution, oldFps = state.requestedFps; Object.assign(state, sanitize({ ...state, ...changes }));
     if (visionChanged) resetVision();
     if (oldScene !== state.scene || oldStrength !== state.sceneStrength) demoDirty = true;
@@ -561,7 +614,7 @@
     if (qualityChanged) { cancelCapture(); resizeOutput(); }
     updateControls(); saveSettings(); requestRender(); if (message) showToast(message);
     if (restart) { stopCamera(false); startCamera(); }
-    else if (phase === "live" && state.backgroundReplace && !state.browserBasic && state.enhancement > 0 && (!visionReady || !visionCapabilities.segmentation) && (changes.backgroundReplace === true || changes.browserBasic === false || Object.hasOwn(changes, "enhancement"))) enableVision();
+    else if (requestModels) loadRequiredVision();
   }
   function applyProfile(name) {
     const profiles = { natural: { look: "natural", brightness: 56, contrast: 54, saturation: 53, temperature: 0, vignette: 8, enhancement: 65, frame: "conversation", zoom: 100, softness: false }, lowlight: { look: "warm", brightness: 68, contrast: 50, saturation: 52, temperature: 3, vignette: 0, enhancement: 65, frame: "conversation", zoom: 100, softness: true }, teaching: { look: "natural", brightness: 58, contrast: 56, saturation: 52, temperature: 0, vignette: 0, enhancement: 65, frame: "teaching", zoom: 100, softness: false }, presentation: { look: "clear", brightness: 56, contrast: 62, saturation: 48, temperature: 0, vignette: 6, enhancement: 65, frame: "wide", zoom: 100, softness: false } };
@@ -598,7 +651,7 @@
       presets.push(...imported.map(item => ({ ...item, id: makeId() }))); writeStorage(PRESETS_KEY, presets); renderPresets(); showToast(`${imported.length} setup${imported.length === 1 ? "" : "s"} imported.`);
     } catch (error) { showToast(error instanceof SyntaxError ? "This file is not valid JSON. Choose an exported MeetingLens setup file." : error.message || "The setup file could not be read."); } finally { input.value = ""; }
   }
-  function setOriginal(held) { if (state.originalHeld === held || state.privacy) return; state.originalHeld = held; resetEffectFrameRate(); updateControls(); requestRender(); }
+  function setOriginal(held) { if (state.originalHeld === held || state.privacy) return; state.originalHeld = held; resetEffectFrameRate(); updateControls(); requestRender(); if (!held) loadRequiredVision(); }
   function isEditing(event) { return Boolean(event.target?.closest?.("input,select,textarea,[contenteditable='true']")); }
   function updateConnection() { text("offlineLabel", navigator.onLine ? "On-device processing" : "Offline · cached studio"); $("#offlineLabel")?.classList.toggle("offline", !navigator.onLine); hide("offlineLabel", navigator.onLine); }
   function registerEvents() {
@@ -608,7 +661,7 @@
     $$(".scene-button").forEach(button => button.addEventListener("click", () => selectBackground(button.dataset.scene)));
     on("replaceBackgroundSwitch", "click", () => { if (state.backgroundReplace) applyChanges({ backgroundReplace: false }, "Selected scene disabled. Your camera room is shown."); else selectBackground(state.scene); });
     on("useRealBackgroundButton", "click", () => applyChanges({ backgroundReplace: false, backgroundBlur: false }, "Your real camera background is selected."));
-    on("retryBackgroundButton", "click", () => selectBackground(state.scene));
+    on("retryBackgroundButton", "click", () => state.backgroundReplace ? selectBackground(state.scene) : enableVision());
     $$(".segment[data-frame]").forEach(button => button.addEventListener("click", () => applyChanges({ frame: button.dataset.frame })));
     for (const key of Object.keys(limits)) on(`${key}Range`, "input", event => applyChanges({ [key]: Number(event.target.value) }));
     for (const [id, key] of Object.entries({ softnessSwitch: "softness", frameSwitch: "showFrame", eyeLineSwitch: "eyeLine", mirrorSwitch: "mirror", gridSwitch: "grid", splitSwitch: "split", autoPauseSwitch: "autoPause" })) on(id, "click", () => applyChanges({ [key]: !state[key] }));
@@ -636,7 +689,7 @@
     document.addEventListener("keydown", event => { if (isEditing(event) || event.repeat) return; if (event.altKey && event.key.toLowerCase() === "p") { event.preventDefault(); activatePrivacyShield(); } else if (event.altKey && event.key.toLowerCase() === "s") { event.preventDefault(); captureSnapshot(); } else if (!event.ctrlKey && !event.altKey && !event.metaKey && event.key.toLowerCase() === "c") { event.preventDefault(); setOriginal(true); } });
     document.addEventListener("keyup", event => { if (event.key.toLowerCase() === "c") setOriginal(false); }); window.addEventListener("blur", () => setOriginal(false)); on("cameraVideo", "loadedmetadata", updateCameraUI);
     navigator.mediaDevices?.addEventListener?.("devicechange", () => { clearTimeout(deviceRefreshTimer); deviceRefreshTimer = setTimeout(handleDeviceChange, 250); });
-    document.addEventListener("visibilitychange", () => { setOriginal(false); cancelCapture(); if (document.hidden) { if (phase === "starting" || (phase === "live" && state.autoPause)) stopCamera(false, "paused"); else { resetVision(); clearPreview(); if (rafId) cancelAnimationFrame(rafId); rafId = 0; sampleStart = 0; sampleFrames = 0; measuredFps = null; } } else { updateCameraUI(); requestRender(); } });
+    document.addEventListener("visibilitychange", () => { setOriginal(false); cancelCapture(); if (document.hidden) { if (phase === "starting" || (phase === "live" && state.autoPause)) stopCamera(false, "paused"); else { resetVision(); clearPreview(); if (rafId) cancelAnimationFrame(rafId); rafId = 0; sampleStart = 0; sampleFrames = 0; measuredFps = null; } } else { updateCameraUI(); requestRender(); loadRequiredVision(); } });
     window.addEventListener("pagehide", () => { sessionTools?.stopPrivateResources("App closed"); stopCamera(false); disposed = true; clearTimeout(deviceRefreshTimer); for (const url of objectUrls) URL.revokeObjectURL(url); objectUrls.clear(); });
     window.addEventListener("pageshow", event => { if (event.persisted) { disposed = false; phase = "demo"; updateControls(); requestRender(); } });
     window.addEventListener("beforeinstallprompt", event => { event.preventDefault(); deferredInstallPrompt = event; hide("installButton", false); });

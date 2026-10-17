@@ -34,6 +34,12 @@
   function status(state, message, details = {}) {
     try { statusCallback({ state, message, ...details, capabilities: { ...availability } }); } catch { /* UI callbacks cannot stop capture. */ }
   }
+  function readyMessage() {
+    if (availability.face && availability.segmentation) return `On-device AI ready · ${availability.backend} · no camera uploads`;
+    if (availability.segmentation) return `Background detection ready · ${availability.backend}. Face tracking is unavailable.`;
+    if (availability.face) return "Face tracking ready. Background detection is unavailable. Camera and manual controls still work.";
+    return "AI models could not load. Camera and manual controls still work.";
+  }
   function request(type, payload = {}, transfer = [], timeout = 30000) {
     return new Promise((resolve, reject) => {
       const id = nextID++;
@@ -82,8 +88,7 @@
             const previous = availability;
             availability = { ...event.data.capabilities };
             if (previous.backend !== availability.backend || previous.segmentation !== availability.segmentation || previous.face !== availability.face) {
-              status(availability.face || availability.segmentation ? "ready" : "unavailable",
-                availability.segmentation ? `On-device AI ready · ${availability.backend} · no camera uploads` : "Background detection is unavailable. Other available controls still work.");
+              status(availability.face || availability.segmentation ? "ready" : "unavailable", readyMessage());
             }
           }
           if (event.data.error) task.reject(new Error(event.data.error)); else task.resolve(event.data);
@@ -93,7 +98,7 @@
         if (disposed || loadingWorker !== worker) return { ...availability };
         availability = loaded.capabilities;
         const ready = availability.face || availability.segmentation;
-        status(ready ? "ready" : "unavailable", ready ? `On-device AI ready · ${availability.backend} · no camera uploads` : "AI models could not load. Camera and manual controls still work.");
+        status(ready ? "ready" : "unavailable", readyMessage());
       } catch (error) { if (!disposed && (!loadingWorker || loadingWorker === worker)) failWorker(error, loadingWorker); }
       return { ...availability };
     })();

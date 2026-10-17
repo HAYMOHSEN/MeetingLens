@@ -1,0 +1,24 @@
+MeetingLens 3.2.2 update for HAYMOHSEN/MeetingLens
+
+This small package updates your existing 3.2.1 repository. It is not a full app or a Windows installer. Keep all existing images, icons, models, WASM files and other repository files.
+
+1. Extract this ZIP on your computer. Do not upload the ZIP itself.
+2. Open https://github.com/HAYMOHSEN/MeetingLens and choose Add file > Upload files.
+3. Upload the extracted files and folders INTO THE REPOSITORY ROOT. Replace the matching files, preserving the assets/js, scripts and docs/validation paths. Do not place them inside another MeetingLens folder or inside scripts.
+4. Commit the update to main. Your existing GitHub Pages workflow publishes pushes to main. Wait for the deployment to succeed in Actions.
+5. Open https://haymohsen.github.io/MeetingLens/ online. Apply Update ready > restart studio if shown. Close and reopen the installed app if needed. Verify the navigation shows V3.2.2.
+6. Start camera. Keep Basic preview off and enhancement intensity above zero to use effects. Saved effect settings now load their models automatically.
+7. If AI still fails, open Live effects > AI diagnostic details and copy its exact error text. The Background panel also shows the relevant detection failure.
+
+What changed
+- Saved blur, lighting, framing and refinement load their models on camera start.
+- Unrelated sliders do not restart partially working models.
+- Working face effects continue when the background model is unavailable.
+- Background blur status requires a usable, rendered person mask.
+- Startup, model and frame errors are shown locally as text.
+
+52 focused browser checks passed, including 18 startup checks and a bundled-model background startup check. The real-model test used explicitly configured software graphics and a canvas MediaStream; physical Windows webcam behavior is still unverified. The exact AI failure on your browser remains unconfirmed. WebGL2 is still required, including for the CPU model bridge.
+
+GitHub rejected automated repository writes, so this update has NOT been deployed and no pull request was created.
+
+Validation record: docs/validation/ai-startup-3.2.2.md

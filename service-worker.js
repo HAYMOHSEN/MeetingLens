@@ -1,7 +1,7 @@
 "use strict";
 const BASE = self.registration.scope;
 const CACHE_PREFIX = `meetinglens-shell-${BASE}-`;
-const CACHE_NAME = `${CACHE_PREFIX}v3.2.1`;
+const CACHE_NAME = `${CACHE_PREFIX}v3.2.2`;
 const url = path => new URL(path, BASE).href;
 const APP_SHELL = [
   "./",
@@ -47,7 +47,7 @@ self.addEventListener("install", event => {
     await cache.addAll(APP_SHELL);
     // The manual studio remains installable if model storage is unavailable.
     // Successful model downloads are available offline; inference still needs
-    // the user's explicit Load local AI models action.
+    // a camera session with saved effects or the Load local AI models action.
     await Promise.allSettled(MODEL_FILES.map(file => cache.add(file)));
   }));
 });
